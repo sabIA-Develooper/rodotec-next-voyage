@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Shield, Zap, Award, Users } from "lucide-react";
+import { ArrowRight, Shield, Zap, Award, Users, Sparkles, Cpu, Recycle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import SideNav from "@/components/SideNav";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import heroImage from "@/assets/hero-truck.jpg";
 import productCarroceria from "@/assets/product-carroceria.jpg";
 import productReboque from "@/assets/product-reboque.jpg";
@@ -71,19 +73,26 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <SideNav />
 
-      {/* Hero Section */}
-      <section className="relative h-[600px] overflow-hidden md:h-[700px]">
+      {/* Hero Section with 42° Diagonal */}
+      <section className="relative h-[600px] overflow-hidden md:h-[700px] lg:ml-24">
         <div className="absolute inset-0">
           <img
             src={heroImage}
             alt="Caminhão RODOTEC ao entardecer"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/70 to-transparent" />
+          {/* 42° diagonal mask - autoral */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/75 to-transparent"
+            style={{
+              clipPath: "polygon(0 0, 100% 0, 85% 100%, 0 100%)"
+            }}
+          />
         </div>
         
-        <div className="relative container mx-auto flex h-full items-center px-4">
+        <div className="relative container mx-auto flex h-full items-center px-4 lg:px-8">
           <div className="max-w-2xl animate-fade-in space-y-6">
             <h1 className="font-heading text-5xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
               Engenharia que move{" "}
@@ -108,13 +117,19 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Chevron Pattern Overlay */}
-        <div className="chevron-pattern absolute bottom-0 left-0 right-0 h-24 opacity-30" />
+        {/* Chevron Pattern Overlay - 42° angle */}
+        <div 
+          className="absolute bottom-0 right-0 h-32 w-full opacity-20"
+          style={{
+            background: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 L40 0 L40 20 L20 40 Z' fill='%231565F5' fill-opacity='0.15' transform='rotate(42 40 40)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "repeat"
+          }}
+        />
       </section>
 
       {/* Products Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="py-20 lg:ml-24">
+        <div className="container mx-auto px-4 lg:px-8">
           <div className="mb-12 text-center">
             <h2 className="mb-4 font-heading text-4xl font-bold text-foreground md:text-5xl">
               Produtos em Destaque
@@ -147,35 +162,87 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Technology Section */}
-      <section className="bg-steel/5 py-20">
-        <div className="container mx-auto px-4">
+      {/* Technology Mosaic - Asymmetric Grid */}
+      <section className="bg-navy py-20 lg:ml-24">
+        <div className="container mx-auto px-4 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 font-heading text-4xl font-bold text-foreground md:text-5xl">
-              Tecnologia & Qualidade
+            <h2 className="mb-4 font-heading text-4xl font-bold text-white md:text-5xl">
+              Tecnologia & Inovação
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Inovação em cada etapa do processo produtivo
+            <p className="text-lg text-white/70">
+              Excelência em cada processo produtivo
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {technologies.map((tech, index) => (
-              <div
-                key={index}
-                className="group rounded-2xl border border-steel/20 bg-card p-6 transition-all hover:border-rodotec-blue/40 hover:shadow-lg"
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-rodotec-blue/10 text-rodotec-blue transition-colors group-hover:bg-rodotec-blue group-hover:text-white">
-                  <tech.icon className="h-6 w-6" />
+          {/* Asymmetric Mosaic Grid - Autoral Layout */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:grid-rows-2">
+            {/* Large Card 1 - Spans 2 columns */}
+            <Card className="group relative col-span-1 overflow-hidden rounded-2xl border-steel/40 bg-steel/60 backdrop-blur-sm transition-all hover:border-rodotec-blue/60 md:col-span-2 md:row-span-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-rodotec-blue/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="relative h-full p-8 flex flex-col justify-between">
+                <div>
+                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-rodotec-blue/20 text-rodotec-blue">
+                    <Sparkles className="h-8 w-8" />
+                  </div>
+                  <h3 className="mb-3 font-heading text-2xl font-bold text-white">
+                    Ecoplate Alumínio
+                  </h3>
+                  <p className="text-white/70">
+                    Liga aeronáutica de alta resistência com até 40% menos peso estrutural. Maior capacidade de carga útil e economia comprovada de combustível.
+                  </p>
                 </div>
-                <h3 className="mb-2 font-heading text-lg font-bold text-foreground">
-                  {tech.title}
+              </div>
+            </Card>
+
+            {/* Card 2 */}
+            <Card className="group relative overflow-hidden rounded-2xl border-steel/40 bg-steel/60 backdrop-blur-sm transition-all hover:border-rodotec-blue/60">
+              <div className="absolute inset-0 bg-gradient-to-br from-rodotec-blue/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="relative p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-rodotec-blue/20 text-rodotec-blue">
+                  <Zap className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 font-heading text-lg font-bold text-white">
+                  Robótica de Precisão
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  {tech.description}
+                <p className="text-sm text-white/70">
+                  Solda robotizada com tolerância milimétrica
                 </p>
               </div>
-            ))}
+            </Card>
+
+            {/* Card 3 */}
+            <Card className="group relative overflow-hidden rounded-2xl border-steel/40 bg-steel/60 backdrop-blur-sm transition-all hover:border-rodotec-blue/60">
+              <div className="absolute inset-0 bg-gradient-to-br from-rodotec-blue/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="relative p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-rodotec-blue/20 text-rodotec-blue">
+                  <Cpu className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 font-heading text-lg font-bold text-white">
+                  Telemetria Avançada
+                </h3>
+                <p className="text-sm text-white/70">
+                  Monitoramento em tempo real de performance
+                </p>
+              </div>
+            </Card>
+
+            {/* Card 4 */}
+            <Card className="group relative overflow-hidden rounded-2xl border-steel/40 bg-steel/60 backdrop-blur-sm transition-all hover:border-rodotec-blue/60 md:col-span-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-tech-gold/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="relative p-6 flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-tech-gold/20 text-tech-gold">
+                  <Recycle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="mb-1 font-heading text-lg font-bold text-white">
+                    Sustentabilidade Certificada
+                  </h3>
+                  <p className="text-sm text-white/70">
+                    100% reciclável com menor pegada de carbono
+                  </p>
+                </div>
+              </div>
+            </Card>
           </div>
 
           <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -207,10 +274,75 @@ const Index = () => {
         </div>
       </section>
 
+      {/* News Grid */}
+      <section className="py-20 lg:ml-24">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="mb-12 text-center">
+            <h2 className="mb-4 font-heading text-4xl font-bold text-foreground md:text-5xl">
+              Principais Novidades
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Últimas atualizações e lançamentos
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                title: "Nova linha Ecoplate Pro",
+                category: "Lançamento",
+                readTime: "3 min"
+              },
+              {
+                title: "Certificação ISO renovada",
+                category: "Qualidade",
+                readTime: "2 min"
+              },
+              {
+                title: "Expansão da rede de distribuidores",
+                category: "Rede",
+                readTime: "4 min"
+              },
+              {
+                title: "Tecnologia de solda robotizada",
+                category: "Inovação",
+                readTime: "5 min"
+              }
+            ].map((item, index) => (
+              <Card key={index} className="group relative overflow-hidden rounded-2xl border-steel/20 transition-all hover:border-rodotec-blue/40 hover:shadow-lg">
+                <div 
+                  className="absolute inset-0 opacity-5"
+                  style={{
+                    background: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L45 15 L30 30 Z' fill='%231565F5' transform='rotate(42 30 30)'/%3E%3C/svg%3E")`,
+                  }}
+                />
+                <div className="relative p-6">
+                  <div className="mb-4 h-40 rounded-xl bg-steel/20" />
+                  <span className="mb-2 inline-block rounded-full bg-rodotec-blue/10 px-3 py-1 text-xs font-medium text-rodotec-blue">
+                    {item.category}
+                  </span>
+                  <h3 className="mb-2 font-heading text-lg font-bold text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {item.readTime} de leitura
+                  </p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="relative overflow-hidden bg-navy py-20">
-        <div className="chevron-pattern absolute inset-0 opacity-10" />
-        <div className="relative container mx-auto px-4 text-center">
+      <section className="relative overflow-hidden bg-navy py-20 lg:ml-24">
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            background: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 L40 0 L40 20 L20 40 Z' fill='%230E2A47' transform='rotate(42 40 40)'/%3E%3C/svg%3E")`,
+          }}
+        />
+        <div className="relative container mx-auto px-4 lg:px-8 text-center">
           <h2 className="mb-6 font-heading text-4xl font-bold text-white md:text-5xl">
             Encontre um Distribuidor
           </h2>
