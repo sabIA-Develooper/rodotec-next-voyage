@@ -28,13 +28,35 @@ class QueryBuilder {
   private filter: Filter = null;
   private orderField: string | null = null;
   private ascending = true;
+  private _hasCalledSelect = false;
+  private _updateValues: Record<string, any> | null = null;
 
   constructor(table: TableName) {
     this.table = table;
   }
 
   select(_columns?: string) {
+    this._hasCalledSelect = true;
+    return this;
+  }
+
+  private _execute() {
     const db = ensureDb();
+    
+    // If update operation
+    if (this._updateValues) {
+      const list = db[this.table] || [];
+      if (!this.filter) return { data: null, error: new Error('No filter for update') };
+      const idx = list.findIndex((i: any) => i[this.filter!.field] === this.filter!.value);
+      if (idx === -1) return { data: null, error: new Error('Not found') };
+      const updated = { ...list[idx], ...this._updateValues, updated_at: new Date().toISOString() };
+      list[idx] = updated;
+      db[this.table] = list;
+      saveDb(db);
+      return { data: updated, error: null };
+    }
+    
+    // Normal select operation
     let data = [...(db[this.table] || [])];
     if (this.filter) {
       data = data.filter((item) => item[this.filter!.field] === this.filter!.value);
@@ -48,7 +70,11 @@ class QueryBuilder {
         return av < bv ? 1 : -1;
       });
     }
-    return Promise.resolve({ data, error: null });
+    return { data, error: null };
+  }
+
+  then<T>(onfulfilled?: ((value: { data: any; error: any }) => T) | null): Promise<T> {
+    return Promise.resolve(this._execute()).then(onfulfilled);
   }
 
   order(field: string, opts: { ascending?: boolean } = {}) {
@@ -63,11 +89,10 @@ class QueryBuilder {
   }
 
   single() {
-    return this.select().then(({ data }) => {
-      const item = Array.isArray(data) ? data[0] || null : null;
-      if (!item) return { data: null, error: new Error('Not found') };
-      return { data: item, error: null };
-    });
+    const result = this._execute();
+    const item = Array.isArray(result.data) ? result.data[0] || null : null;
+    if (!item) return Promise.resolve({ data: null, error: new Error('Not found') });
+    return Promise.resolve({ data: item, error: null });
   }
 
   insert(items: any[]) {
@@ -85,16 +110,8 @@ class QueryBuilder {
   }
 
   update(values: Record<string, any>) {
-    const db = ensureDb();
-    const list = db[this.table] || [];
-    if (!this.filter) return Promise.resolve({ data: null, error: new Error('No filter') });
-    const idx = list.findIndex((i: any) => i[this.filter!.field] === this.filter!.value);
-    if (idx === -1) return Promise.resolve({ data: null, error: new Error('Not found') });
-    const updated = { ...list[idx], ...values, updated_at: new Date().toISOString() };
-    list[idx] = updated;
-    db[this.table] = list;
-    saveDb(db);
-    return Promise.resolve({ data: updated, error: null });
+    this._updateValues = values;
+    return this;
   }
 }
 

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Shield, Zap, Award, Users, Sparkles, Cpu, Recycle } from "lucide-react";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { ImprovedFooter } from "@/components/ImprovedFooter";
 import ProductCard from "@/components/ProductCard";
 import SideNav from "@/components/SideNav";
 import { Button } from "@/components/ui/button";

@@ -10,6 +10,9 @@ import Produtos from "./pages/Produtos";
 import ProdutoDetalhe from "./pages/ProdutoDetalhe";
 import Contato from "./pages/Contato";
 import Distribuidores from "./pages/Distribuidores";
+import Sobre from "./pages/Sobre";
+import Novidades from "./pages/Novidades";
+import Downloads from "./pages/Downloads";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -36,7 +39,9 @@ const App = () => (
             <Route path="/contato" element={<Contato />} />
             <Route path="/tecnologia" element={<Index />} />
             <Route path="/distribuidores" element={<Distribuidores />} />
-            <Route path="/sobre" element={<Index />} />
+            <Route path="/sobre" element={<Sobre />} />
+            <Route path="/novidades" element={<Novidades />} />
+            <Route path="/downloads" element={<Downloads />} />
 
             {/* Sandbox público sem autenticação */}
             <Route path="/sandbox/produtos/novo" element={<MockProdutoEditor />} />
