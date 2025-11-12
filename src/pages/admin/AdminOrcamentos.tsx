@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { repository } from '@/data/repository';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -12,123 +13,99 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Search, Filter } from 'lucide-react';
-import { format } from 'date-fns';
+import { Search, Download } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 type QuoteRequest = {
   id: string;
-  name: string;
-  company: string | null;
-  email: string;
-  phone: string;
-  product_name: string;
   status: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  company_name: string | null;
+  product_interest: string | null;
   created_at: string;
-};
-
-const statusLabels: Record<string, string> = {
-  NEW: 'Novo',
-  IN_PROGRESS: 'Em andamento',
-  CONTACTED: 'Contatado',
-  WON: 'Ganho',
-  LOST: 'Perdido',
-};
-
-const statusColors: Record<string, 'default' | 'secondary' | 'destructive'> = {
-  NEW: 'default',
-  IN_PROGRESS: 'secondary',
-  CONTACTED: 'secondary',
-  WON: 'default',
-  LOST: 'destructive',
 };
 
 export default function AdminOrcamentos() {
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadQuotes();
   }, []);
 
-  const loadQuotes = async () => {
-    const { data, error } = await supabase
-      .from('quote_requests')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error loading quotes:', error);
-    } else {
-      setQuotes(data || []);
-    }
+  const loadQuotes = () => {
+    const data = repository.getQuotes();
+    setQuotes(data as QuoteRequest[]);
     setLoading(false);
   };
 
-  const filteredQuotes = quotes.filter((q) => {
-    const matchesSearch =
-      q.name.toLowerCase().includes(search.toLowerCase()) ||
-      q.email.toLowerCase().includes(search.toLowerCase()) ||
-      q.company?.toLowerCase().includes(search.toLowerCase()) ||
-      q.product_name.toLowerCase().includes(search.toLowerCase());
+  const filteredQuotes = quotes.filter((q) =>
+    q.customer_name.toLowerCase().includes(search.toLowerCase()) ||
+    q.customer_email.toLowerCase().includes(search.toLowerCase()) ||
+    q.company_name?.toLowerCase().includes(search.toLowerCase())
+  );
 
-    const matchesStatus = statusFilter === 'ALL' || q.status === statusFilter;
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+      NEW: { label: 'Novo', variant: 'default' },
+      IN_PROGRESS: { label: 'Em andamento', variant: 'secondary' },
+      WON: { label: 'Ganho', variant: 'default' },
+      LOST: { label: 'Perdido', variant: 'destructive' },
+    };
+    const config = variants[status] || { label: status, variant: 'outline' };
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
 
-    return matchesSearch && matchesStatus;
-  });
+  const handleExportCSV = () => {
+    const headers = ['Status', 'Nome', 'Email', 'Telefone', 'Empresa', 'Produto', 'Data'];
+    const rows = filteredQuotes.map(q => [
+      q.status,
+      q.customer_name,
+      q.customer_email,
+      q.customer_phone,
+      q.company_name || '',
+      q.product_interest || '',
+      new Date(q.created_at).toLocaleDateString('pt-BR'),
+    ]);
+
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `orcamentos-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Orçamentos</h1>
-          <p className="text-muted-foreground">
-            Solicitações de orçamento do site
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Orçamentos</h1>
+            <p className="text-muted-foreground">Gerencie solicitações de orçamento</p>
+          </div>
+          <Button variant="outline" onClick={handleExportCSV}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar CSV
+          </Button>
         </div>
 
         <div className="bg-white rounded-lg border border-border">
-          <div className="p-4 border-b border-border space-y-3">
+          <div className="p-4 border-b border-border">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nome, empresa, email..."
+                placeholder="Buscar orçamentos..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
               />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">Todos</SelectItem>
-                  <SelectItem value="NEW">Novo</SelectItem>
-                  <SelectItem value="IN_PROGRESS">Em andamento</SelectItem>
-                  <SelectItem value="CONTACTED">Contatado</SelectItem>
-                  <SelectItem value="WON">Ganho</SelectItem>
-                  <SelectItem value="LOST">Perdido</SelectItem>
-                </SelectContent>
-              </Select>
-              {statusFilter !== 'ALL' && (
-                <Button variant="ghost" size="sm" onClick={() => setStatusFilter('ALL')}>
-                  Limpar filtro
-                </Button>
-              )}
             </div>
           </div>
 
@@ -140,7 +117,7 @@ export default function AdminOrcamentos() {
                 <TableHead>Empresa</TableHead>
                 <TableHead>Produto</TableHead>
                 <TableHead>Telefone</TableHead>
-                <TableHead>E-mail</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Data</TableHead>
               </TableRow>
             </TableHeader>
@@ -159,45 +136,25 @@ export default function AdminOrcamentos() {
                 </TableRow>
               ) : (
                 filteredQuotes.map((quote) => (
-                  <TableRow key={quote.id} className="cursor-pointer hover:bg-accent">
+                  <TableRow key={quote.id}>
+                    <TableCell>{getStatusBadge(quote.status)}</TableCell>
                     <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`}>
-                        <Badge variant={statusColors[quote.status]}>
-                          {statusLabels[quote.status]}
-                        </Badge>
+                      <Link
+                        to={`/admin/orcamentos/${quote.id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {quote.customer_name}
                       </Link>
                     </TableCell>
-                    <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`} className="font-medium hover:underline">
-                        {quote.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`} className="text-muted-foreground">
-                        {quote.company || '—'}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`}>
-                        {quote.product_name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`} className="text-muted-foreground">
-                        {quote.phone}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`} className="text-muted-foreground">
-                        {quote.email}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/admin/orcamentos/${quote.id}`} className="text-muted-foreground text-sm">
-                        {format(new Date(quote.created_at), 'dd/MM/yyyy HH:mm', {
-                          locale: ptBR,
-                        })}
-                      </Link>
+                    <TableCell className="text-muted-foreground">{quote.company_name || '—'}</TableCell>
+                    <TableCell className="text-muted-foreground">{quote.product_interest || '—'}</TableCell>
+                    <TableCell className="text-muted-foreground">{quote.customer_phone}</TableCell>
+                    <TableCell className="text-muted-foreground">{quote.customer_email}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {formatDistanceToNow(new Date(quote.created_at), {
+                        addSuffix: true,
+                        locale: ptBR,
+                      })}
                     </TableCell>
                   </TableRow>
                 ))

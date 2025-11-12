@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { repository } from '@/data/repository';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,17 +36,9 @@ export default function AdminProdutos() {
     loadProducts();
   }, []);
 
-  const loadProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('id, title, status, price, sku, stock_qty, updated_at')
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      console.error('Error loading products:', error);
-    } else {
-      setProducts(data || []);
-    }
+  const loadProducts = () => {
+    const data = repository.getProducts();
+    setProducts(data as Product[]);
     setLoading(false);
   };
 

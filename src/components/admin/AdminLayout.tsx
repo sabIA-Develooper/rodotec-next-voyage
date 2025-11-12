@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { repository } from '@/data/repository';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   Home,
@@ -15,6 +18,9 @@ import {
   TrendingUp,
   FileEdit,
   Globe,
+  Download,
+  Upload,
+  RotateCcw,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -44,6 +50,8 @@ const sidebarItems = [
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { user, signOut } = useAdminAuth();
+  const { toast } = useToast();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const isActive = (path: string) => {
     if (path === '/admin') {
@@ -55,6 +63,50 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const getUserInitials = () => {
     if (!user?.email) return 'AD';
     return user.email.substring(0, 2).toUpperCase();
+  };
+
+  const handleExport = () => {
+    const data = repository.exportData();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rodotec-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: 'Dados exportados com sucesso!' });
+  };
+
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const content = ev.target?.result as string;
+          const success = repository.importData(content);
+          if (success) {
+            toast({ title: 'Dados importados com sucesso!' });
+            window.location.reload();
+          } else {
+            toast({ title: 'Erro ao importar dados', variant: 'destructive' });
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
+  const handleReset = () => {
+    if (confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita.')) {
+      repository.reset();
+      toast({ title: 'Dados resetados com sucesso!' });
+      window.location.reload();
+    }
   };
 
   return (
@@ -76,30 +128,45 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getUserInitials()}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">Minha conta</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sair
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Exportar
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleImport}>
+              <Upload className="h-4 w-4 mr-2" />
+              Importar
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleReset}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Resetar
+            </Button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">Minha conta</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 

@@ -349,7 +349,7 @@ const Index = () => {
         </div>
       </section>
 
-      <Footer />
+      <ImprovedFooter />
     </div>
   );
 };
