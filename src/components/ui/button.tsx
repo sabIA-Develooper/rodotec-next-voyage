@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-brand text-white hover:bg-brand-600 active:bg-brand-700 shadow-[var(--shadow-card)]",
+        default: "bg-brand text-white hover:bg-brand-600 active:bg-brand-700 shadow-sm",
         destructive: "bg-danger text-white hover:bg-danger/90 active:bg-danger/80",
-        outline: "border border-line bg-transparent text-foreground hover:bg-surface-2 hover:border-accent active:bg-surface",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-surface active:bg-surface-2",
-        ghost: "text-foreground hover:bg-surface-2 active:bg-surface",
+        outline: "bg-white border border-slate-300 text-brand-700 hover:bg-surface-2",
+        secondary: "bg-white border border-slate-300 text-brand-700 hover:bg-surface-2",
+        ghost: "text-brand-700 hover:bg-brand-100",
         link: "text-accent underline-offset-4 hover:underline hover:text-accent/80 focus-visible:ring-2 focus-visible:ring-brand-700",
       },
       size: {

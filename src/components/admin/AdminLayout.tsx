@@ -6,18 +6,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   Home,
-  Package,
   FileText,
-  Users,
-  BarChart3,
   Settings,
+  Package,
   LogOut,
   Search,
-  FolderOpen,
-  Warehouse,
-  TrendingUp,
-  FileEdit,
-  Globe,
+
+
+
+
+
   Download,
   Upload,
   RotateCcw,
@@ -34,17 +32,16 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const sidebarItems = [
-  { icon: Home, label: 'Início', path: '/admin' },
+  { icon: Home, label: 'Dashboard', path: '/admin' },
   { icon: FileText, label: 'Orçamentos', path: '/admin/orcamentos' },
-  { icon: Package, label: 'Produtos', path: '/admin/produtos' },
-  { icon: FolderOpen, label: 'Coleções', path: '/admin/colecoes' },
-  { icon: Warehouse, label: 'Estoque', path: '/admin/estoque' },
-  { icon: Users, label: 'Clientes', path: '/admin/clientes' },
-  { icon: TrendingUp, label: 'Marketing', path: '/admin/marketing' },
-  { icon: FileEdit, label: 'Conteúdo', path: '/admin/conteudo' },
-  { icon: Globe, label: 'Markets', path: '/admin/markets' },
-  { icon: BarChart3, label: 'Análises', path: '/admin/analises' },
+
+
+
+
+
+
   { icon: Settings, label: 'Configurações', path: '/admin/configuracoes' },
+  { icon: Package, label: 'Produtos', path: '/admin/produtos' },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -116,43 +113,43 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8]">
+    <div className="min-h-screen bg-white">
       {/* Top Bar */}
-      <header className="bg-white border-b border-border h-14 fixed top-0 left-0 right-0 z-50">
+      <header className="bg-brand-700 text-white border-b border-slate-200 h-14 fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-4">
             <Link to="/admin" className="font-bold text-lg">
-              RODOTEC <span className="text-muted-foreground font-normal">– Admin</span>
+              RODOTEC <span className="text-white/80 font-normal">– Admin</span>
             </Link>
             
             <div className="relative ml-4 hidden md:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/80" />
               <Input
                 placeholder="Buscar..."
-                className="pl-10 w-64 h-9 bg-[#F4F6F8] border-none"
+                className="pl-10 w-64 h-9 bg-white/90 border-none text-text"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="ghost" size="sm" onClick={handleExport} className="text-white hover:bg-brand-600">
               <Download className="h-4 w-4 mr-2" />
               Exportar
             </Button>
-            <Button variant="outline" size="sm" onClick={handleImport}>
+            <Button variant="ghost" size="sm" onClick={handleImport} className="text-white hover:bg-brand-600">
               <Upload className="h-4 w-4 mr-2" />
               Importar
             </Button>
-            <Button variant="outline" size="sm" onClick={handleReset}>
+            <Button variant="ghost" size="sm" onClick={handleReset} className="text-white hover:bg-brand-600">
               <RotateCcw className="h-4 w-4 mr-2" />
               Resetar
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full text-white hover:bg-brand-600">
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-white text-[#0D47A1]">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
@@ -177,7 +174,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Sidebar */}
-      <aside className="fixed left-0 top-14 bottom-0 w-56 bg-white border-r border-border overflow-y-auto">
+      <aside className="fixed left-0 top-14 bottom-0 w-56 bg-brand-700 overflow-y-auto">
         <nav className="p-2 space-y-1">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
@@ -189,8 +186,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-[#F4F6F8] text-foreground'
-                    : 'text-muted-foreground hover:bg-[#F4F6F8] hover:text-foreground'
+                    ? 'bg-white/10 text-white'
+                    : 'text-white hover:bg-brand-600 hover:text-white'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -202,7 +199,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="pl-56 pt-14">
+      <main className="pl-56 pt-14 bg-bg">
         <div className="p-8">
           {children}
         </div>

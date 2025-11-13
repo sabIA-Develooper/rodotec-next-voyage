@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ChevronRight, Download, FileText, Shield, Zap, Award, MessageCircle, Mail } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -6,9 +6,11 @@ import SideNav from "@/components/SideNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import productCarroceria from "@/assets/product-carroceria.jpg";
+import { repository } from "@/data/repository";
 
 const ProdutoDetalhe = () => {
+  const { slug } = useParams();
+  const product = repository.getProducts().find(p => p.slug === slug);
   const specifications = [
     { label: "Comprimento", value: "7,50 m" },
     { label: "Largura", value: "2,60 m" },
@@ -58,23 +60,37 @@ const ProdutoDetalhe = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid gap-12 lg:grid-cols-2">
-            {/* Image */}
-            <div className="relative overflow-hidden rounded-2xl border border-steel/20 bg-steel/5">
-              <img
-                src={productCarroceria}
-                alt="Carroceria Baú em Alumínio"
-                className="h-full w-full object-cover"
-              />
+            {/* Gallery */}
+            <div className="space-y-3">
+              <div className="relative overflow-hidden rounded-2xl border border-steel/20 bg-steel/5">
+                {product?.images?.[0] && (
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+              {product?.images && product.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {product.images.slice(1, 5).map((img, idx) => (
+                    <div key={idx} className="overflow-hidden rounded-md border bg-steel/5">
+                      <img src={img} alt={`${product.title} ${idx + 2}`} className="h-full w-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Info */}
             <div className="space-y-8">
               <div>
-                <h1 className="mb-4 font-heading text-4xl font-bold text-foreground md:text-5xl">
-                  Carroceria Baú em Alumínio
+                <h1 className="mb-2 font-heading text-4xl font-bold text-foreground md:text-5xl">
+                  {product?.title || 'Produto'}
                 </h1>
-                <p className="text-xl text-muted-foreground">
-                  Durabilidade com menor tara para máxima eficiência operacional
+                <p className="text-sm text-muted-foreground">SKU: {product?.sku || '—'}</p>
+                <p className="mt-2 text-xl text-muted-foreground">
+                  {product?.short_description || 'Detalhes do produto'}
                 </p>
               </div>
 
@@ -164,12 +180,16 @@ const ProdutoDetalhe = () => {
             <Card className="mb-8 border-steel/20">
               <CardContent className="p-6">
                 <div className="grid gap-4 md:grid-cols-2">
-                  {specifications.map((spec, index) => (
-                    <div key={index} className="flex justify-between border-b border-steel/10 pb-3 last:border-0">
-                      <span className="font-medium text-muted-foreground">{spec.label}</span>
-                      <span className="font-bold text-foreground">{spec.value}</span>
-                    </div>
-                  ))}
+                  {product?.technical_specs && Object.entries(product.technical_specs).length > 0 ? (
+                    Object.entries(product.technical_specs).map(([label, value], index) => (
+                      <div key={index} className="flex justify-between border-b border-steel/10 pb-3 last:border-0">
+                        <span className="font-medium text-muted-foreground">{label}</span>
+                        <span className="font-bold text-foreground">{String(value)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground">Nenhuma especificação disponível.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

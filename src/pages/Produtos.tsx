@@ -1,96 +1,78 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Truck, Container, Box, Wrench, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import productCarroceria from "@/assets/product-carroceria.jpg";
-import productReboque from "@/assets/product-reboque.jpg";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { repository } from "@/data/repository";
+import type { Product, Category } from "@/data/types";
 
 const Produtos = () => {
-  const [activeCategory, setActiveCategory] = useState("todos");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [search, setSearch] = useState("");
+  const [view, setView] = useState<'grid' | 'list'>("grid");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [availability, setAvailability] = useState<boolean>(false);
+  const [priceMin, setPriceMin] = useState<string>("");
+  const [priceMax, setPriceMax] = useState<string>("");
+  const [sort, setSort] = useState<string>("created_desc");
+  const [page, setPage] = useState<number>(1);
+  const [quickView, setQuickView] = useState<Product | null>(null);
 
-  const categories = [
-    { id: "todos", name: "Todos", icon: Box },
-    { id: "carrocerias", name: "Carrocerias", icon: Truck },
-    { id: "reboques", name: "Reboques", icon: Container },
-    { id: "especiais", name: "Especiais", icon: Wrench },
-  ];
+  useEffect(() => {
+    setProducts(repository.getProducts());
+    setCategories(repository.getCategories());
+  }, []);
 
-  const products = [
-    {
-      title: "Carroceria Baú em Alumínio",
-      image: productCarroceria,
-      features: [
-        "Estrutura em alumínio aeronáutico de alta resistência",
-        "Redução de até 40% no peso total",
-        "Maior capacidade de carga útil"
-      ],
-      badge: "Nova Geração",
-      link: "/produtos/carroceria",
-      category: "carrocerias"
-    },
-    {
-      title: "Reboque Frigorífico",
-      image: productReboque,
-      features: [
-        "Isolamento térmico superior",
-        "Sistema de vedação estanque",
-        "Compatível com todos os chassis"
-      ],
-      link: "/produtos/reboque",
-      category: "reboques"
-    },
-    {
-      title: "Carroceria Graneleira",
-      image: productCarroceria,
-      features: [
-        "Ideal para transporte de grãos e sacarias",
-        "Tampa telescópica opcional",
-        "Ventilação lateral reforçada"
-      ],
-      link: "/produtos/carroceria",
-      category: "carrocerias"
-    },
-    {
-      title: "Implemento para Paletes",
-      image: productReboque,
-      features: [
-        "Porta lateral escamoteável",
-        "Para-choques retrátil",
-        "Otimização de espaço interno"
-      ],
-      badge: "+ Eficiente",
-      link: "/produtos/carroceria",
-      category: "especiais"
-    },
-    {
-      title: "Carroceria Sider",
-      image: productCarroceria,
-      features: [
-        "Abertura lateral completa",
-        "Estrutura reforçada em alumínio",
-        "Facilidade de carga e descarga"
-      ],
-      link: "/produtos/carroceria",
-      category: "carrocerias"
-    },
-    {
-      title: "Reboque Carga Seca",
-      image: productReboque,
-      features: [
-        "Versatilidade para diversos tipos de carga",
-        "Manutenção simplificada",
-        "Excelente relação custo-benefício"
-      ],
-      link: "/produtos/reboque",
-      category: "reboques"
+  const filteredProducts = useMemo(() => {
+    let list = products.slice();
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      list = list.filter(
+        (p) => p.title.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s)
+      );
     }
-  ];
+    if (categoryId) {
+      list = list.filter((p) => p.category_id === categoryId);
+    }
+    if (availability) {
+      list = list.filter((p) => (p.stock_qty || 0) > 0);
+    }
+    const min = priceMin ? parseFloat(priceMin) : null;
+    const max = priceMax ? parseFloat(priceMax) : null;
+    if (min !== null) list = list.filter((p) => (p.price ?? 0) >= min);
+    if (max !== null) list = list.filter((p) => (p.price ?? 0) <= max);
+    switch (sort) {
+      case 'name_asc':
+        list.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'price_asc':
+        list.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+        break;
+      case 'price_desc':
+        list.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+        break;
+      case 'created_asc':
+        list.sort((a, b) => a.created_at.localeCompare(b.created_at));
+        break;
+      case 'created_desc':
+      default:
+        list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+        break;
+    }
+    return list;
+  }, [products, search, categoryId, availability, priceMin, priceMax, sort]);
 
-  const filteredProducts = activeCategory === "todos" 
-    ? products 
-    : products.filter(p => p.category === activeCategory);
+  const perPage = view === 'grid' ? 12 : 20;
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const pagedProducts = filteredProducts.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,19 +110,17 @@ const Produtos = () => {
                 Categorias
               </h3>
               {categories.map((category) => {
-                const Icon = category.icon;
-                const isActive = activeCategory === category.id;
+                const isActive = categoryId === category.id;
                 return (
                   <button
                     key={category.id}
-                    onClick={() => setActiveCategory(category.id)}
+                    onClick={() => setCategoryId(isActive ? '' : category.id)}
                     className={`flex w-full items-center space-x-3 rounded-xl px-4 py-3 text-left transition-all ${
                       isActive
                         ? "bg-rodotec-blue text-white shadow-lg"
                         : "bg-card text-foreground hover:bg-steel/5"
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
                     <span className="font-medium">{category.name}</span>
                   </button>
                 );
@@ -148,49 +128,150 @@ const Produtos = () => {
             </div>
           </aside>
 
-          {/* Mobile Category Filter */}
+          {/* Mobile Filters */}
           <div className="mb-8 flex gap-2 overflow-x-auto pb-2 lg:hidden">
             {categories.map((category) => {
-              const Icon = category.icon;
-              const isActive = activeCategory === category.id;
+              const isActive = categoryId === category.id;
               return (
                 <button
                   key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
+                  onClick={() => setCategoryId(isActive ? '' : category.id)}
                   className={`flex shrink-0 items-center space-x-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
                     isActive
                       ? "bg-rodotec-blue text-white"
                       : "bg-card text-foreground"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
                   <span>{category.name}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Products Grid */}
+          {/* Products */}
           <div className="flex-1">
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-muted-foreground">
-                {filteredProducts.length} produto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
-              </p>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="relative">
+                <Input
+                  placeholder="Buscar por nome ou SKU"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-64"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-2 border rounded-md px-3 py-2">
+                  <span className="text-sm text-muted-foreground">Em estoque</span>
+                  <Switch checked={availability} onCheckedChange={setAvailability} />
+                </div>
+                <div className="flex gap-2">
+                  <Input placeholder="Preço mín." value={priceMin} onChange={(e) => setPriceMin(e.target.value)} className="w-28" />
+                  <Input placeholder="Preço máx." value={priceMax} onChange={(e) => setPriceMax(e.target.value)} className="w-28" />
+                </div>
+                <Select value={sort} onValueChange={setSort}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Ordenar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="created_desc">Mais recentes</SelectItem>
+                    <SelectItem value="created_asc">Mais antigos</SelectItem>
+                    <SelectItem value="name_asc">Nome (A→Z)</SelectItem>
+                    <SelectItem value="price_asc">Preço (↑)</SelectItem>
+                    <SelectItem value="price_desc">Preço (↓)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex items-center gap-2">
+                  <button className={`rounded-md px-3 py-2 text-sm ${view === 'grid' ? 'bg-rodotec-blue text-white' : 'bg-card'}`} onClick={() => setView('grid')}>Grid</button>
+                  <button className={`rounded-md px-3 py-2 text-sm ${view === 'list' ? 'bg-rodotec-blue text-white' : 'bg-card'}`} onClick={() => setView('list')}>Lista</button>
+                </div>
+              </div>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-              {filteredProducts.map((product, index) => (
-                <div
-                  key={index}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <ProductCard {...product} />
-                </div>
-              ))}
-            </div>
+            {view === 'grid' ? (
+              <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+                {pagedProducts.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <ProductCard product={product} onQuickView={() => setQuickView(product)} />
+                  </div>
+                ))}
+                {pagedProducts.length === 0 && (
+                  <p className="text-muted-foreground">Nenhum produto encontrado</p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pagedProducts.map((product) => (
+                  <Card key={product.id} className="border border-line">
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className="aspect-video w-40 overflow-hidden rounded-md bg-muted">
+                        {product.images?.[0] ? (
+                          <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                        ) : null}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-heading font-bold">{product.title}</h3>
+                        <p className="text-sm text-muted-foreground">SKU: {product.sku || '—'}</p>
+                        <p className="text-sm text-muted-foreground">Preço: {product.price ? `R$ ${product.price.toFixed(2)}` : '—'}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Link to={`/produtos/${product.slug}`} className="text-sm underline">Ver detalhes</Link>
+                        <button className="text-sm underline" onClick={() => setQuickView(product)}>Quick View</button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                {pagedProducts.length === 0 && (
+                  <p className="text-muted-foreground">Nenhum produto encontrado</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <button
+            className="rounded-md border px-3 py-2 text-sm"
+            onClick={() => setPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</span>
+          <button
+            className="rounded-md border px-3 py-2 text-sm"
+            onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Próxima
+          </button>
+        </div>
+
+        <Dialog open={!!quickView} onOpenChange={(open) => !open && setQuickView(null)}>
+          <DialogContent className="sm:max-w-2xl">
+            {quickView && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{quickView.title}</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="aspect-video w-full overflow-hidden rounded-md bg-muted">
+                    {quickView.images?.[0] && (
+                      <img src={quickView.images[0]} alt={quickView.title} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">SKU: {quickView.sku || '—'}</p>
+                    <p className="text-sm text-muted-foreground">Preço: {quickView.price ? `R$ ${quickView.price.toFixed(2)}` : '—'}</p>
+                    <Link to={`/produtos/${quickView.slug}`} className="text-sm underline">Ver detalhes</Link>
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Footer />

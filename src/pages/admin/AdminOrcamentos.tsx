@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { repository } from '@/data/repository';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -12,156 +14,445 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Search, Download } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  FileText,
+  Search,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  Calendar,
+  User,
+  Phone,
+  Mail,
+  Package,
+  MessageSquare,
+} from 'lucide-react';
+import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { localDataLayer } from '@/data/localDataLayer';
+import { toast } from 'sonner';
 
-type QuoteRequest = {
+interface Orcamento {
   id: string;
-  status: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  company_name: string | null;
-  product_interest: string | null;
-  created_at: string;
-};
+  nome: string;
+  telefone: string;
+  email: string;
+  produto: string;
+  quantidade: number;
+  mensagem: string;
+  status: 'novo' | 'em_contato' | 'concluido';
+  notasInternas: string;
+  criadoEm: string;
+  atualizadoEm: string;
+}
 
 export default function AdminOrcamentos() {
-  const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
+  const [filteredOrcamentos, setFilteredOrcamentos] = useState<Orcamento[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('todos');
+  const [selectedOrcamento, setSelectedOrcamento] = useState<Orcamento | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
-    loadQuotes();
+    loadOrcamentos();
   }, []);
 
-  const loadQuotes = () => {
-    const data = repository.getQuotes();
-    setQuotes(data as QuoteRequest[]);
-    setLoading(false);
+  useEffect(() => {
+    filterOrcamentos();
+  }, [orcamentos, searchTerm, statusFilter]);
+
+  const loadOrcamentos = () => {
+    const data = localDataLayer.getOrcamentos();
+    setOrcamentos(data);
   };
 
-  const filteredQuotes = quotes.filter((q) =>
-    q.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-    q.customer_email.toLowerCase().includes(search.toLowerCase()) ||
-    q.company_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filterOrcamentos = () => {
+    let filtered = orcamentos;
+
+    if (searchTerm) {
+      filtered = filtered.filter(o =>
+        o.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.telefone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.produto.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (statusFilter !== 'todos') {
+      filtered = filtered.filter(o => o.status === statusFilter);
+    }
+
+    setFilteredOrcamentos(filtered);
+    setCurrentPage(1);
+  };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-      NEW: { label: 'Novo', variant: 'default' },
-      IN_PROGRESS: { label: 'Em andamento', variant: 'secondary' },
-      WON: { label: 'Ganho', variant: 'default' },
-      LOST: { label: 'Perdido', variant: 'destructive' },
+    const map: Record<string, { label: string; variant: any }> = {
+      novo: { label: 'Novo', variant: 'statusNew' },
+      em_contato: { label: 'Em Contato', variant: 'statusProgress' },
+      concluido: { label: 'Concluído', variant: 'statusDone' },
     };
-    const config = variants[status] || { label: status, variant: 'outline' };
+    const config = map[status] || { label: status, variant: 'secondary' };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const handleExportCSV = () => {
-    const headers = ['Status', 'Nome', 'Email', 'Telefone', 'Empresa', 'Produto', 'Data'];
-    const rows = filteredQuotes.map(q => [
-      q.status,
-      q.customer_name,
-      q.customer_email,
-      q.customer_phone,
-      q.company_name || '',
-      q.product_interest || '',
-      new Date(q.created_at).toLocaleDateString('pt-BR'),
+  const handleStatusChange = (id: string, newStatus: string) => {
+    const updated = localDataLayer.updateOrcamento(id, { status: newStatus });
+    if (updated) {
+      toast.success('Status atualizado com sucesso!');
+      loadOrcamentos();
+    } else {
+      toast.error('Erro ao atualizar status');
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este orçamento?')) {
+      const success = localDataLayer.deleteOrcamento(id);
+      if (success) {
+        toast.success('Orçamento excluído com sucesso!');
+        loadOrcamentos();
+      } else {
+        toast.error('Erro ao excluir orçamento');
+      }
+    }
+  };
+
+  const exportToCSV = () => {
+    const headers = ['ID', 'Nome', 'Telefone', 'Email', 'Produto', 'Quantidade', 'Status', 'Data'];
+    const rows = filteredOrcamentos.map(o => [
+      o.id,
+      o.nome,
+      o.telefone,
+      o.email,
+      o.produto,
+      o.quantidade.toString(),
+      o.status,
+      format(new Date(o.criadoEm), 'dd/MM/yyyy HH:mm', { locale: ptBR })
     ]);
 
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    link.href = url;
-    link.download = `orcamentos-${new Date().toISOString().split('T')[0]}.csv`;
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `orcamentos_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
   };
+
+  // Paginação
+  const totalPages = Math.ceil(filteredOrcamentos.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filteredOrcamentos.slice(startIndex, endIndex);
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Orçamentos</h1>
-            <p className="text-muted-foreground">Gerencie solicitações de orçamento</p>
+            <h1 className="text-2xl font-semibold text-slate-900">Orçamentos</h1>
+            <p className="text-slate-600">Gerencie os orçamentos solicitados pelos clientes</p>
           </div>
-          <Button variant="outline" onClick={handleExportCSV}>
-            <Download className="mr-2 h-4 w-4" />
+          <Button onClick={exportToCSV}>
+            <Download className="h-4 w-4 mr-2" />
             Exportar CSV
           </Button>
         </div>
 
-        <div className="bg-white rounded-lg border border-border">
-          <div className="p-4 border-b border-border">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar orçamentos..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
-              />
+        {/* Filtros */}
+        <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Buscar por nome, email, telefone ou produto..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 border-slate-300"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-48 border-slate-300">
+                  <SelectValue placeholder="Filtrar por status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os status</SelectItem>
+                  <SelectItem value="novo">Novo</SelectItem>
+                  <SelectItem value="em_contato">Em Contato</SelectItem>
+                  <SelectItem value="concluido">Concluído</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Status</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Empresa</TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>Telefone</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Data</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    Carregando...
-                  </TableCell>
-                </TableRow>
-              ) : filteredQuotes.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    Nenhum orçamento encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredQuotes.map((quote) => (
-                  <TableRow key={quote.id}>
-                    <TableCell>{getStatusBadge(quote.status)}</TableCell>
-                    <TableCell>
-                      <Link
-                        to={`/admin/orcamentos/${quote.id}`}
-                        className="font-medium hover:underline"
-                      >
-                        {quote.customer_name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{quote.company_name || '—'}</TableCell>
-                    <TableCell className="text-muted-foreground">{quote.product_interest || '—'}</TableCell>
-                    <TableCell className="text-muted-foreground">{quote.customer_phone}</TableCell>
-                    <TableCell className="text-muted-foreground">{quote.customer_email}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {formatDistanceToNow(new Date(quote.created_at), {
-                        addSuffix: true,
-                        locale: ptBR,
-                      })}
-                    </TableCell>
+        {/* Tabela */}
+        <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900">
+              {filteredOrcamentos.length} orçamento(s) encontrado(s)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Qtd</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Criado</TableHead>
+                    <TableHead>Ações</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {currentItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-slate-500">
+                        Nenhum orçamento encontrado
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    currentItems.map((orcamento) => (
+                      <TableRow key={orcamento.id}>
+                        <TableCell className="font-medium text-slate-900">
+                          #{orcamento.id.slice(-6)}
+                        </TableCell>
+                        <TableCell className="text-slate-900">{orcamento.nome}</TableCell>
+                        <TableCell className="text-slate-900">{orcamento.telefone}</TableCell>
+                        <TableCell className="text-slate-900">{orcamento.email}</TableCell>
+                        <TableCell className="text-slate-900">{orcamento.produto}</TableCell>
+                        <TableCell className="text-slate-900">{orcamento.quantidade}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={orcamento.status}
+                            onValueChange={(value) => handleStatusChange(orcamento.id, value)}
+                          >
+                            <SelectTrigger className="w-32 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="novo">Novo</SelectItem>
+                              <SelectItem value="em_contato">Em Contato</SelectItem>
+                              <SelectItem value="concluido">Concluído</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="text-slate-600 text-sm">
+                          {formatDistanceToNow(new Date(orcamento.criadoEm), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedOrcamento(orcamento);
+                                setIsViewModalOpen(true);
+                              }}
+                              className="h-8 px-2"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedOrcamento(orcamento);
+                                setIsEditModalOpen(true);
+                              }}
+                              className="h-8 px-2"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(orcamento.id)}
+                              className="h-8 px-2 text-danger hover:text-danger/90"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Paginação */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="border-gray-300"
+            >
+              Anterior
+            </Button>
+            <span className="text-sm text-slate-600">
+              Página {currentPage} de {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="border-gray-300"
+            >
+              Próximo
+            </Button>
+          </div>
+        )}
+
+        {/* Modal de Visualização */}
+        <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-[#0B1220]">Detalhes do Orçamento</DialogTitle>
+              <DialogDescription>
+                Informações completas do orçamento
+              </DialogDescription>
+            </DialogHeader>
+            {selectedOrcamento && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Nome</Label>
+                    <p className="text-[#0B1220]">{selectedOrcamento.nome}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Telefone</Label>
+                    <p className="text-[#0B1220]">{selectedOrcamento.telefone}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Email</Label>
+                    <p className="text-[#0B1220]">{selectedOrcamento.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Produto</Label>
+                    <p className="text-[#0B1220]">{selectedOrcamento.produto}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Quantidade</Label>
+                    <p className="text-[#0B1220]">{selectedOrcamento.quantidade}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Status</Label>
+                    <div>{getStatusBadge(selectedOrcamento.status)}</div>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Mensagem</Label>
+                  <p className="text-[#0B1220] bg-gray-50 p-3 rounded-md">{selectedOrcamento.mensagem}</p>
+                </div>
+                {selectedOrcamento.notasInternas && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Notas Internas</Label>
+                    <p className="text-[#0B1220] bg-blue-50 p-3 rounded-md">{selectedOrcamento.notasInternas}</p>
+                  </div>
+                )}
+                <div className="text-sm text-gray-500">
+                  <p>Criado em: {format(new Date(selectedOrcamento.criadoEm), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</p>
+                  <p>Atualizado em: {format(new Date(selectedOrcamento.atualizadoEm), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</p>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
+                Fechar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Edição */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-[#0B1220]">Editar Orçamento</DialogTitle>
+              <DialogDescription>
+                Atualize as informações do orçamento
+              </DialogDescription>
+            </DialogHeader>
+            {selectedOrcamento && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const updated = localDataLayer.updateOrcamento(selectedOrcamento.id, {
+                    notasInternas: formData.get('notasInternas') as string,
+                  });
+                  if (updated) {
+                    toast.success('Orçamento atualizado com sucesso!');
+                    loadOrcamentos();
+                    setIsEditModalOpen(false);
+                  } else {
+                    toast.error('Erro ao atualizar orçamento');
+                  }
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <Label htmlFor="notasInternas">Notas Internas</Label>
+                  <Textarea
+                    id="notasInternas"
+                    name="notasInternas"
+                    defaultValue={selectedOrcamento.notasInternas}
+                    rows={4}
+                    className="border-gray-300"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" className="bg-[#0D47A1] hover:bg-[#1565C0]">
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );

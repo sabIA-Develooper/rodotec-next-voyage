@@ -190,7 +190,7 @@ export default function AdminProdutoEditor() {
       } else {
         const created = repository.createProduct(productData);
         toast.success('Produto criado com sucesso');
-        navigate(`/admin/produtos/${created.id}`);
+        navigate('/admin/produtos', { state: { createdId: created.id } });
       }
     } catch (error: any) {
       console.error('Error saving product:', error);

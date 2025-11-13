@@ -16,11 +16,11 @@ import Downloads from "./pages/Downloads";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminProdutos from "./pages/admin/AdminProdutos";
-import AdminProdutoEditor from "./pages/admin/AdminProdutoEditor";
-import MockProdutoEditor from "./pages/admin/MockProdutoEditor";
 import AdminOrcamentos from "./pages/admin/AdminOrcamentos";
 import AdminOrcamentoDetalhe from "./pages/admin/AdminOrcamentoDetalhe";
+import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
+import AdminProdutos from "./pages/admin/AdminProdutos";
+import AdminProdutoEditor from "./pages/admin/AdminProdutoEditor";
 
 const queryClient = new QueryClient();
 
@@ -43,9 +43,6 @@ const App = () => (
             <Route path="/novidades" element={<Novidades />} />
             <Route path="/downloads" element={<Downloads />} />
 
-            {/* Sandbox público sem autenticação */}
-            <Route path="/sandbox/produtos/novo" element={<MockProdutoEditor />} />
-
             {/* Admin - Login */}
             <Route path="/admin/login" element={<AdminLogin />} />
 
@@ -55,6 +52,22 @@ const App = () => (
               element={
                 <ProtectedAdminRoute>
                   <AdminDashboard />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/orcamentos"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminOrcamentos />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/admin/orcamentos/:id"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminOrcamentoDetalhe />
                 </ProtectedAdminRoute>
               }
             />
@@ -83,18 +96,10 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/orcamentos"
+              path="/admin/configuracoes"
               element={
                 <ProtectedAdminRoute>
-                  <AdminOrcamentos />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route
-              path="/admin/orcamentos/:id"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminOrcamentoDetalhe />
+                  <AdminConfiguracoes />
                 </ProtectedAdminRoute>
               }
             />

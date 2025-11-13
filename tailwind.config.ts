@@ -25,6 +25,7 @@ export default {
         line: "hsl(var(--line))",
         text: "hsl(var(--text))",
         brand: "hsl(var(--brand))",
+        "brand-100": "hsl(var(--brand-100))",
         "brand-600": "hsl(var(--brand-600))",
         "brand-700": "hsl(var(--brand-700))",
         accent: "hsl(var(--accent))",
