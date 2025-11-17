@@ -9,8 +9,9 @@ import type {
   QuoteFilters,
   PaginatedResponse,
   ApiResponse,
+  CreateProductData,
+  CreateQuoteData,
 } from '@/types/api';
-import { supabase } from '@/integrations/supabase/client';
 
 // Configuração da API
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -20,7 +21,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public errors?: Record<string, string[]>
+    public errors?: Array<{ field: string; message: string }>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -52,7 +53,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new ApiError(
-      errorData.message || 'Erro na requisição',
+      errorData.mensagem || errorData.message || 'Erro na requisição',
       response.status,
       errorData.errors
     );
@@ -61,11 +62,15 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   // Parse seguro: evita erro em respostas 204/sem corpo
   const text = await response.text().catch(() => '');
   try {
-    return (text ? JSON.parse(text) : ({} as T));
+    return text ? JSON.parse(text) : ({} as T);
   } catch {
-    // Se não for JSON, retorna texto bruto
-    return (text as unknown as T);
+    return text as unknown as T;
   }
+}
+
+// Helper para extrair dados da resposta (suporta ambos formatos)
+function extractData<T>(response: ApiResponse<T>): T {
+  return (response.dados || response.data) as T;
 }
 
 // ============ AUTENTICAÇÃO ============
@@ -78,25 +83,56 @@ export const authApi = {
       body: JSON.stringify(payload),
     });
 
+    const data = extractData(response);
+
     // Salvar token no localStorage
-    if (response.data.token) {
-      localStorage.setItem('auth_token', response.data.token);
+    if (data.token) {
+      localStorage.setItem('auth_token', data.token);
     }
 
-    return response.data;
+    return data;
+  },
+
+  register: async (data: {
+    email: string;
+    senha: string;
+    nome: string;
+    role?: 'admin' | 'user';
+  }): Promise<LoginResponse> => {
+    const response = await fetchApi<ApiResponse<LoginResponse>>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    const responseData = extractData(response);
+
+    if (responseData.token) {
+      localStorage.setItem('auth_token', responseData.token);
+    }
+
+    return responseData;
   },
 
   logout: async (): Promise<void> => {
-    try {
-      await fetchApi('/auth/logout', { method: 'POST' });
-    } finally {
-      localStorage.removeItem('auth_token');
-    }
+    localStorage.removeItem('auth_token');
   },
 
   getCurrentUser: async () => {
     const response = await fetchApi<ApiResponse<LoginResponse['user']>>('/auth/me');
-    return response.data;
+    return extractData(response);
+  },
+
+  updateProfile: async (data: {
+    nome?: string;
+    email?: string;
+    senhaAtual?: string;
+    novaSenha?: string;
+  }) => {
+    const response = await fetchApi<ApiResponse<LoginResponse['user']>>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return extractData(response);
   },
 };
 
@@ -104,170 +140,103 @@ export const authApi = {
 
 export const dashboardApi = {
   getStats: async (): Promise<DashboardStats> => {
-    try {
-      const response = await fetchApi<ApiResponse<DashboardStats>>('/dashboard/stats');
-      return response.data;
-    } catch (error) {
-      // Fallback: calcular estatísticas locais via stub
-      console.warn('API indisponível, usando dados locais para stats:', error);
-      const { data: products } = await supabase.from('products').select('status');
-      const { data: quotes } = await supabase.from('quote_requests').select('status');
-      const stats: DashboardStats = {
-        new_quotes: (quotes || []).filter((q: any) => q.status === 'NEW').length,
-        in_progress_quotes: (quotes || []).filter((q: any) => q.status === 'IN_PROGRESS').length,
-        completed_quotes: (quotes || []).filter((q: any) => q.status === 'WON' || q.status === 'LOST').length,
-        active_products: (products || []).filter((p: any) => p.status === 'ACTIVE').length,
-        draft_products: (products || []).filter((p: any) => p.status === 'DRAFT').length,
-      };
-      return stats;
-    }
+    const response = await fetchApi<ApiResponse<DashboardStats>>('/quotes/stats');
+    return extractData(response);
   },
 
-  getRecentQuotes: async (limit = 5) => {
-    try {
-      const response = await fetchApi<ApiResponse<QuoteRequest[]>>(
-        `/dashboard/recent-quotes?limit=${limit}`
-      );
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para recent-quotes:', error);
-      const { data } = await supabase
-        .from('quote_requests')
-        .select('*')
-        .order('created_at', { ascending: false });
-      return (data || []).slice(0, limit);
-    }
+  getRecentQuotes: async (limit = 5): Promise<QuoteRequest[]> => {
+    const response = await fetchApi<PaginatedResponse<QuoteRequest>>(
+      `/quotes?limit=${limit}&sort=-createdAt`
+    );
+    return response.dados;
   },
 
-  getRecentProducts: async (limit = 5) => {
-    try {
-      const response = await fetchApi<ApiResponse<Product[]>>(
-        `/dashboard/recent-products?limit=${limit}`
-      );
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para recent-products:', error);
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .order('updated_at', { ascending: false });
-      return (data || []).slice(0, limit);
-    }
+  getRecentProducts: async (limit = 5): Promise<Product[]> => {
+    const response = await fetchApi<PaginatedResponse<Product>>(
+      `/products?limit=${limit}&sort=-createdAt`
+    );
+    return response.dados;
   },
 };
 
 // ============ PRODUTOS ============
 
 export const productsApi = {
-  list: async (filters?: ProductFilters) => {
+  list: async (filters?: ProductFilters): Promise<PaginatedResponse<Product>> => {
     const params = new URLSearchParams();
+
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.status) params.append('status', filters.status);
-    if (filters?.category_id) params.append('category_id', filters.category_id);
+    if (filters?.categoria) params.append('categoria', filters.categoria);
+    if (filters?.ativo !== undefined) params.append('ativo', String(filters.ativo));
+    if (filters?.destaque !== undefined) params.append('destaque', String(filters.destaque));
     if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.per_page) params.append('per_page', filters.per_page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.sort) params.append('sort', filters.sort);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    try {
-      const response = await fetchApi<PaginatedResponse<Product>>(`/products${query}`);
-      return response;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para listagem de produtos:', error);
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .order('updated_at', { ascending: false });
-
-      const filtered = (data || []).filter((p: any) => {
-        const search = filters?.search?.toLowerCase();
-        if (!search) return true;
-        return (
-          (p.title || '').toLowerCase().includes(search) ||
-          (p.sku || '').toLowerCase().includes(search)
-        );
-      });
-
-      return {
-        data: filtered,
-        meta: {
-          current_page: 1,
-          per_page: filtered.length,
-          total: filtered.length,
-          total_pages: 1,
-        },
-      };
-    }
+    const response = await fetchApi<PaginatedResponse<Product>>(`/products${query}`);
+    return response;
   },
 
   get: async (id: string): Promise<Product> => {
-    try {
-      const response = await fetchApi<ApiResponse<Product>>(`/products/${id}`);
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para obter produto:', error);
-      const { data, error: supaErr } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (supaErr) throw new ApiError(supaErr.message);
-      return data as Product;
-    }
+    const response = await fetchApi<ApiResponse<Product>>(`/products/${id}`);
+    return extractData(response);
   },
 
-  create: async (data: FormData | Partial<Product>): Promise<Product> => {
+  create: async (data: FormData | CreateProductData): Promise<Product> => {
     const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
-    try {
-      const response = await fetchApi<ApiResponse<Product>>('/products', {
-        method: 'POST',
-        body: isFD ? (data as FormData) : JSON.stringify(data),
-      });
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando stub local para criar produto:', error);
-      const insertRes = await supabase.from('products').insert([data as Partial<Product>]);
-      if (insertRes.error) throw new ApiError(insertRes.error.message);
-      const created = Array.isArray(insertRes.data) ? insertRes.data[0] : insertRes.data;
-      return created as Product;
-    }
+
+    const response = await fetchApi<ApiResponse<Product>>('/products', {
+      method: 'POST',
+      body: isFD ? (data as FormData) : JSON.stringify(data),
+    });
+
+    return extractData(response);
   },
 
   update: async (id: string, data: FormData | Partial<Product>): Promise<Product> => {
     const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
-    try {
-      const response = await fetchApi<ApiResponse<Product>>(`/products/${id}`, {
-        method: 'PUT',
-        body: isFD ? (data as FormData) : JSON.stringify(data),
-      });
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando stub local para atualizar produto:', error);
-      const updateRes = await supabase.from('products').update(data as Partial<Product>).eq('id', id);
-      if (updateRes.error) throw new ApiError(updateRes.error.message);
-      const { data: updated, error: supaErr } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (supaErr) throw new ApiError(supaErr.message);
-      return updated as Product;
-    }
+
+    const response = await fetchApi<ApiResponse<Product>>(`/products/${id}`, {
+      method: 'PUT',
+      body: isFD ? (data as FormData) : JSON.stringify(data),
+    });
+
+    return extractData(response);
   },
 
   delete: async (id: string): Promise<void> => {
     await fetchApi(`/products/${id}`, { method: 'DELETE' });
+  },
+
+  updateStock: async (id: string, estoque: number): Promise<Product> => {
+    const response = await fetchApi<ApiResponse<Product>>(`/products/${id}/stock`, {
+      method: 'PATCH',
+      body: JSON.stringify({ estoque }),
+    });
+    return extractData(response);
+  },
+
+  deleteImage: async (id: string, imageId: string): Promise<void> => {
+    await fetchApi(`/products/${id}/images/${imageId}`, { method: 'DELETE' });
   },
 };
 
 // ============ ORÇAMENTOS ============
 
 export const quotesApi = {
-  list: async (filters?: QuoteFilters) => {
+  list: async (filters?: QuoteFilters): Promise<PaginatedResponse<QuoteRequest>> => {
     const params = new URLSearchParams();
+
     if (filters?.search) params.append('search', filters.search);
+    if (filters?.email) params.append('email', filters.email);
     if (filters?.status) params.append('status', filters.status);
+    if (filters?.produto) params.append('produto', filters.produto);
+    if (filters?.dataInicio) params.append('dataInicio', filters.dataInicio);
+    if (filters?.dataFim) params.append('dataFim', filters.dataFim);
     if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.per_page) params.append('per_page', filters.per_page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.sort) params.append('sort', filters.sort);
 
     const query = params.toString() ? `?${params.toString()}` : '';
     const response = await fetchApi<PaginatedResponse<QuoteRequest>>(`/quotes${query}`);
@@ -276,23 +245,15 @@ export const quotesApi = {
 
   get: async (id: string): Promise<QuoteRequest> => {
     const response = await fetchApi<ApiResponse<QuoteRequest>>(`/quotes/${id}`);
-    return response.data;
+    return extractData(response);
   },
 
-  create: async (data: Partial<QuoteRequest>): Promise<QuoteRequest> => {
+  create: async (data: CreateQuoteData): Promise<QuoteRequest> => {
     const response = await fetchApi<ApiResponse<QuoteRequest>>('/quotes', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    return response.data;
-  },
-
-  update: async (id: string, data: Partial<QuoteRequest>): Promise<QuoteRequest> => {
-    const response = await fetchApi<ApiResponse<QuoteRequest>>(`/quotes/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-    return response.data;
+    return extractData(response);
   },
 
   updateStatus: async (id: string, status: string): Promise<QuoteRequest> => {
@@ -300,7 +261,7 @@ export const quotesApi = {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
-    return response.data;
+    return extractData(response);
   },
 
   updateObservacoes: async (id: string, observacoes: string): Promise<QuoteRequest> => {
@@ -308,34 +269,16 @@ export const quotesApi = {
       method: 'PATCH',
       body: JSON.stringify({ observacoes }),
     });
-    return response.data;
+    return extractData(response);
   },
 
   delete: async (id: string): Promise<void> => {
     await fetchApi(`/quotes/${id}`, { method: 'DELETE' });
   },
 
-  createPublic: async (data: {
-    nome: string;
-    email: string;
-    telefone: string;
-    produto: string; // MongoID do produto
-    mensagem?: string;
-    consent_lgpd?: boolean;
-  }): Promise<QuoteRequest> => {
-    const payload: any = {
-      nome: data.nome,
-      email: data.email,
-      telefone: data.telefone,
-      produto: data.produto,
-      mensagem: data.mensagem,
-    };
-    const response = await fetchApi<any>('/quotes', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    // Backend usa { sucesso, dados }
-    return (response.data || response.dados) as QuoteRequest;
+  getStats: async (): Promise<DashboardStats> => {
+    const response = await fetchApi<ApiResponse<DashboardStats>>('/quotes/stats');
+    return extractData(response);
   },
 
   exportCSV: async (filters?: QuoteFilters): Promise<Blob> => {
@@ -361,44 +304,55 @@ export const quotesApi = {
 // ============ CATEGORIAS ============
 
 export const categoriesApi = {
-  list: async (): Promise<Category[]> => {
-    try {
-      const response = await fetchApi<ApiResponse<Category[]>>('/categories');
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando stub local para categorias:', error);
-      const { data, error: supaErr } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('name');
-      if (supaErr) throw new ApiError(supaErr.message);
-      return (data || []) as Category[];
-    }
+  list: async (filters?: {
+    page?: number;
+    limit?: number;
+    ativa?: boolean;
+  }): Promise<PaginatedResponse<Category>> => {
+    const params = new URLSearchParams();
+
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.ativa !== undefined) params.append('ativa', String(filters.ativa));
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetchApi<PaginatedResponse<Category>>(`/categories${query}`);
+    return response;
   },
 
   get: async (id: string): Promise<Category> => {
     const response = await fetchApi<ApiResponse<Category>>(`/categories/${id}`);
-    return response.data;
+    return extractData(response);
   },
 
-  create: async (data: Partial<Category>): Promise<Category> => {
+  create: async (data: FormData | { nome: string; descricao?: string }): Promise<Category> => {
+    const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
+
     const response = await fetchApi<ApiResponse<Category>>('/categories', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFD ? (data as FormData) : JSON.stringify(data),
     });
-    return response.data;
+
+    return extractData(response);
   },
 
-  update: async (id: string, data: Partial<Category>): Promise<Category> => {
+  update: async (id: string, data: FormData | Partial<Category>): Promise<Category> => {
+    const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
+
     const response = await fetchApi<ApiResponse<Category>>(`/categories/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: isFD ? (data as FormData) : JSON.stringify(data),
     });
-    return response.data;
+
+    return extractData(response);
   },
 
   delete: async (id: string): Promise<void> => {
     await fetchApi(`/categories/${id}`, { method: 'DELETE' });
+  },
+
+  deleteImage: async (id: string): Promise<void> => {
+    await fetchApi(`/categories/${id}/image`, { method: 'DELETE' });
   },
 };
 
@@ -421,7 +375,7 @@ export const mediaApi = {
     }
 
     const data = await response.json();
-    return data.data;
+    return extractData(data);
   },
 
   delete: async (url: string): Promise<void> => {
@@ -432,6 +386,14 @@ export const mediaApi = {
   },
 };
 
+// ============ HEALTH CHECK ============
+
+export const healthApi = {
+  check: async (): Promise<{ success: boolean; message: string; timestamp: string }> => {
+    return await fetchApi('/health');
+  },
+};
+
 export default {
   auth: authApi,
   dashboard: dashboardApi,
@@ -439,4 +401,5 @@ export default {
   quotes: quotesApi,
   categories: categoriesApi,
   media: mediaApi,
+  health: healthApi,
 };

@@ -1,86 +1,104 @@
-// Tipos para as entidades da API
+// Tipos para as entidades da API conforme documentação backend
 
 export type ProductStatus = 'ACTIVE' | 'DRAFT';
-export type QuoteStatus = 'NEW' | 'IN_PROGRESS' | 'CONTACTED' | 'WON' | 'LOST';
-export type AdminRole = 'admin' | 'editor';
+export type QuoteStatus = 'novo' | 'em_contato' | 'concluido';
+export type AdminRole = 'admin' | 'user';
+
+// ============ PRODUTO ============
+export interface MediaItem {
+  arquivo: string;
+  alt: string;
+  principal: boolean;
+}
+
+export interface ProductDimensions {
+  altura: number;
+  largura: number;
+  profundidade: number;
+}
+
+export interface ProductSpecifications {
+  peso?: number;
+  dimensoes?: ProductDimensions;
+  cor?: string;
+  material?: string;
+  [key: string]: any;
+}
 
 export interface Product {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  status: ProductStatus;
-  price: number | null;
+  _id: string;
+  nome: string;
+  descricao: string;
+  categoria: {
+    _id: string;
+    nome: string;
+  } | null;
+  estoque: number;
   sku: string;
-  barcode: string;
-  stock_qty: number;
-  allow_backorder: boolean;
-  weight_kg: number | null;
-  dimensions_l: number | null;
-  dimensions_a: number | null;
-  dimensions_p: number | null;
-  country_of_origin: string;
-  hs_code: string;
-  type: string;
-  manufacturer: string;
-  media: MediaItem[];
-  category_id: string | null;
-  seo_title: string;
-  seo_description: string;
-  tags: string[];
-  published: boolean;
-  created_at: string;
-  updated_at: string;
+  imagens: MediaItem[];
+  imagemPrincipal?: string;
+  imagensUrls?: string[];
+  especificacoes?: ProductSpecifications;
+  tags?: string[];
+  ativo: boolean;
+  destaque: boolean;
+  statusEstoque?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export interface MediaItem {
-  url: string;
-  alt: string;
-  type: 'image' | 'video';
-  order: number;
-}
-
+// ============ CATEGORIA ============
 export interface Category {
-  id: string;
-  name: string;
+  _id: string;
+  nome: string;
+  descricao?: string;
   slug: string;
-  created_at: string;
+  ativa: boolean;
+  imagem?: string;
+  imagemUrl?: string;
+  totalProdutos?: number;
+  createdAt: string;
 }
 
-export interface Collection {
-  id: string;
-  name: string;
-  description: string | null;
-  slug: string;
-  created_at: string;
-}
-
+// ============ ORÇAMENTO ============
 export interface QuoteRequest {
-  id: string;
-  name: string;
-  company: string | null;
+  _id: string;
+  nome: string;
+  telefone: string;
   email: string;
-  phone: string;
-  product_id: string | null;
-  product_name: string;
-  message: string | null;
-  consent_lgpd: boolean;
+  empresa?: string | null;
+  produto: {
+    _id: string;
+    nome: string;
+    sku: string;
+    imagemPrincipal?: string;
+    imagensUrls?: string[];
+    descricao?: string;
+  } | string;
+  mensagem: string;
   status: QuoteStatus;
-  assignee: string | null;
-  notes: string | null;
-  source: string;
-  created_at: string;
-  updated_at: string;
+  observacoes?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+  nomeExibicao?: string;
+  isNovo?: boolean;
+  statusBadge?: {
+    cor: string;
+    texto: string;
+  };
 }
 
+// ============ USUÁRIO ============
 export interface AdminUser {
-  id: string;
-  name: string;
+  _id: string;
   email: string;
+  nome: string;
   role: AdminRole;
-  created_at: string;
+  ativo: boolean;
+  createdAt: string;
 }
 
+// ============ AUTENTICAÇÃO ============
 export interface LoginRequest {
   email: string;
   password: string;
@@ -91,19 +109,41 @@ export interface LoginResponse {
   token: string;
 }
 
+// ============ RESPOSTA API ============
 export interface ApiResponse<T> {
-  data: T;
+  sucesso?: boolean;
+  success?: boolean;
+  mensagem?: string;
   message?: string;
+  dados?: T;
+  data?: T;
 }
 
 export interface ApiError {
-  message: string;
-  errors?: Record<string, string[]>;
+  sucesso?: boolean;
+  success?: boolean;
+  mensagem?: string;
+  message?: string;
+  erro?: string;
+  error?: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+  }>;
 }
 
+// ============ PAGINAÇÃO ============
 export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
+  sucesso?: boolean;
+  success?: boolean;
+  dados: T[];
+  paginacao?: {
+    total: number;
+    pagina: number;
+    limite: number;
+    paginas: number;
+  };
+  meta?: {
     current_page: number;
     per_page: number;
     total: number;
@@ -111,25 +151,78 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// ============ DASHBOARD ============
 export interface DashboardStats {
-  new_quotes: number;
-  in_progress_quotes: number;
-  completed_quotes: number;
-  active_products: number;
-  draft_products: number;
+  total?: number;
+  novos?: number;
+  emContato?: number;
+  concluidos?: number;
+  ultimoMes?: number;
+  taxaConclusao?: string;
+  new_quotes?: number;
+  in_progress_quotes?: number;
+  completed_quotes?: number;
+  active_products?: number;
+  draft_products?: number;
+  produtosMaisSolicitados?: Array<{
+    produtoId: string;
+    nome: string;
+    sku: string;
+    quantidade: number;
+  }>;
+  orcamentosRecentes?: number;
 }
 
+// ============ FILTROS ============
 export interface ProductFilters {
   search?: string;
-  status?: ProductStatus;
-  category_id?: string;
+  categoria?: string;
+  ativo?: boolean;
+  destaque?: boolean;
   page?: number;
-  per_page?: number;
+  limit?: number;
+  sort?: string;
 }
 
 export interface QuoteFilters {
   search?: string;
+  email?: string;
   status?: QuoteStatus;
+  produto?: string;
+  dataInicio?: string;
+  dataFim?: string;
   page?: number;
-  per_page?: number;
+  limit?: number;
+  sort?: string;
+}
+
+// ============ CRIAÇÃO DE PRODUTO ============
+export interface CreateProductData {
+  nome: string;
+  descricao: string;
+  categoria: string; // MongoDB ObjectId
+  estoque: number;
+  sku: string;
+  imagens?: File[];
+  especificacoes?: ProductSpecifications;
+  tags?: string[];
+  ativo?: boolean;
+  destaque?: boolean;
+}
+
+// ============ CRIAÇÃO DE CATEGORIA ============
+export interface CreateCategoryData {
+  nome: string;
+  descricao?: string;
+  imagem?: File;
+}
+
+// ============ CRIAÇÃO DE ORÇAMENTO ============
+export interface CreateQuoteData {
+  nome: string;
+  telefone: string;
+  email: string;
+  empresa?: string;
+  produto: string; // ID do produto
+  mensagem: string;
 }

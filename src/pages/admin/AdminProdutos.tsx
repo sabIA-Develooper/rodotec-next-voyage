@@ -4,10 +4,23 @@ import api from '@/services/api';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import {
   Table,
   TableBody,
@@ -20,7 +33,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { Product, Category } from '@/data/types';
+import type { Product, Category } from '@/types/api';
 
 export default function AdminProdutos() {
   const location = useLocation();
@@ -37,15 +50,14 @@ export default function AdminProdutos() {
 
   useEffect(() => {
     loadProducts();
-    api.categories.list().then(setCategories).catch(() => setCategories([]));
+    loadCategories();
   }, []);
 
   useEffect(() => {
     const createdId = (location.state as any)?.createdId;
     if (createdId) {
-      const created = products.find(p => p.id === createdId);
+      const created = products.find((p) => p._id === createdId);
       if (created) {
-        // Exibe feedback e reseta state para evitar repetição
         import('sonner').then(({ toast }) => toast.success('Produto criado com sucesso'));
       }
     }
@@ -53,12 +65,23 @@ export default function AdminProdutos() {
 
   const loadProducts = async () => {
     try {
-      const res = await api.products.list();
-      setProducts(res.data as Product[]);
+      const res = await api.products.list({ limit: 1000 });
+      setProducts(res.dados || []);
     } catch (e) {
+      console.error('Erro ao carregar produtos:', e);
       setProducts([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const res = await api.categories.list({ limit: 100 });
+      setCategories(res.dados || []);
+    } catch (e) {
+      console.error('Erro ao carregar categorias:', e);
+      setCategories([]);
     }
   };
 
@@ -67,28 +90,28 @@ export default function AdminProdutos() {
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter(
-        (p) => p.title.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s)
+        (p) => p.nome.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s)
       );
     }
     if (categoryId && categoryId !== 'all') {
-      list = list.filter((p) => p.category_id === categoryId);
+      list = list.filter((p) => p.categoria?._id === categoryId);
     }
     if (status && status !== 'all') {
-      list = list.filter((p) => p.status === status);
+      list = list.filter((p) => (p.ativo ? 'ativo' : 'inativo') === status);
     }
     if (availability) {
-      list = list.filter((p) => (p.stock_qty || 0) > 0);
+      list = list.filter((p) => (p.estoque || 0) > 0);
     }
     switch (sort) {
       case 'name_asc':
-        list.sort((a, b) => a.title.localeCompare(b.title));
+        list.sort((a, b) => a.nome.localeCompare(b.nome));
         break;
       case 'created_asc':
-        list.sort((a, b) => a.created_at.localeCompare(b.created_at));
+        list.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
         break;
       case 'created_desc':
       default:
-        list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+        list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
         break;
     }
     return list;
@@ -97,7 +120,10 @@ export default function AdminProdutos() {
   const perPage = view === 'grid' ? 12 : 20;
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
   const currentPage = Math.min(page, totalPages);
-  const pagedProducts = filteredProducts.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const pagedProducts = filteredProducts.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
   const createdId = (location.state as any)?.createdId as string | undefined;
 
   return (
@@ -135,7 +161,9 @@ export default function AdminProdutos() {
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
                   {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c._id} value={c._id}>
+                      {c.nome}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -145,8 +173,8 @@ export default function AdminProdutos() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="ACTIVE">Ativo</SelectItem>
-                  <SelectItem value="DRAFT">Rascunho</SelectItem>
+                  <SelectItem value="ativo">Ativo</SelectItem>
+                  <SelectItem value="inativo">Inativo</SelectItem>
                 </SelectContent>
               </Select>
               <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2">
@@ -164,65 +192,78 @@ export default function AdminProdutos() {
                 </SelectContent>
               </Select>
               <div className="flex items-center justify-end gap-2">
-                <Button variant={view === 'list' ? 'default' : 'outline'} onClick={() => setView('list')}>Lista</Button>
-                <Button variant={view === 'grid' ? 'default' : 'outline'} onClick={() => setView('grid')}>Grid</Button>
+                <Button
+                  variant={view === 'list' ? 'default' : 'outline'}
+                  onClick={() => setView('list')}
+                >
+                  Lista
+                </Button>
+                <Button
+                  variant={view === 'grid' ? 'default' : 'outline'}
+                  onClick={() => setView('grid')}
+                >
+                  Grid
+                </Button>
               </div>
             </div>
           </div>
 
           {view === 'list' ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Título</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Estoque</TableHead>
-                <TableHead>Criado</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Carregando...
-                  </TableCell>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>SKU</TableHead>
+                  <TableHead>Estoque</TableHead>
+                  <TableHead>Criado</TableHead>
                 </TableRow>
-              ) : pagedProducts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Nenhum produto encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                pagedProducts.map((product) => (
-                  <TableRow key={product.id} className={createdId === product.id ? 'ring-2 ring-brand' : ''}>
-                    <TableCell>
-                      <Link
-                        to={`/admin/produtos/${product.id}`}
-                        className="font-medium hover:underline"
-                      >
-                        {product.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={product.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                        {product.status === 'ACTIVE' ? 'Ativo' : 'Rascunho'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                    <TableCell>{product.stock_qty}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {formatDistanceToNow(new Date(product.created_at), {
-                        addSuffix: true,
-                        locale: ptBR,
-                      })}
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Carregando...
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : pagedProducts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      Nenhum produto encontrado
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  pagedProducts.map((product) => (
+                    <TableRow
+                      key={product._id}
+                      className={createdId === product._id ? 'ring-2 ring-brand' : ''}
+                    >
+                      <TableCell>
+                        <Link
+                          to={`/admin/produtos/${product._id}`}
+                          className="font-medium hover:underline"
+                        >
+                          {product.nome}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={product.ativo ? 'default' : 'secondary'}>
+                          {product.ativo ? 'Ativo' : 'Inativo'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
+                      <TableCell>{product.estoque}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {formatDistanceToNow(new Date(product.createdAt), {
+                          addSuffix: true,
+                          locale: ptBR,
+                        })}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           ) : (
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {loading ? (
@@ -231,25 +272,41 @@ export default function AdminProdutos() {
                 <p className="text-muted-foreground">Nenhum produto encontrado</p>
               ) : (
                 pagedProducts.map((product) => (
-                  <Card key={product.id} className={createdId === product.id ? 'ring-2 ring-brand' : ''}>
+                  <Card
+                    key={product._id}
+                    className={createdId === product._id ? 'ring-2 ring-brand' : ''}
+                  >
                     <CardContent className="p-0">
                       <div className="aspect-video w-full bg-muted overflow-hidden">
-                        {product.images && product.images[0] ? (
-                          <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                        {product.imagemPrincipal ? (
+                          <img
+                            src={product.imagemPrincipal}
+                            alt={product.nome}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">Sem imagem</div>
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            Sem imagem
+                          </div>
                         )}
                       </div>
                       <div className="p-4 space-y-2">
-                        <Link to={`/admin/produtos/${product.id}`} className="font-medium hover:underline">{product.title}</Link>
+                        <Link
+                          to={`/admin/produtos/${product._id}`}
+                          className="font-medium hover:underline"
+                        >
+                          {product.nome}
+                        </Link>
                         <div className="flex items-center gap-2">
-                          <Badge variant={product.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                            {product.status === 'ACTIVE' ? 'Ativo' : 'Rascunho'}
+                          <Badge variant={product.ativo ? 'default' : 'secondary'}>
+                            {product.ativo ? 'Ativo' : 'Inativo'}
                           </Badge>
-                          
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(product.created_at), { addSuffix: true, locale: ptBR })}
+                          {formatDistanceToNow(new Date(product.createdAt), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
                         </div>
                       </div>
                     </CardContent>
@@ -262,18 +319,41 @@ export default function AdminProdutos() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); setPage(Math.max(1, currentPage - 1)); }} />
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage(Math.max(1, currentPage - 1));
+                    }}
+                  />
                 </PaginationItem>
-                {Array.from({ length: totalPages }).slice(0, 5).map((_, idx) => {
-                  const p = idx + 1;
-                  return (
-                    <PaginationItem key={p}>
-                      <PaginationLink href="#" isActive={p === currentPage} onClick={(e) => { e.preventDefault(); setPage(p); }} />
-                    </PaginationItem>
-                  );
-                })}
+                {Array.from({ length: totalPages })
+                  .slice(0, 5)
+                  .map((_, idx) => {
+                    const p = idx + 1;
+                    return (
+                      <PaginationItem key={p}>
+                        <PaginationLink
+                          href="#"
+                          isActive={p === currentPage}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPage(p);
+                          }}
+                        >
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
                 <PaginationItem>
-                  <PaginationNext href="#" onClick={(e) => { e.preventDefault(); setPage(Math.min(totalPages, currentPage + 1)); }} />
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage(Math.min(totalPages, currentPage + 1));
+                    }}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
