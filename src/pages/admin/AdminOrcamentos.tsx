@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -21,53 +27,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
-  FileText,
-  Search,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  Calendar,
-  User,
-  Phone,
-  Mail,
-  Package,
-  MessageSquare,
-} from 'lucide-react';
+import { Download, Search, Eye, Edit, Trash2 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '@/services/api';
 import { toast } from 'sonner';
-
-interface Orcamento {
-  id: string;
-  nome: string;
-  telefone: string;
-  email: string;
-  produto: string;
-  quantidade: number;
-  mensagem: string;
-  status: 'novo' | 'em_contato' | 'concluido';
-  notasInternas: string;
-  criadoEm: string;
-  atualizadoEm: string;
-}
+import type { QuoteRequest } from '@/types/api';
 
 export default function AdminOrcamentos() {
-  const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
-  const [filteredOrcamentos, setFilteredOrcamentos] = useState<Orcamento[]>([]);
+  const [orcamentos, setOrcamentos] = useState<QuoteRequest[]>([]);
+  const [filteredOrcamentos, setFilteredOrcamentos] = useState<QuoteRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todos');
-  const [selectedOrcamento, setSelectedOrcamento] = useState<Orcamento | null>(null);
+  const [selectedOrcamento, setSelectedOrcamento] = useState<QuoteRequest | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadOrcamentos();
@@ -78,24 +58,35 @@ export default function AdminOrcamentos() {
   }, [orcamentos, searchTerm, statusFilter]);
 
   const loadOrcamentos = async () => {
-    const res = await api.quotes.list({ page: 1, per_page: 200 });
-    setOrcamentos(res.data as any);
+    try {
+      setLoading(true);
+      const res = await api.quotes.list({ limit: 1000, sort: '-createdAt' });
+      setOrcamentos(res.dados || []);
+    } catch (e) {
+      console.error('Erro ao carregar orçamentos:', e);
+      toast.error('Erro ao carregar orçamentos');
+      setOrcamentos([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filterOrcamentos = () => {
     let filtered = orcamentos;
 
     if (searchTerm) {
-      filtered = filtered.filter(o =>
-        o.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.telefone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.produto.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (o) =>
+          o.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          o.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          o.telefone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (typeof o.produto === 'object' &&
+            o.produto.nome.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     if (statusFilter !== 'todos') {
-      filtered = filtered.filter(o => o.status === statusFilter);
+      filtered = filtered.filter((o) => o.status === statusFilter);
     }
 
     setFilteredOrcamentos(filtered);
@@ -104,9 +95,9 @@ export default function AdminOrcamentos() {
 
   const getStatusBadge = (status: string) => {
     const map: Record<string, { label: string; variant: any }> = {
-      novo: { label: 'Novo', variant: 'statusNew' },
-      em_contato: { label: 'Em Contato', variant: 'statusProgress' },
-      concluido: { label: 'Concluído', variant: 'statusDone' },
+      novo: { label: 'Novo', variant: 'default' },
+      em_contato: { label: 'Em Contato', variant: 'secondary' },
+      concluido: { label: 'Concluído', variant: 'outline' },
     };
     const config = map[status] || { label: status, variant: 'secondary' };
     return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -135,21 +126,20 @@ export default function AdminOrcamentos() {
   };
 
   const exportToCSV = () => {
-    const headers = ['ID', 'Nome', 'Telefone', 'Email', 'Produto', 'Quantidade', 'Status', 'Data'];
-    const rows = filteredOrcamentos.map(o => [
-      o.id,
+    const headers = ['ID', 'Nome', 'Telefone', 'Email', 'Produto', 'Status', 'Data'];
+    const rows = filteredOrcamentos.map((o) => [
+      o._id.slice(-6),
       o.nome,
       o.telefone,
       o.email,
-      o.produto,
-      o.quantidade.toString(),
+      typeof o.produto === 'object' ? o.produto.nome : o.produto || '—',
       o.status,
-      format(new Date(o.criadoEm), 'dd/MM/yyyy HH:mm', { locale: ptBR })
+      format(new Date(o.createdAt), 'dd/MM/yyyy HH:mm', { locale: ptBR }),
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -234,26 +224,36 @@ export default function AdminOrcamentos() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentItems.length === 0 ? (
+                  {loading ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-slate-500">
+                      <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                        Carregando...
+                      </TableCell>
+                    </TableRow>
+                  ) : currentItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-slate-500">
                         Nenhum orçamento encontrado
                       </TableCell>
                     </TableRow>
                   ) : (
                     currentItems.map((orcamento) => (
-                      <TableRow key={(orcamento as any)._id || (orcamento as any).id}>
+                      <TableRow key={orcamento._id}>
                         <TableCell className="font-medium text-slate-900">
-                          #{String((orcamento as any)._id || (orcamento as any).id).slice(-6)}
+                          #{orcamento._id.slice(-6)}
                         </TableCell>
                         <TableCell className="text-slate-900">{orcamento.nome}</TableCell>
                         <TableCell className="text-slate-900">{orcamento.telefone}</TableCell>
                         <TableCell className="text-slate-900">{orcamento.email}</TableCell>
-                        <TableCell className="text-slate-900">{(orcamento as any).produto?.nome || (orcamento as any).produto || '—'}</TableCell>
+                        <TableCell className="text-slate-900">
+                          {typeof orcamento.produto === 'object'
+                            ? orcamento.produto.nome
+                            : orcamento.produto || '—'}
+                        </TableCell>
                         <TableCell>
                           <Select
                             value={orcamento.status}
-                            onValueChange={(value) => handleStatusChange(String((orcamento as any)._id || (orcamento as any).id), value)}
+                            onValueChange={(value) => handleStatusChange(orcamento._id, value)}
                           >
                             <SelectTrigger className="w-32 h-8 text-xs">
                               <SelectValue />
@@ -266,7 +266,7 @@ export default function AdminOrcamentos() {
                           </Select>
                         </TableCell>
                         <TableCell className="text-slate-600 text-sm">
-                          {formatDistanceToNow(new Date((orcamento as any).createdAt || (orcamento as any).criadoEm), {
+                          {formatDistanceToNow(new Date(orcamento.createdAt), {
                             addSuffix: true,
                             locale: ptBR,
                           })}
@@ -298,7 +298,7 @@ export default function AdminOrcamentos() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(String((orcamento as any)._id || (orcamento as any).id))}
+                              onClick={() => handleDelete(orcamento._id)}
                               className="h-8 px-2 text-danger hover:text-danger/90"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -346,9 +346,7 @@ export default function AdminOrcamentos() {
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-[#0B1220]">Detalhes do Orçamento</DialogTitle>
-              <DialogDescription>
-                Informações completas do orçamento
-              </DialogDescription>
+              <DialogDescription>Informações completas do orçamento</DialogDescription>
             </DialogHeader>
             {selectedOrcamento && (
               <div className="space-y-4">
@@ -365,9 +363,19 @@ export default function AdminOrcamentos() {
                     <Label className="text-sm font-medium text-gray-700">Email</Label>
                     <p className="text-[#0B1220]">{selectedOrcamento.email}</p>
                   </div>
+                  {selectedOrcamento.empresa && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Empresa</Label>
+                      <p className="text-[#0B1220]">{selectedOrcamento.empresa}</p>
+                    </div>
+                  )}
                   <div>
                     <Label className="text-sm font-medium text-gray-700">Produto</Label>
-                    <p className="text-[#0B1220]">{(selectedOrcamento as any).produto?.nome || (selectedOrcamento as any).produto || '—'}</p>
+                    <p className="text-[#0B1220]">
+                      {typeof selectedOrcamento.produto === 'object'
+                        ? selectedOrcamento.produto.nome
+                        : selectedOrcamento.produto || '—'}
+                    </p>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-700">Status</Label>
@@ -376,18 +384,32 @@ export default function AdminOrcamentos() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Mensagem</Label>
-                  <p className="text-[#0B1220] bg-gray-50 p-3 rounded-md">{selectedOrcamento.mensagem}</p>
+                  <p className="text-[#0B1220] bg-gray-50 p-3 rounded-md">
+                    {selectedOrcamento.mensagem}
+                  </p>
                 </div>
-                {(selectedOrcamento as any).observacoes && (
+                {selectedOrcamento.observacoes && (
                   <div>
                     <Label className="text-sm font-medium text-gray-700">Notas Internas</Label>
-                    <p className="text-[#0B1220] bg-blue-50 p-3 rounded-md">{(selectedOrcamento as any).observacoes}</p>
+                    <p className="text-[#0B1220] bg-blue-50 p-3 rounded-md">
+                      {selectedOrcamento.observacoes}
+                    </p>
                   </div>
                 )}
                 <div className="text-sm text-gray-500">
-                  <p>Criado em: {format(new Date((selectedOrcamento as any).createdAt || (selectedOrcamento as any).criadoEm), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</p>
-                  {(selectedOrcamento as any).updatedAt && (
-                    <p>Atualizado em: {format(new Date((selectedOrcamento as any).updatedAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</p>
+                  <p>
+                    Criado em:{' '}
+                    {format(new Date(selectedOrcamento.createdAt), 'dd/MM/yyyy HH:mm', {
+                      locale: ptBR,
+                    })}
+                  </p>
+                  {selectedOrcamento.updatedAt && (
+                    <p>
+                      Atualizado em:{' '}
+                      {format(new Date(selectedOrcamento.updatedAt), 'dd/MM/yyyy HH:mm', {
+                        locale: ptBR,
+                      })}
+                    </p>
                   )}
                 </div>
               </div>
@@ -405,9 +427,7 @@ export default function AdminOrcamentos() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle className="text-[#0B1220]">Editar Orçamento</DialogTitle>
-              <DialogDescription>
-                Atualize as informações do orçamento
-              </DialogDescription>
+              <DialogDescription>Atualize as informações do orçamento</DialogDescription>
             </DialogHeader>
             {selectedOrcamento && (
               <form
@@ -416,7 +436,7 @@ export default function AdminOrcamentos() {
                   const formData = new FormData(e.currentTarget);
                   const observacoes = String(formData.get('observacoes') || '');
                   try {
-                    await api.quotes.updateObservacoes(String((selectedOrcamento as any)._id || (selectedOrcamento as any).id), observacoes);
+                    await api.quotes.updateObservacoes(selectedOrcamento._id, observacoes);
                     toast.success('Orçamento atualizado com sucesso!');
                     await loadOrcamentos();
                     setIsEditModalOpen(false);
@@ -431,7 +451,7 @@ export default function AdminOrcamentos() {
                   <Textarea
                     id="observacoes"
                     name="observacoes"
-                    defaultValue={(selectedOrcamento as any).observacoes}
+                    defaultValue={selectedOrcamento.observacoes || ''}
                     rows={4}
                     className="border-gray-300"
                   />
