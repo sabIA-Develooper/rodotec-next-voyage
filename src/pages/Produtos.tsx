@@ -21,7 +21,7 @@ const Produtos = () => {
   const [availability, setAvailability] = useState<boolean>(false);
   const [sort, setSort] = useState<string>("created_desc");
   const [page, setPage] = useState<number>(1);
-  const [quickView, setQuickView] = useState<Product | null>(null);
+  const [quickView, setQuickView] = useState<any>(null);
 
   useEffect(() => {
     loadProducts();
