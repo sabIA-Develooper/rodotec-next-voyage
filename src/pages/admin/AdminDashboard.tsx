@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { repository } from '@/data/repository';
+import api from '@/services/api';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,68 +24,70 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-interface DashboardStats {
-  total_products: number;
-  active_products: number;
-  draft_products: number;
-  total_quotes: number;
-  new_quotes: number;
-  in_progress_quotes: number;
-  completed_quotes: number;
-}
+import type { DashboardStats, QuoteRequest, Product } from '@/types/api';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
-    total_products: 0,
+    novos: 0,
+    emContato: 0,
+    concluidos: 0,
     active_products: 0,
     draft_products: 0,
-    total_quotes: 0,
-    new_quotes: 0,
-    in_progress_quotes: 0,
-    completed_quotes: 0,
   });
 
-  const [recentQuotes, setRecentQuotes] = useState<any[]>([]);
-  const [recentProducts, setRecentProducts] = useState<any[]>([]);
+  const [recentQuotes, setRecentQuotes] = useState<QuoteRequest[]>([]);
+  const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStats();
-    loadRecentQuotes();
-    loadRecentProducts();
+    loadDashboardData();
   }, []);
 
-  const loadStats = () => {
-    const products = repository.getProducts();
-    const quotes = repository.getQuotes();
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
 
-    setStats({
-      total_products: products.length,
-      active_products: products.filter(p => p.status === 'ACTIVE').length,
-      draft_products: products.filter(p => p.status === 'DRAFT').length,
-      total_quotes: quotes.length,
-      new_quotes: quotes.filter(q => q.status === 'NEW').length,
-      in_progress_quotes: quotes.filter(q => q.status === 'IN_PROGRESS').length,
-      completed_quotes: quotes.filter(q => q.status === 'WON' || q.status === 'LOST').length,
-    });
-  };
+      // Carrega estatísticas de orçamentos
+      const statsData = await api.quotes.getStats();
+      
+      // Buscar contagem de produtos ativos e inativos
+      const [activeProductsRes, inactiveProductsRes] = await Promise.all([
+        api.products.list({ ativo: true, limit: 1 }).catch(() => ({ dados: [] })),
+        api.products.list({ ativo: false, limit: 1 }).catch(() => ({ dados: [] })),
+      ]);
 
-  const loadRecentQuotes = () => {
-    const quotes = repository.getQuotes();
-    setRecentQuotes(quotes.slice(0, 5));
-  };
+      // Backend retorna { total, novos, emContato, concluidos, ultimoMes, taxaConclusao, ... }
+      setStats({
+        novos: statsData.novos || 0,
+        emContato: statsData.emContato || 0,
+        concluidos: statsData.concluidos || 0,
+        active_products: activeProductsRes.paginacao?.total || activeProductsRes.dados?.length || 0,
+        draft_products: inactiveProductsRes.paginacao?.total || inactiveProductsRes.dados?.length || 0,
+        taxaConclusao: statsData.taxaConclusao,
+      });
 
-  const loadRecentProducts = () => {
-    const products = repository.getProducts();
-    setRecentProducts(products.slice(0, 5));
+      // Carrega orçamentos recentes
+      const quotesData = await api.dashboard.getRecentQuotes(5);
+      setRecentQuotes(quotesData || []);
+
+      // Carrega produtos recentes
+      const productsData = await api.dashboard.getRecentProducts(5);
+      setRecentProducts(productsData || []);
+    } catch (error) {
+      console.error('Erro ao carregar dados do dashboard:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-      NEW: { label: 'Novo', variant: 'default' },
-      IN_PROGRESS: { label: 'Em andamento', variant: 'secondary' },
-      WON: { label: 'Ganho', variant: 'default' },
-      LOST: { label: 'Perdido', variant: 'destructive' },
+    const variants: Record<
+      string,
+      { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+    > = {
+      novo: { label: 'Novo', variant: 'default' },
+      em_contato: { label: 'Em contato', variant: 'secondary' },
+      concluido: { label: 'Concluído', variant: 'outline' },
     };
     const config = variants[status] || { label: status, variant: 'outline' };
     return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -107,7 +109,7 @@ export default function AdminDashboard() {
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.new_quotes}</div>
+              <div className="text-2xl font-bold">{stats.novos || 0}</div>
               <p className="text-xs text-muted-foreground">Aguardando atendimento</p>
             </CardContent>
           </Card>
@@ -118,7 +120,7 @@ export default function AdminDashboard() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.in_progress_quotes}</div>
+              <div className="text-2xl font-bold">{stats.emContato || 0}</div>
               <p className="text-xs text-muted-foreground">Orçamentos em negociação</p>
             </CardContent>
           </Card>
@@ -129,8 +131,10 @@ export default function AdminDashboard() {
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completed_quotes}</div>
-              <p className="text-xs text-muted-foreground">Ganhos ou perdidos</p>
+              <div className="text-2xl font-bold">{stats.concluidos || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.taxaConclusao ? `${stats.taxaConclusao}% de taxa` : 'Total concluídos'}
+              </p>
             </CardContent>
           </Card>
 
@@ -140,8 +144,10 @@ export default function AdminDashboard() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.active_products}</div>
-              <p className="text-xs text-muted-foreground">{stats.draft_products} rascunhos</p>
+              <div className="text-2xl font-bold">{stats.active_products || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.draft_products || 0} rascunhos
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -160,7 +166,9 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {recentQuotes.length === 0 ? (
+            {loading ? (
+              <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+            ) : recentQuotes.length === 0 ? (
               <p className="text-center py-8 text-muted-foreground">Nenhum orçamento encontrado</p>
             ) : (
               <Table>
@@ -175,17 +183,21 @@ export default function AdminDashboard() {
                 </TableHeader>
                 <TableBody>
                   {recentQuotes.map((quote) => (
-                    <TableRow key={quote.id}>
+                    <TableRow key={quote._id}>
                       <TableCell>{getStatusBadge(quote.status)}</TableCell>
                       <TableCell>
-                        <Link to={`/admin/orcamentos/${quote.id}`} className="hover:underline">
-                          {quote.customer_name}
+                        <Link to={`/admin/orcamentos/${quote._id}`} className="hover:underline">
+                          {quote.nome}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{quote.company_name || '—'}</TableCell>
-                      <TableCell className="text-muted-foreground">{quote.product_interest || '—'}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {quote.empresa || '—'}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {typeof quote.produto === 'object' ? quote.produto.nome : '—'}
+                      </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {formatDistanceToNow(new Date(quote.created_at), {
+                        {formatDistanceToNow(new Date(quote.createdAt), {
                           addSuffix: true,
                           locale: ptBR,
                         })}
@@ -212,7 +224,9 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {recentProducts.length === 0 ? (
+            {loading ? (
+              <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+            ) : recentProducts.length === 0 ? (
               <p className="text-center py-8 text-muted-foreground">Nenhum produto encontrado</p>
             ) : (
               <Table>
@@ -227,24 +241,29 @@ export default function AdminDashboard() {
                 </TableHeader>
                 <TableBody>
                   {recentProducts.map((product) => (
-                    <TableRow key={product.id}>
+                    <TableRow key={product._id}>
                       <TableCell>
-                        <Link to={`/admin/produtos/${product.id}`} className="hover:underline">
-                          {product.title}
+                        <Link to={`/admin/produtos/${product._id}`} className="hover:underline">
+                          {product.nome}
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={product.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                          {product.status === 'ACTIVE' ? 'Ativo' : 'Rascunho'}
+                        <Badge variant={product.ativo ? 'default' : 'secondary'}>
+                          {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                      <TableCell>{product.stock_qty}</TableCell>
+                      <TableCell>{product.estoque}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {formatDistanceToNow(new Date(product.updated_at), {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
+                        {product.updatedAt
+                          ? formatDistanceToNow(new Date(product.updatedAt), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })
+                          : formatDistanceToNow(new Date(product.createdAt), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })}
                       </TableCell>
                     </TableRow>
                   ))}

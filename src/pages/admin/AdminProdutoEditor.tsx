@@ -1,18 +1,35 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { slugify } from '@/data/repository';
 import api from '@/services/api';
-import type { Product } from '@/data/types';
+import type { Product, Category, ProductSpecifications } from '@/types/api';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Save, X, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface FormData {
+  nome: string;
+  descricao: string;
+  categoria: string;
+  estoque: number;
+  sku: string;
+  ativo: boolean;
+  destaque: boolean;
+  tags: string[];
+  especificacoes?: ProductSpecifications;
+}
 
 export default function AdminProdutoEditor() {
   const { id } = useParams();
@@ -21,29 +38,27 @@ export default function AdminProdutoEditor() {
 
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
-  const [formData, setFormData] = useState<Partial<Product>>({
-    title: '',
-    slug: '',
-    description: '',
-    short_description: '',
-    status: 'DRAFT',
-    price: null,
-    sku: null,
-    stock_qty: 0,
-    category_id: '',
-    images: [],
-    technical_specs: {},
-    dimensions: {},
-    seo_title: null,
-    seo_description: null,
+  const [formData, setFormData] = useState<FormData>({
+    nome: '',
+    descricao: '',
+    categoria: '',
+    estoque: 0,
+    sku: '',
+    ativo: false,
+    destaque: false,
+    tags: [],
+    especificacoes: {},
   });
 
   const [specs, setSpecs] = useState<Array<{ key: string; value: string }>>([]);
-  const categories = repository.getCategories();
+  const [tagsInput, setTagsInput] = useState('');
 
   useEffect(() => {
+    loadCategories();
     if (isEditing && id) {
       loadProduct();
     } else {
@@ -51,93 +66,111 @@ export default function AdminProdutoEditor() {
     }
   }, [id, isEditing]);
 
-  const loadProduct = () => {
+  const loadCategories = async () => {
+    try {
+      const res = await api.categories.list({ limit: 100 });
+      setCategories(res.dados || []);
+    } catch (e) {
+      console.error('Erro ao carregar categorias:', e);
+      toast.error('Erro ao carregar categorias');
+    }
+  };
+
+  const loadProduct = async () => {
     if (!id) return;
-    const product = repository.getProduct(id);
-    if (!product) {
-      toast.error('Produto não encontrado');
+    try {
+      const product = await api.products.get(id);
+      setFormData({
+        nome: product.nome,
+        descricao: product.descricao,
+        categoria: product.categoria?._id || '',
+        estoque: product.estoque,
+        sku: product.sku,
+        ativo: product.ativo,
+        destaque: product.destaque,
+        tags: product.tags || [],
+        especificacoes: product.especificacoes,
+      });
+
+      // Carregar imagens existentes
+      if (product.imagensUrls) {
+        setExistingImages(product.imagensUrls);
+      }
+
+      // Converter especificações para array
+      if (product.especificacoes) {
+        // Garantir que especificacoes seja um objeto (pode vir como string do backend)
+        let specsObj: ProductSpecifications = {};
+        if (typeof product.especificacoes === 'string') {
+          try {
+            specsObj = JSON.parse(product.especificacoes);
+          } catch (e) {
+            console.error('Erro ao fazer parse de especificacoes:', e);
+          }
+        } else {
+          specsObj = product.especificacoes;
+        }
+
+        const specsArray = Object.entries(specsObj)
+          .filter(([key]) => key !== 'peso' && key !== 'dimensoes')
+          .map(([key, value]) => ({
+            key,
+            value: String(value),
+          }));
+        setSpecs(specsArray);
+      }
+
+      // Converter tags para string
+      if (product.tags && product.tags.length > 0) {
+        setTagsInput(product.tags.join(', '));
+      }
+
+      setLoading(false);
+    } catch (error: any) {
+      console.error('Error loading product:', error);
+      toast.error(error.message || 'Produto não encontrado');
       navigate('/admin/produtos');
+    }
+  };
+
+  const handleFilesSelected = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const maxFiles = 5;
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+
+    const currentCount = selectedImages.length + existingImages.length;
+    if (currentCount + files.length > maxFiles) {
+      toast.error(`Máximo de ${maxFiles} imagens por produto`);
       return;
     }
-    setFormData(product);
-    // Convert technical_specs to array
-    const specsArray = Object.entries(product.technical_specs || {}).map(([key, value]) => ({
-      key,
-      value: String(value),
-    }));
-    setSpecs(specsArray);
-    setLoading(false);
-  };
 
-  const generateSlug = useCallback((title: string) => {
-    return slugify(title);
-  }, []);
-
-  const handleTitleChange = (title: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      title,
-      slug: generateSlug(title),
-      seo_title: title || prev.seo_title,
-    }));
-  };
-
-  const handleFilesSelected = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const maxItems = 10;
-    const maxSizeBytes = 20 * 1024 * 1024; // 20MB
-
-    setUploading(true);
-    try {
-      const currentCount = formData.images?.length || 0;
-      if (currentCount + files.length > maxItems) {
-        toast.error(`Máximo de ${maxItems} imagens por produto`);
-        setUploading(false);
-        return;
+    const newFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) {
+        toast.error(`Arquivo não suportado: ${file.name}`);
+        continue;
       }
-
-      const newImages: string[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (!file.type.startsWith('image/')) {
-          toast.error(`Arquivo não suportado: ${file.name}`);
-          continue;
-        }
-        if (file.size > maxSizeBytes) {
-          toast.error(`Imagem muito grande (${file.name}). Máx 20MB`);
-          continue;
-        }
-
-        // Convert to Data URL for local storage
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        newImages.push(dataUrl);
+      if (file.size > maxSizeBytes) {
+        toast.error(`Imagem muito grande (${file.name}). Máximo 5MB`);
+        continue;
       }
+      newFiles.push(file);
+    }
 
-      if (newImages.length > 0) {
-        setFormData((prev) => ({
-          ...prev,
-          images: [...(prev.images || []), ...newImages],
-        }));
-        toast.success(`${newImages.length} imagem(ns) adicionada(s)`);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Falha ao processar imagens');
-    } finally {
-      setUploading(false);
+    if (newFiles.length > 0) {
+      setSelectedImages([...selectedImages, ...newFiles]);
+      toast.success(`${newFiles.length} imagem(ns) adicionada(s)`);
     }
   };
 
   const handleRemoveImage = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: (prev.images || []).filter((_, i) => i !== index),
-    }));
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
   };
 
   const handleAddSpec = () => {
@@ -155,66 +188,70 @@ export default function AdminProdutoEditor() {
   };
 
   const handleSave = async () => {
-    // Validations
-    if (!formData.title?.trim() || formData.title.length < 3) {
+    // Validações
+    if (!formData.nome?.trim() || formData.nome.length < 3) {
       toast.error('O nome do produto deve ter pelo menos 3 caracteres');
       return;
     }
-    if (!formData.category_id) {
+    if (!formData.descricao?.trim() || formData.descricao.length < 10) {
+      toast.error('A descrição deve ter pelo menos 10 caracteres');
+      return;
+    }
+    if (!formData.categoria) {
       toast.error('Selecione uma categoria');
       return;
     }
-    if (formData.status === 'ACTIVE' && (!formData.images || formData.images.length === 0)) {
-      toast.error('Adicione ao menos uma imagem para publicar o produto');
+    if (!formData.sku?.trim()) {
+      toast.error('Informe o SKU do produto');
+      return;
+    }
+    if (formData.ativo && selectedImages.length === 0 && existingImages.length === 0) {
+      toast.error('Adicione ao menos uma imagem para ativar o produto');
       return;
     }
 
     setSaving(true);
 
     try {
-      // Convert specs array to object
-      const technical_specs: Record<string, string> = {};
-      specs.forEach((spec) => {
-        if (spec.key.trim()) {
-          technical_specs[spec.key.trim()] = spec.value.trim();
-        }
+      // Preparar FormData
+      const fd = new FormData();
+      fd.append('nome', formData.nome);
+      fd.append('descricao', formData.descricao);
+      fd.append('categoria', formData.categoria);
+      fd.append('estoque', String(formData.estoque));
+      fd.append('sku', formData.sku);
+      fd.append('ativo', String(formData.ativo));
+      fd.append('destaque', String(formData.destaque));
+
+      // Adicionar imagens
+      selectedImages.forEach((file) => {
+        fd.append('imagens', file);
       });
 
-      const productData: Partial<Product> = {
-        ...formData,
-        technical_specs,
-      };
-
-      const toFormData = async (): Promise<FormData> => {
-        const fd = new FormData();
-        fd.append('nome', formData.title || '');
-        fd.append('descricao', formData.description || '');
-        if (formData.price != null) fd.append('preco', String(formData.price));
-        fd.append('categoria', formData.category_id || '');
-        fd.append('estoque', String(formData.stock_qty || 0));
-        if (formData.sku) fd.append('sku', formData.sku);
-        for (const img of formData.images || []) {
-          try {
-            const res = await fetch(img);
-            const blob = await res.blob();
-            fd.append('imagens', blob, `imagem-${Date.now()}.png`);
-          } catch {}
+      // Converter especificações para objeto
+      const especificacoes: ProductSpecifications = {};
+      specs.forEach((spec) => {
+        if (spec.key.trim()) {
+          especificacoes[spec.key.trim()] = spec.value.trim();
         }
-        // Especificações
-        const specObj: Record<string, string> = {};
-        specs.forEach((s) => { if (s.key.trim()) specObj[s.key.trim()] = s.value.trim(); });
-        fd.append('especificacoes', JSON.stringify(specObj));
-        return fd;
-      };
+      });
+      fd.append('especificacoes', JSON.stringify(especificacoes));
+
+      // Converter tags
+      const tags = tagsInput
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t);
+      fd.append('tags', JSON.stringify(tags));
 
       if (isEditing && id) {
-        await api.products.update(id, await toFormData());
+        await api.products.update(id, fd);
         toast.success('Produto atualizado com sucesso');
+        navigate('/admin/produtos');
       } else {
-        const created = await api.products.create(await toFormData());
+        const created = await api.products.create(fd);
         toast.success('Produto criado com sucesso');
-        const createdId = (created as any)._id || (created as any).id;
-        navigate('/admin/produtos', { state: { createdId } });
+        navigate('/admin/produtos', { state: { createdId: created._id } });
       }
     } catch (error: any) {
       console.error('Error saving product:', error);
@@ -275,39 +312,20 @@ export default function AdminProdutoEditor() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="title">Título *</Label>
+                  <Label htmlFor="nome">Nome do Produto *</Label>
                   <Input
-                    id="title"
-                    value={formData.title || ''}
-                    onChange={(e) => handleTitleChange(e.target.value)}
+                    id="nome"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     placeholder="Nome do produto"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="slug">Slug</Label>
-                  <Input
-                    id="slug"
-                    value={formData.slug || ''}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="slug-do-produto"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="short_description">Descrição curta</Label>
+                  <Label htmlFor="descricao">Descrição *</Label>
                   <Textarea
-                    id="short_description"
-                    value={formData.short_description || ''}
-                    onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                    placeholder="Breve descrição do produto"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Descrição detalhada</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description || ''}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    id="descricao"
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                     placeholder="Descrição completa do produto"
                     rows={6}
                   />
@@ -324,7 +342,7 @@ export default function AdminProdutoEditor() {
                   <Label htmlFor="product-images" className="cursor-pointer">
                     <span className="text-sm font-medium">Clique para adicionar imagens</span>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Até 10 imagens, máximo 20 MB cada
+                      Até 5 imagens, máximo 5 MB cada (JPG, PNG, GIF)
                     </p>
                   </Label>
                   <input
@@ -337,29 +355,60 @@ export default function AdminProdutoEditor() {
                   />
                 </div>
 
-                {formData.images && formData.images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {formData.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                        <img
-                          src={img}
-                          alt={`${formData.title} - Imagem ${idx + 1}`}
-                          className="aspect-square w-full object-cover rounded-md border"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(idx)}
-                          className="absolute top-2 right-2 bg-background/90 border rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          aria-label="Remover imagem"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
+                {/* Imagens existentes */}
+                {existingImages.length > 0 && (
+                  <div className="mt-4">
+                    <Label className="text-sm text-muted-foreground mb-2 block">
+                      Imagens atuais
+                    </Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {existingImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={img}
+                            alt={`${formData.nome} - Imagem ${idx + 1}`}
+                            className="aspect-square w-full object-cover rounded-md border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveExistingImage(idx)}
+                            className="absolute top-2 right-2 bg-background/90 border rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            aria-label="Remover imagem"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-                {uploading && (
-                  <p className="mt-2 text-sm text-muted-foreground">Processando imagens...</p>
+
+                {/* Novas imagens */}
+                {selectedImages.length > 0 && (
+                  <div className="mt-4">
+                    <Label className="text-sm text-muted-foreground mb-2 block">
+                      Novas imagens (serão enviadas ao salvar)
+                    </Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {selectedImages.map((file, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Nova imagem ${idx + 1}`}
+                            className="aspect-square w-full object-cover rounded-md border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(idx)}
+                            className="absolute top-2 right-2 bg-background/90 border rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            aria-label="Remover imagem"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -400,110 +449,19 @@ export default function AdminProdutoEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Dimensões</CardTitle>
+                <CardTitle>Tags</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="width">Largura (m)</Label>
-                    <Input
-                      id="width"
-                      type="number"
-                      step="0.01"
-                      value={formData.dimensions?.width || ''}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          dimensions: {
-                            ...formData.dimensions,
-                            width: e.target.value ? parseFloat(e.target.value) : undefined,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="height">Altura (m)</Label>
-                    <Input
-                      id="height"
-                      type="number"
-                      step="0.01"
-                      value={formData.dimensions?.height || ''}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          dimensions: {
-                            ...formData.dimensions,
-                            height: e.target.value ? parseFloat(e.target.value) : undefined,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="length">Comprimento (m)</Label>
-                    <Input
-                      id="length"
-                      type="number"
-                      step="0.01"
-                      value={formData.dimensions?.length || ''}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          dimensions: {
-                            ...formData.dimensions,
-                            length: e.target.value ? parseFloat(e.target.value) : undefined,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="weight">Peso (kg)</Label>
-                    <Input
-                      id="weight"
-                      type="number"
-                      step="0.01"
-                      value={formData.dimensions?.weight || ''}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          dimensions: {
-                            ...formData.dimensions,
-                            weight: e.target.value ? parseFloat(e.target.value) : undefined,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>SEO</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="seo_title">Título SEO</Label>
-                  <Input
-                    id="seo_title"
-                    value={formData.seo_title || ''}
-                    onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
-                    placeholder="Título para motores de busca"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="seo_description">Descrição SEO</Label>
-                  <Textarea
-                    id="seo_description"
-                    value={formData.seo_description || ''}
-                    onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
-                    placeholder="Descrição para motores de busca"
-                    rows={3}
-                  />
-                </div>
+              <CardContent>
+                <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+                <Input
+                  id="tags"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="eletrônico, notebook, trabalho"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Use vírgulas para separar as tags
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -516,26 +474,46 @@ export default function AdminProdutoEditor() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="ativo">Ativo</Label>
                   <Select
-                    value={formData.status}
-                    onValueChange={(value: 'ACTIVE' | 'DRAFT') =>
-                      setFormData({ ...formData, status: value })
-                    }
+                    value={String(formData.ativo)}
+                    onValueChange={(value) => setFormData({ ...formData, ativo: value === 'true' })}
                   >
-                    <SelectTrigger id="status">
+                    <SelectTrigger id="ativo">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DRAFT">Rascunho</SelectItem>
-                      <SelectItem value="ACTIVE">Publicado</SelectItem>
+                      <SelectItem value="false">Inativo</SelectItem>
+                      <SelectItem value="true">Ativo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Badge variant={formData.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                    {formData.status === 'ACTIVE' ? 'Publicado' : 'Rascunho'}
+                  <Label htmlFor="destaque">Destaque</Label>
+                  <Select
+                    value={String(formData.destaque)}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, destaque: value === 'true' })
+                    }
+                  >
+                    <SelectTrigger id="destaque">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false">Não</SelectItem>
+                      <SelectItem value="true">Sim</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Badge variant={formData.ativo ? 'default' : 'secondary'}>
+                    {formData.ativo ? 'Ativo' : 'Inativo'}
                   </Badge>
+                  {formData.destaque && (
+                    <Badge variant="default" className="ml-2">
+                      Destaque
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -546,18 +524,18 @@ export default function AdminProdutoEditor() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="category">Categoria *</Label>
+                  <Label htmlFor="categoria">Categoria *</Label>
                   <Select
-                    value={formData.category_id || ''}
-                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                    value={formData.categoria}
+                    onValueChange={(value) => setFormData({ ...formData, categoria: value })}
                   >
-                    <SelectTrigger id="category">
+                    <SelectTrigger id="categoria">
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
+                        <SelectItem key={cat._id} value={cat._id}>
+                          {cat.nome}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -568,39 +546,26 @@ export default function AdminProdutoEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Preço e Estoque</CardTitle>
+                <CardTitle>Estoque e SKU</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="price">Preço (R$)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price || ''}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price: e.target.value ? parseFloat(e.target.value) : null })
-                    }
-                    placeholder="0.00"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="sku">SKU</Label>
+                  <Label htmlFor="sku">SKU *</Label>
                   <Input
                     id="sku"
-                    value={formData.sku || ''}
+                    value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                     placeholder="SKU-000"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="stock">Estoque</Label>
+                  <Label htmlFor="estoque">Estoque *</Label>
                   <Input
-                    id="stock"
+                    id="estoque"
                     type="number"
-                    value={formData.stock_qty || 0}
+                    value={formData.estoque}
                     onChange={(e) =>
-                      setFormData({ ...formData, stock_qty: parseInt(e.target.value) || 0 })
+                      setFormData({ ...formData, estoque: parseInt(e.target.value) || 0 })
                     }
                   />
                 </div>

@@ -8,19 +8,20 @@ import type {
   ProductFilters,
   QuoteFilters,
   PaginatedResponse,
-  ApiResponse,
+  CreateProductData,
+  CreateQuoteData,
+  AdminUser,
 } from '@/types/api';
-import { supabase } from '@/integrations/supabase/client';
 
 // Configuração da API
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 // Classe para erros da API
 export class ApiError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public errors?: Record<string, string[]>
+    public errors?: Array<{ field: string; message: string }>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -52,7 +53,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new ApiError(
-      errorData.message || 'Erro na requisição',
+      errorData.mensagem || errorData.message || 'Erro na requisição',
       response.status,
       errorData.errors
     );
@@ -61,11 +62,44 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   // Parse seguro: evita erro em respostas 204/sem corpo
   const text = await response.text().catch(() => '');
   try {
-    return (text ? JSON.parse(text) : ({} as T));
+    return text ? JSON.parse(text) : ({} as T);
   } catch {
-    // Se não for JSON, retorna texto bruto
-    return (text as unknown as T);
+    return text as unknown as T;
   }
+}
+
+// Tipos para respostas do backend
+interface BackendLoginResponse {
+  usuario?: AdminUser;
+  user?: AdminUser;
+  token?: string;
+}
+
+interface BackendResponse<T> {
+  sucesso?: boolean;
+  success?: boolean;
+  dados?: T;
+  data?: T;
+  [key: string]: unknown;
+}
+
+// Helper para extrair dados da resposta (suporta ambos formatos)
+function extractData<T>(response: BackendResponse<T> | T): T {
+  // Se já é do tipo T diretamente
+  if (typeof response === 'object' && response !== null && !('dados' in response) && !('data' in response)) {
+    return response as T;
+  }
+
+  const resp = response as BackendResponse<T>;
+  // Backend retorna { sucesso: true, dados: {...} } ou { success: true, data: {...} }
+  if (resp.dados !== undefined) {
+    return resp.dados as T;
+  }
+  if (resp.data !== undefined) {
+    return resp.data as T;
+  }
+  // Se não tem dados/data, retorna a resposta inteira (para casos como PaginatedResponse)
+  return response as T;
 }
 
 // ============ AUTENTICAÇÃO ============
@@ -73,30 +107,88 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     const payload = { email: credentials.email, senha: credentials.password };
-    const response = await fetchApi<ApiResponse<LoginResponse>>('/auth/login', {
+    const response = await fetchApi<BackendResponse<BackendLoginResponse>>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
 
-    // Salvar token no localStorage
-    if (response.data.token) {
-      localStorage.setItem('auth_token', response.data.token);
+    const data = extractData<BackendLoginResponse>(response);
+
+    // Backend retorna { usuario: {...}, token: "..." }
+    // Precisamos converter para { user: {...}, token: "..." }
+    if (!data.usuario && !data.user) {
+      throw new ApiError('Resposta de login inválida: usuário não encontrado');
+    }
+    if (!data.token) {
+      throw new ApiError('Resposta de login inválida: token não encontrado');
     }
 
-    return response.data;
+    const loginResponse: LoginResponse = {
+      user: data.usuario || data.user!,
+      token: data.token
+    };
+
+    // Salvar token no localStorage
+    localStorage.setItem('auth_token', loginResponse.token);
+
+    return loginResponse;
+  },
+
+  register: async (data: {
+    email: string;
+    senha: string;
+    nome: string;
+    role?: 'admin' | 'user';
+  }): Promise<LoginResponse> => {
+    const response = await fetchApi<BackendResponse<BackendLoginResponse>>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    const responseData = extractData<BackendLoginResponse>(response);
+
+    if (!responseData.usuario && !responseData.user) {
+      throw new ApiError('Resposta de registro inválida: usuário não encontrado');
+    }
+    if (!responseData.token) {
+      throw new ApiError('Resposta de registro inválida: token não encontrado');
+    }
+
+    const loginResponse: LoginResponse = {
+      user: responseData.usuario || responseData.user!,
+      token: responseData.token
+    };
+
+    localStorage.setItem('auth_token', loginResponse.token);
+
+    return loginResponse;
   },
 
   logout: async (): Promise<void> => {
-    try {
-      await fetchApi('/auth/logout', { method: 'POST' });
-    } finally {
-      localStorage.removeItem('auth_token');
-    }
+    localStorage.removeItem('auth_token');
   },
 
-  getCurrentUser: async () => {
-    const response = await fetchApi<ApiResponse<LoginResponse['user']>>('/auth/me');
-    return response.data;
+  getCurrentUser: async (): Promise<AdminUser> => {
+    const response = await fetchApi<BackendResponse<AdminUser>>('/auth/me');
+    const data = extractData<AdminUser | { usuario?: AdminUser }>(response);
+    // Backend retorna usuario diretamente ou { usuario: {...} }
+    if (typeof data === 'object' && data !== null && 'usuario' in data) {
+      return (data as { usuario: AdminUser }).usuario;
+    }
+    return data as AdminUser;
+  },
+
+  updateProfile: async (data: {
+    nome?: string;
+    email?: string;
+    senhaAtual?: string;
+    novaSenha?: string;
+  }): Promise<AdminUser> => {
+    const response = await fetchApi<BackendResponse<AdminUser>>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return extractData<AdminUser>(response);
   },
 };
 
@@ -104,238 +196,203 @@ export const authApi = {
 
 export const dashboardApi = {
   getStats: async (): Promise<DashboardStats> => {
-    try {
-      const response = await fetchApi<ApiResponse<DashboardStats>>('/dashboard/stats');
-      return response.data;
-    } catch (error) {
-      // Fallback: calcular estatísticas locais via stub
-      console.warn('API indisponível, usando dados locais para stats:', error);
-      const { data: products } = await supabase.from('products').select('status');
-      const { data: quotes } = await supabase.from('quote_requests').select('status');
-      const stats: DashboardStats = {
-        new_quotes: (quotes || []).filter((q: any) => q.status === 'NEW').length,
-        in_progress_quotes: (quotes || []).filter((q: any) => q.status === 'IN_PROGRESS').length,
-        completed_quotes: (quotes || []).filter((q: any) => q.status === 'WON' || q.status === 'LOST').length,
-        active_products: (products || []).filter((p: any) => p.status === 'ACTIVE').length,
-        draft_products: (products || []).filter((p: any) => p.status === 'DRAFT').length,
-      };
-      return stats;
-    }
+    const response = await fetchApi<BackendResponse<DashboardStats>>('/quotes/stats');
+    return extractData<DashboardStats>(response);
   },
 
-  getRecentQuotes: async (limit = 5) => {
-    try {
-      const response = await fetchApi<ApiResponse<QuoteRequest[]>>(
-        `/dashboard/recent-quotes?limit=${limit}`
-      );
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para recent-quotes:', error);
-      const { data } = await supabase
-        .from('quote_requests')
-        .select('*')
-        .order('created_at', { ascending: false });
-      return (data || []).slice(0, limit);
-    }
+  getRecentQuotes: async (limit = 5): Promise<QuoteRequest[]> => {
+    const response = await fetchApi<PaginatedResponse<QuoteRequest>>(
+      `/quotes?limit=${limit}&sort=-createdAt`
+    );
+    return response.dados || [];
   },
 
-  getRecentProducts: async (limit = 5) => {
-    try {
-      const response = await fetchApi<ApiResponse<Product[]>>(
-        `/dashboard/recent-products?limit=${limit}`
-      );
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para recent-products:', error);
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .order('updated_at', { ascending: false });
-      return (data || []).slice(0, limit);
-    }
+  getRecentProducts: async (limit = 5): Promise<Product[]> => {
+    const response = await fetchApi<PaginatedResponse<Product>>(
+      `/products?limit=${limit}&sort=-createdAt`
+    );
+    return response.dados || [];
   },
 };
 
 // ============ PRODUTOS ============
 
 export const productsApi = {
-  list: async (filters?: ProductFilters) => {
+  list: async (filters?: ProductFilters): Promise<PaginatedResponse<Product>> => {
     const params = new URLSearchParams();
+
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.status) params.append('status', filters.status);
-    if (filters?.category_id) params.append('category_id', filters.category_id);
+    if (filters?.categoria) params.append('categoria', filters.categoria);
+    if (filters?.ativo !== undefined) params.append('ativo', String(filters.ativo));
+    if (filters?.destaque !== undefined) params.append('destaque', String(filters.destaque));
     if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.per_page) params.append('per_page', filters.per_page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.sort) params.append('sort', filters.sort);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    try {
-      const response = await fetchApi<PaginatedResponse<Product>>(`/products${query}`);
-      return response;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para listagem de produtos:', error);
-      const { data } = await supabase
-        .from('products')
-        .select('*')
-        .order('updated_at', { ascending: false });
-
-      const filtered = (data || []).filter((p: any) => {
-        const search = filters?.search?.toLowerCase();
-        if (!search) return true;
-        return (
-          (p.title || '').toLowerCase().includes(search) ||
-          (p.sku || '').toLowerCase().includes(search)
-        );
-      });
-
+    const response = await fetchApi<PaginatedResponse<Product> | { success: boolean; data: Product[]; pagination?: { total?: number; page?: number; pages?: number; limit?: number } }>(`/products${query}`);
+    // Backend retorna { success: true, data: [...], pagination: {...} }
+    // Precisamos normalizar para { dados: [...], paginacao: {...} }
+    if ('success' in response && response.success && 'data' in response && Array.isArray(response.data)) {
+      const pagination = 'pagination' in response ? response.pagination : undefined;
       return {
-        data: filtered,
-        meta: {
-          current_page: 1,
-          per_page: filtered.length,
-          total: filtered.length,
-          total_pages: 1,
-        },
-      };
+        sucesso: true,
+        dados: response.data,
+        paginacao: pagination ? {
+          total: pagination.total || 0,
+          pagina: pagination.page || 1,
+          limite: pagination.pages ? Math.ceil((pagination.total || 0) / pagination.pages) : pagination.limit || 10,
+          paginas: pagination.pages || 1
+        } : undefined
+      } as PaginatedResponse<Product>;
     }
+    // Se já está no formato correto
+    return response as PaginatedResponse<Product>;
   },
 
   get: async (id: string): Promise<Product> => {
-    try {
-      const response = await fetchApi<ApiResponse<Product>>(`/products/${id}`);
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando dados locais para obter produto:', error);
-      const { data, error: supaErr } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (supaErr) throw new ApiError(supaErr.message);
-      return data as Product;
-    }
+    const response = await fetchApi<BackendResponse<Product>>(`/products/${id}`);
+    return extractData<Product>(response);
   },
 
-  create: async (data: FormData | Partial<Product>): Promise<Product> => {
+  create: async (data: FormData | CreateProductData): Promise<Product> => {
     const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
-    try {
-      const response = await fetchApi<ApiResponse<Product>>('/products', {
-        method: 'POST',
-        body: isFD ? (data as FormData) : JSON.stringify(data),
-      });
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando stub local para criar produto:', error);
-      const insertRes = await supabase.from('products').insert([data as Partial<Product>]);
-      if (insertRes.error) throw new ApiError(insertRes.error.message);
-      const created = Array.isArray(insertRes.data) ? insertRes.data[0] : insertRes.data;
-      return created as Product;
-    }
+
+    const response = await fetchApi<BackendResponse<Product>>('/products', {
+      method: 'POST',
+      body: isFD ? data : JSON.stringify(data),
+    });
+
+    return extractData<Product>(response);
   },
 
   update: async (id: string, data: FormData | Partial<Product>): Promise<Product> => {
     const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
-    try {
-      const response = await fetchApi<ApiResponse<Product>>(`/products/${id}`, {
-        method: 'PUT',
-        body: isFD ? (data as FormData) : JSON.stringify(data),
-      });
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando stub local para atualizar produto:', error);
-      const updateRes = await supabase.from('products').update(data as Partial<Product>).eq('id', id);
-      if (updateRes.error) throw new ApiError(updateRes.error.message);
-      const { data: updated, error: supaErr } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (supaErr) throw new ApiError(supaErr.message);
-      return updated as Product;
-    }
+
+    const response = await fetchApi<BackendResponse<Product>>(`/products/${id}`, {
+      method: 'PUT',
+      body: isFD ? data : JSON.stringify(data),
+    });
+
+    return extractData<Product>(response);
   },
 
   delete: async (id: string): Promise<void> => {
     await fetchApi(`/products/${id}`, { method: 'DELETE' });
+  },
+
+  updateStock: async (id: string, estoque: number): Promise<Product> => {
+    const response = await fetchApi<BackendResponse<Product>>(`/products/${id}/stock`, {
+      method: 'PATCH',
+      body: JSON.stringify({ estoque }),
+    });
+    return extractData<Product>(response);
+  },
+
+  deleteImage: async (id: string, imageId: string): Promise<void> => {
+    await fetchApi(`/products/${id}/images/${imageId}`, { method: 'DELETE' });
   },
 };
 
 // ============ ORÇAMENTOS ============
 
 export const quotesApi = {
-  list: async (filters?: QuoteFilters) => {
+  list: async (filters?: QuoteFilters): Promise<PaginatedResponse<QuoteRequest>> => {
     const params = new URLSearchParams();
+
     if (filters?.search) params.append('search', filters.search);
+    if (filters?.email) params.append('email', filters.email);
     if (filters?.status) params.append('status', filters.status);
+    if (filters?.produto) params.append('produto', filters.produto);
+    if (filters?.dataInicio) params.append('dataInicio', filters.dataInicio);
+    if (filters?.dataFim) params.append('dataFim', filters.dataFim);
     if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.per_page) params.append('per_page', filters.per_page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.sort) params.append('sort', filters.sort);
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetchApi<PaginatedResponse<QuoteRequest>>(`/quotes${query}`);
-    return response;
+    const response = await fetchApi<PaginatedResponse<QuoteRequest> | { success: boolean; data: QuoteRequest[]; pagination?: { total?: number; page?: number; pages?: number; limit?: number } }>(`/quotes${query}`);
+    // Backend retorna { sucesso: true, dados: [...], paginacao: {...} }
+    // Já está no formato correto, mas vamos garantir
+    if ('sucesso' in response && response.sucesso && 'dados' in response) {
+      return response as PaginatedResponse<QuoteRequest>;
+    }
+    // Se retornou no formato alternativo
+    if ('success' in response && response.success && 'data' in response && Array.isArray(response.data)) {
+      const pagination = 'pagination' in response ? response.pagination : undefined;
+      return {
+        sucesso: true,
+        dados: response.data,
+        paginacao: pagination ? {
+          total: pagination.total || 0,
+          pagina: pagination.page || 1,
+          limite: pagination.limit || 10,
+          paginas: pagination.pages || 1
+        } : undefined
+      } as PaginatedResponse<QuoteRequest>;
+    }
+    return response as PaginatedResponse<QuoteRequest>;
   },
 
   get: async (id: string): Promise<QuoteRequest> => {
-    const response = await fetchApi<ApiResponse<QuoteRequest>>(`/quotes/${id}`);
-    return response.data;
+    const response = await fetchApi<BackendResponse<QuoteRequest>>(`/quotes/${id}`);
+    return extractData<QuoteRequest>(response);
   },
 
-  create: async (data: Partial<QuoteRequest>): Promise<QuoteRequest> => {
-    const response = await fetchApi<ApiResponse<QuoteRequest>>('/quotes', {
+  create: async (data: CreateQuoteData): Promise<QuoteRequest> => {
+    const response = await fetchApi<BackendResponse<QuoteRequest>>('/quotes', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    return response.data;
+    return extractData<QuoteRequest>(response);
   },
 
-  update: async (id: string, data: Partial<QuoteRequest>): Promise<QuoteRequest> => {
-    const response = await fetchApi<ApiResponse<QuoteRequest>>(`/quotes/${id}`, {
-      method: 'PATCH',
+  createPublic: async (data: CreateQuoteData): Promise<QuoteRequest> => {
+    // Mesma função, mas sem token (público)
+    const response = await fetch(`${API_BASE_URL}/quotes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(data),
     });
-    return response.data;
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiError(
+        errorData.mensagem || errorData.message || 'Erro na requisição',
+        response.status,
+        errorData.errors
+      );
+    }
+
+    const result = await response.json() as BackendResponse<QuoteRequest>;
+    return extractData<QuoteRequest>(result);
   },
 
   updateStatus: async (id: string, status: string): Promise<QuoteRequest> => {
-    const response = await fetchApi<ApiResponse<QuoteRequest>>(`/quotes/${id}/status`, {
+    const response = await fetchApi<BackendResponse<QuoteRequest>>(`/quotes/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
-    return response.data;
+    return extractData<QuoteRequest>(response);
   },
 
   updateObservacoes: async (id: string, observacoes: string): Promise<QuoteRequest> => {
-    const response = await fetchApi<ApiResponse<QuoteRequest>>(`/quotes/${id}/observacoes`, {
+    const response = await fetchApi<BackendResponse<QuoteRequest>>(`/quotes/${id}/observacoes`, {
       method: 'PATCH',
       body: JSON.stringify({ observacoes }),
     });
-    return response.data;
+    return extractData<QuoteRequest>(response);
   },
 
   delete: async (id: string): Promise<void> => {
     await fetchApi(`/quotes/${id}`, { method: 'DELETE' });
   },
 
-  createPublic: async (data: {
-    nome: string;
-    email: string;
-    telefone: string;
-    produto: string; // MongoID do produto
-    mensagem?: string;
-    consent_lgpd?: boolean;
-  }): Promise<QuoteRequest> => {
-    const payload: any = {
-      nome: data.nome,
-      email: data.email,
-      telefone: data.telefone,
-      produto: data.produto,
-      mensagem: data.mensagem,
-    };
-    const response = await fetchApi<any>('/quotes', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    // Backend usa { sucesso, dados }
-    return (response.data || response.dados) as QuoteRequest;
+  getStats: async (): Promise<DashboardStats> => {
+    const response = await fetchApi<BackendResponse<DashboardStats>>('/quotes/stats');
+    return extractData<DashboardStats>(response);
   },
 
   exportCSV: async (filters?: QuoteFilters): Promise<Blob> => {
@@ -361,44 +418,71 @@ export const quotesApi = {
 // ============ CATEGORIAS ============
 
 export const categoriesApi = {
-  list: async (): Promise<Category[]> => {
-    try {
-      const response = await fetchApi<ApiResponse<Category[]>>('/categories');
-      return response.data;
-    } catch (error) {
-      console.warn('API indisponível, usando stub local para categorias:', error);
-      const { data, error: supaErr } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('name');
-      if (supaErr) throw new ApiError(supaErr.message);
-      return (data || []) as Category[];
+  list: async (filters?: {
+    page?: number;
+    limit?: number;
+    ativa?: boolean;
+  }): Promise<PaginatedResponse<Category>> => {
+    const params = new URLSearchParams();
+
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.ativa !== undefined) params.append('ativa', String(filters.ativa));
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetchApi<PaginatedResponse<Category> | { success: boolean; data: Category[]; pagination?: { total?: number; page?: number; pages?: number; limit?: number } }>(`/categories${query}`);
+    // Backend retorna { success: true, data: [...], pagination: {...} }
+    // Precisamos normalizar para { dados: [...], paginacao: {...} }
+    if ('success' in response && response.success && 'data' in response && Array.isArray(response.data)) {
+      const pagination = 'pagination' in response ? response.pagination : undefined;
+      return {
+        sucesso: true,
+        dados: response.data,
+        paginacao: pagination ? {
+          total: pagination.total || 0,
+          pagina: pagination.page || 1,
+          limite: pagination.pages ? Math.ceil((pagination.total || 0) / pagination.pages) : pagination.limit || 10,
+          paginas: pagination.pages || 1
+        } : undefined
+      } as PaginatedResponse<Category>;
     }
+    // Se já está no formato correto
+    return response as PaginatedResponse<Category>;
   },
 
   get: async (id: string): Promise<Category> => {
-    const response = await fetchApi<ApiResponse<Category>>(`/categories/${id}`);
-    return response.data;
+    const response = await fetchApi<BackendResponse<Category>>(`/categories/${id}`);
+    return extractData<Category>(response);
   },
 
-  create: async (data: Partial<Category>): Promise<Category> => {
-    const response = await fetchApi<ApiResponse<Category>>('/categories', {
+  create: async (data: FormData | { nome: string; descricao?: string }): Promise<Category> => {
+    const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
+
+    const response = await fetchApi<BackendResponse<Category>>('/categories', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFD ? data : JSON.stringify(data),
     });
-    return response.data;
+
+    return extractData<Category>(response);
   },
 
-  update: async (id: string, data: Partial<Category>): Promise<Category> => {
-    const response = await fetchApi<ApiResponse<Category>>(`/categories/${id}`, {
+  update: async (id: string, data: FormData | Partial<Category>): Promise<Category> => {
+    const isFD = typeof FormData !== 'undefined' && data instanceof FormData;
+
+    const response = await fetchApi<BackendResponse<Category>>(`/categories/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: isFD ? data : JSON.stringify(data),
     });
-    return response.data;
+
+    return extractData<Category>(response);
   },
 
   delete: async (id: string): Promise<void> => {
     await fetchApi(`/categories/${id}`, { method: 'DELETE' });
+  },
+
+  deleteImage: async (id: string): Promise<void> => {
+    await fetchApi(`/categories/${id}/image`, { method: 'DELETE' });
   },
 };
 
@@ -420,8 +504,8 @@ export const mediaApi = {
       throw new ApiError('Erro ao fazer upload', response.status);
     }
 
-    const data = await response.json();
-    return data.data;
+    const data = await response.json() as BackendResponse<{ url: string }>;
+    return extractData<{ url: string }>(data);
   },
 
   delete: async (url: string): Promise<void> => {
@@ -432,6 +516,14 @@ export const mediaApi = {
   },
 };
 
+// ============ HEALTH CHECK ============
+
+export const healthApi = {
+  check: async (): Promise<{ success: boolean; message: string; timestamp: string }> => {
+    return await fetchApi('/health');
+  },
+};
+
 export default {
   auth: authApi,
   dashboard: dashboardApi,
@@ -439,4 +531,5 @@ export default {
   quotes: quotesApi,
   categories: categoriesApi,
   media: mediaApi,
+  health: healthApi,
 };
