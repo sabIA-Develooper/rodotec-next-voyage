@@ -33,19 +33,34 @@ const ProdutoDetalhe = () => {
       try {
         const productData = await api.products.get(productId);
         // Extrair URLs das imagens corretamente
-        const images = productData.imagensUrls 
+        const images = productData.imagensUrls
           ? productData.imagensUrls.map((img: any) => typeof img === 'string' ? img : img.url || img)
-          : (productData.imagemPrincipal 
-            ? [typeof productData.imagemPrincipal === 'string' 
-              ? productData.imagemPrincipal 
+          : (productData.imagemPrincipal
+            ? [typeof productData.imagemPrincipal === 'string'
+              ? productData.imagemPrincipal
               : productData.imagemPrincipal.url || productData.imagemPrincipal]
             : []);
+
+        // Garantir que especificacoes seja um objeto (pode vir como string do backend)
+        let specs = {};
+        if (productData.especificacoes) {
+          if (typeof productData.especificacoes === 'string') {
+            try {
+              specs = JSON.parse(productData.especificacoes);
+            } catch (e) {
+              console.error('Erro ao fazer parse de especificacoes:', e);
+            }
+          } else {
+            specs = productData.especificacoes;
+          }
+        }
+
         setProduct({
           title: productData.nome,
           sku: productData.sku,
           images,
           short_description: productData.descricao,
-          technical_specs: productData.especificacoes || {},
+          technical_specs: specs,
         });
         setBackendProductId(productData._id);
       } catch (e) {
@@ -54,19 +69,34 @@ const ProdutoDetalhe = () => {
         const res = await api.products.list({ search: term, limit: 1 });
         const first = res.dados?.[0];
         if (first) {
-          const images = first.imagensUrls 
+          const images = first.imagensUrls
             ? first.imagensUrls.map((img: any) => typeof img === 'string' ? img : img.url || img)
-            : (first.imagemPrincipal 
-              ? [typeof first.imagemPrincipal === 'string' 
-                ? first.imagemPrincipal 
+            : (first.imagemPrincipal
+              ? [typeof first.imagemPrincipal === 'string'
+                ? first.imagemPrincipal
                 : first.imagemPrincipal.url || first.imagemPrincipal]
               : []);
+
+          // Garantir que especificacoes seja um objeto (pode vir como string do backend)
+          let specs = {};
+          if (first.especificacoes) {
+            if (typeof first.especificacoes === 'string') {
+              try {
+                specs = JSON.parse(first.especificacoes);
+              } catch (e) {
+                console.error('Erro ao fazer parse de especificacoes:', e);
+              }
+            } else {
+              specs = first.especificacoes;
+            }
+          }
+
           setProduct({
             title: first.nome,
             sku: first.sku,
             images,
             short_description: first.descricao,
-            technical_specs: first.especificacoes || {},
+            technical_specs: specs,
           });
           setBackendProductId(first._id);
         } else {

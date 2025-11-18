@@ -99,7 +99,19 @@ export default function AdminProdutoEditor() {
 
       // Converter especificações para array
       if (product.especificacoes) {
-        const specsArray = Object.entries(product.especificacoes)
+        // Garantir que especificacoes seja um objeto (pode vir como string do backend)
+        let specsObj: ProductSpecifications = {};
+        if (typeof product.especificacoes === 'string') {
+          try {
+            specsObj = JSON.parse(product.especificacoes);
+          } catch (e) {
+            console.error('Erro ao fazer parse de especificacoes:', e);
+          }
+        } else {
+          specsObj = product.especificacoes;
+        }
+
+        const specsArray = Object.entries(specsObj)
           .filter(([key]) => key !== 'peso' && key !== 'dimensoes')
           .map(([key, value]) => ({
             key,
