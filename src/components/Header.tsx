@@ -25,11 +25,11 @@ const Header = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       if (Math.abs(currentScrollY - lastScrollY) > 120) {
         setMegaMenuOpen(false);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -50,18 +50,23 @@ const Header = () => {
   }, [megaMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md shadow-sm">
+    <header
+      className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${lastScrollY > 20
+          ? "bg-background/90 backdrop-blur-md border-border py-2 shadow-lg"
+          : "bg-transparent border-transparent py-6"
+        }`}
+    >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <span className="font-heading text-xl font-bold text-primary-foreground">R</span>
+        <Link to="/" className="flex items-center space-x-3 group">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-white shadow-lg shadow-brand/20 transition-transform group-hover:scale-105">
+            <span className="font-heading text-2xl font-bold">R</span>
           </div>
-          <span className="font-heading text-xl font-bold text-foreground">RODOTEC</span>
+          <span className="font-heading text-2xl font-bold text-white tracking-tight group-hover:text-brand-100 transition-colors">RODOTEC</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center space-x-1 lg:flex">
+        <nav className="hidden items-center space-x-2 lg:flex">
           {navigation.map((item) => (
             item.hasMega ? (
               <button
@@ -70,7 +75,7 @@ const Header = () => {
                   e.stopPropagation();
                   setMegaMenuOpen(!megaMenuOpen);
                 }}
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground hover:bg-muted/50 rounded-md"
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:text-white hover:bg-white/5 rounded-md uppercase tracking-wide"
               >
                 {item.name}
                 <ChevronDown className={`h-4 w-4 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} />
@@ -79,7 +84,7 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className="px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground hover:bg-muted/50 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:text-white hover:bg-white/5 rounded-md uppercase tracking-wide"
               >
                 {item.name}
               </Link>
@@ -88,51 +93,51 @@ const Header = () => {
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
-            className="text-foreground/80 hover:text-foreground"
+            className="text-gray-300 hover:text-white hover:bg-white/10"
           >
             <Search className="h-5 w-5" />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="icon"
-            className="hidden text-foreground/80 hover:text-foreground sm:flex"
+            className="hidden text-gray-300 hover:text-white hover:bg-white/10 sm:flex"
           >
             <Globe className="h-5 w-5" />
           </Button>
 
           <Link to="/contato" className="hidden lg:block">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              Pedir Orçamento
+            <Button className="bg-brand hover:bg-brand-600 text-white font-bold shadow-lg shadow-brand/20 border border-brand-400/20">
+              PEDIR ORÇAMENTO
             </Button>
           </Link>
 
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon" className="text-foreground">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] bg-card">
+            <SheetContent side="right" className="w-[300px] bg-surface border-l border-border">
               <nav className="flex flex-col space-y-4 pt-8">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     to={item.hasMega ? "/produtos" : item.href}
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
+                    className="text-lg font-medium text-gray-300 transition-colors hover:text-white hover:pl-2"
                   >
                     {item.name}
                   </Link>
                 ))}
-                <Link to="/contato" className="block">
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground mt-6 w-full">
-                    Pedir Orçamento
+                <Link to="/contato" className="block pt-4">
+                  <Button className="bg-brand hover:bg-brand-600 text-white w-full font-bold">
+                    PEDIR ORÇAMENTO
                   </Button>
                 </Link>
               </nav>
@@ -140,7 +145,7 @@ const Header = () => {
           </Sheet>
         </div>
       </div>
-      
+
       <MegaMenu isOpen={megaMenuOpen} onClose={() => setMegaMenuOpen(false)} />
     </header>
   );

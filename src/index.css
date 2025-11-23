@@ -8,23 +8,26 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --bg: 210 40% 98%;
-    --surface: 0 0% 100%;
-    --surface-2: 210 40% 96%;
-    --line: 210 36% 90%;
+    /* Dark Industrial Theme - Default */
+    --bg: 222 47% 11%;        /* #0f172a - Slate 900 */
+    --surface: 217 33% 17%;   /* #1e293b - Slate 800 */
+    --surface-2: 215 25% 27%; /* #334155 - Slate 700 */
+    --line: 215 16% 47%;      /* #64748b - Slate 500 */
 
-    --text: 222 47% 11%;
-    --muted: 215 19% 35%;
+    --text: 210 40% 98%;      /* #f8fafc - Slate 50 */
+    --muted: 215 20% 65%;     /* #94a3b8 - Slate 400 */
 
-    --brand: 219 88% 48%;
-    --brand-100: 218 92% 95%;
-    --brand-600: 219 88% 37%;
-    --brand-700: 219 88% 37%;
-    --accent: 199 89% 49%;
+    /* Brand Colors - Strong Blue & Industrial Orange */
+    --brand: 221 83% 53%;     /* #2563eb - Blue 600 */
+    --brand-100: 214 95% 93%; /* #dbeafe - Blue 100 */
+    --brand-600: 224 76% 48%; /* #1d4ed8 - Blue 700 */
+    --brand-700: 226 71% 40%; /* #1e40af - Blue 800 */
+    
+    --accent: 38 92% 50%;     /* #f59e0b - Amber 500 */
 
-    --success: 142 76% 36%;
-    --warning: 33 89% 43%;
-    --danger: 0 72% 51%;
+    --success: 142 71% 45%;   /* #22c55e */
+    --warning: 38 92% 50%;    /* #f59e0b */
+    --danger: 0 84% 60%;      /* #ef4444 */
 
     --background: var(--bg);
     --foreground: var(--text);
@@ -48,52 +51,38 @@ All colors MUST be HSL.
     --destructive: var(--danger);
     --destructive-foreground: 0 0% 100%;
 
-    --border: var(--line);
-    --input: var(--line);
+    --border: 217 33% 20%;    /* Darker border for dark mode */
+    --input: 217 33% 20%;
     --ring: var(--brand);
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;         /* Sharper corners for industrial look */
 
-    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-100)), hsl(var(--surface)));
-    --gradient-hero: none;
-    --gradient-card: none;
-
-    --shadow-card: 0 1px 2px hsl(210 40% 12% / 0.06);
-    --shadow-elevated: 0 10px 24px hsl(210 40% 12% / 0.12);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--brand-700)));
+    --gradient-dark: linear-gradient(to bottom, hsl(222 47% 11%), hsl(222 47% 8%));
+    
+    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-elevated: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
     --shadow-focus: 0 0 0 3px hsl(var(--brand) / 0.3);
 
-    --transition-smooth: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-smooth: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Keeping .dark block just in case, but mapping to same values or slightly darker */
   .dark {
-    --background: 210 58% 11%;        /* #0E1A2B */
-    --foreground: 210 30% 97%;        /* #F5F7FA */
-    
-    --card: 214 52% 15%;              /* #132238 */
-    --card-foreground: 210 30% 97%;
-    
-    --popover: 214 52% 15%;
-    --popover-foreground: 210 30% 97%;
-    
-    --primary: 210 87% 25%;           /* #0B3B7A */
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 213 45% 19%;
-    --secondary-foreground: 210 30% 97%;
-    
-    --muted: 213 45% 19%;
-    --muted-foreground: 210 15% 70%;
-    
-    --accent: 207 80% 51%;
-    --accent-foreground: 0 0% 100%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 30% 97%;
-    
-    --border: 213 45% 19%;
-    --input: 213 45% 19%;
-    --ring: 214 94% 26%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+  }
+
+  /* Global Patterns */
+  .bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  }
+  
+  .bg-dots-pattern {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 }
 
@@ -108,41 +97,43 @@ All colors MUST be HSL.
     font-size: 16px;
   }
   
-  /* Chevron Pattern SVG - 42° Autoral */
-  .chevron-pattern {
-    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 0 40 L 20 20 L 20 30 L 10 40 L 20 50 L 20 60 Z' fill='%231565F5' fill-opacity='0.06' transform='rotate(42 40 40)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-  }
-
   /* Diagonal Mask 42° - Hero */
   .diagonal-mask-42 {
-    clip-path: polygon(0 0, 100% 0, 75% 100%, 0 100%);
+    clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+  }
+  
+  .diagonal-section-top {
+    clip-path: polygon(0 0, 100% 50px, 100% 100%, 0 100%);
+  }
+  
+  .diagonal-section-bottom {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 50px), 0 100%);
   }
 }
 
 @layer components {
   /* Hero Button Variant */
   .btn-hero {
-    @apply relative overflow-hidden rounded-xl px-8 py-4 font-semibold;
+    @apply relative overflow-hidden rounded-lg px-8 py-4 font-bold uppercase tracking-wide;
     @apply bg-[hsl(var(--brand))] text-white;
     @apply transition-all duration-200;
-    @apply hover:bg-[hsl(var(--brand-600))] hover:shadow-[var(--shadow-elevated)] hover:scale-105;
+    @apply hover:bg-[hsl(var(--brand-600))] hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1;
     @apply focus-visible:ring-2 focus-visible:ring-[hsl(var(--brand-700))];
   }
   
   .btn-hero-secondary {
-    @apply relative overflow-hidden rounded-xl px-8 py-4 font-semibold;
-    @apply bg-transparent text-white border-2 border-white/30;
+    @apply relative overflow-hidden rounded-lg px-8 py-4 font-bold uppercase tracking-wide;
+    @apply bg-transparent text-white border border-white/30;
     @apply backdrop-blur-sm;
     @apply transition-all duration-200;
-    @apply hover:bg-white/10 hover:border-white/50;
+    @apply hover:bg-white/10 hover:border-white/50 hover:-translate-y-1;
   }
   
   /* Product Card Glow */
   .card-glow {
     @apply transition-all duration-200;
     @apply hover:shadow-[var(--shadow-elevated)];
-    @apply hover:border-[hsl(var(--accent))]/40;
+    @apply hover:border-[hsl(var(--brand))]/40;
   }
   
   /* Smooth Scroll */
@@ -154,5 +145,13 @@ All colors MUST be HSL.
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0,0,0,0.7);
   }
 }
