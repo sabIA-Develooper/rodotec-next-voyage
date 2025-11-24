@@ -200,13 +200,13 @@ export default function AdminCategorias() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-600">
                     Carregando...
                   </TableCell>
                 </TableRow>
               ) : categories.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-600">
                     Nenhuma categoria encontrada
                   </TableCell>
                 </TableRow>
@@ -221,13 +221,13 @@ export default function AdminCategorias() {
                           className="w-16 h-16 object-cover rounded"
                         />
                       ) : (
-                        <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
-                          <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                        <div className="w-16 h-16 bg-slate-200 rounded flex items-center justify-center">
+                          <ImageIcon className="h-6 w-6 text-slate-500" />
                         </div>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{category.nome}</TableCell>
-                    <TableCell className="text-muted-foreground max-w-xs truncate">
+                    <TableCell className="text-slate-600 max-w-xs truncate">
                       {category.descricao || '—'}
                     </TableCell>
                     <TableCell>
@@ -236,7 +236,7 @@ export default function AdminCategorias() {
                       </Badge>
                     </TableCell>
                     <TableCell>{category.totalProdutos || 0}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell className="text-slate-600 text-sm">
                       {formatDistanceToNow(new Date(category.createdAt), {
                         addSuffix: true,
                         locale: ptBR,

@@ -225,9 +225,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+              <p className="text-center py-8 text-slate-600">Carregando...</p>
             ) : recentProducts.length === 0 ? (
-              <p className="text-center py-8 text-muted-foreground">Nenhum produto encontrado</p>
+              <p className="text-center py-8 text-slate-600">Nenhum produto encontrado</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
                           {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-slate-600 text-sm">
                         {product.updatedAt
                           ? formatDistanceToNow(new Date(product.updatedAt), {
                               addSuffix: true,
