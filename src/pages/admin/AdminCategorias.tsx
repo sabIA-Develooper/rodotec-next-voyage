@@ -173,10 +173,10 @@ export default function AdminCategorias() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Categorias</h1>
-            <p className="text-muted-foreground">Gerencie as categorias dos produtos</p>
+            <h1 className="text-2xl font-semibold text-slate-900">Categorias</h1>
+            <p className="text-slate-600">Gerencie as categorias dos produtos</p>
           </div>
           <Button onClick={openCreateModal}>
             <Plus className="mr-2 h-4 w-4" />
@@ -184,7 +184,7 @@ export default function AdminCategorias() {
           </Button>
         </div>
 
-        <div className="bg-white rounded-lg border border-border">
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

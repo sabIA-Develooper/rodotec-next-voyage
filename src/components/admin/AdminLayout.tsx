@@ -15,6 +15,8 @@ import {
   Download,
   Upload,
   RotateCcw,
+  Menu,
+  X,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -39,7 +41,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { user, signOut } = useAdminAuth();
   const { toast } = useToast();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const isActive = (path: string) => {
@@ -104,43 +106,53 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-100">
       {/* Top Bar */}
-      <header className="bg-brand-700 text-white border-b border-slate-200 h-14 fixed top-0 left-0 right-0 z-50">
+      <header className="bg-slate-800 text-slate-100 border-b border-slate-700 h-14 fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-4">
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden text-slate-100 hover:bg-slate-700"
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+
             <Link to="/admin" className="font-bold text-lg">
-              RODOTEC <span className="text-white/80 font-normal">– Admin</span>
+              RODOTEC <span className="text-slate-400 font-normal">– Admin</span>
             </Link>
-            
+
             <div className="relative ml-4 hidden md:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/80" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Buscar..."
-                className="pl-10 w-64 h-9 bg-white/90 border-none text-text"
+                className="pl-10 w-64 h-9 bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:bg-slate-600"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={handleExport} className="text-white hover:bg-brand-600">
-              <Download className="h-4 w-4 mr-2" />
-              Exportar
+          <div className="flex items-center gap-1 md:gap-2">
+            <Button variant="ghost" size="sm" onClick={handleExport} className="text-slate-100 hover:bg-slate-700 hidden sm:flex">
+              <Download className="h-4 w-4 sm:mr-2" />
+              <span className="hidden md:inline">Exportar</span>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleImport} className="text-white hover:bg-brand-600">
-              <Upload className="h-4 w-4 mr-2" />
-              Importar
+            <Button variant="ghost" size="sm" onClick={handleImport} className="text-slate-100 hover:bg-slate-700 hidden sm:flex">
+              <Upload className="h-4 w-4 sm:mr-2" />
+              <span className="hidden md:inline">Importar</span>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleReset} className="text-white hover:bg-brand-600">
+            <Button variant="ghost" size="sm" onClick={handleReset} className="text-slate-100 hover:bg-slate-700 hidden md:flex">
               <RotateCcw className="h-4 w-4 mr-2" />
-              Resetar
+              <span className="hidden lg:inline">Resetar</span>
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full text-white hover:bg-brand-600">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full text-slate-100 hover:bg-slate-700">
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-white text-[#0D47A1]">
+                    <AvatarFallback className="bg-slate-600 text-slate-100">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
@@ -154,6 +166,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {/* Mobile-only actions */}
+                <div className="sm:hidden">
+                  <DropdownMenuItem onClick={handleExport}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Exportar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleImport}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Importar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleReset}>
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Resetar
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </div>
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sair
@@ -164,9 +192,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-14 bottom-0 w-56 bg-brand-700 overflow-y-auto">
-        <nav className="p-2 space-y-1">
+      <aside className={`fixed left-0 top-14 bottom-0 w-56 bg-slate-800 overflow-y-auto z-40 transform transition-transform duration-200 ease-in-out ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0`}>
+        <nav className="p-3 space-y-1">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -175,10 +213,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-white/10 text-white'
-                    : 'text-white hover:bg-brand-600 hover:text-white'
+                    ? 'bg-slate-700 text-white'
+                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -190,8 +229,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="pl-56 pt-14 bg-bg">
-        <div className="p-8">
+      <main className="lg:pl-56 pt-14 min-h-screen bg-slate-100">
+        <div className="p-4 md:p-6 lg:p-8">
           {children}
         </div>
       </main>

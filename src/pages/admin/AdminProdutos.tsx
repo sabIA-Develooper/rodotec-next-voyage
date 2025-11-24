@@ -145,10 +145,10 @@ export default function AdminProdutos() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Produtos</h1>
-            <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
+            <h1 className="text-2xl font-semibold text-slate-900">Produtos</h1>
+            <p className="text-slate-600">Gerencie seu catálogo de produtos</p>
           </div>
           <Link to="/admin/produtos/novo">
             <Button>
@@ -158,11 +158,11 @@ export default function AdminProdutos() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg border border-border">
-          <div className="p-4 border-b border-border space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
+          <div className="p-4 border-b border-slate-200 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+              <div className="relative sm:col-span-2 lg:col-span-1 xl:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder="Buscar por nome ou SKU"
                   value={search}
@@ -193,8 +193,8 @@ export default function AdminProdutos() {
                   <SelectItem value="inativo">Inativo</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2">
-                <span className="text-sm text-muted-foreground">Em estoque</span>
+              <div className="flex items-center justify-between gap-2 border border-slate-200 rounded-md px-3 py-2 bg-white">
+                <span className="text-sm text-slate-500">Em estoque</span>
                 <Switch checked={availability} onCheckedChange={setAvailability} />
               </div>
               <Select value={sort} onValueChange={setSort}>
@@ -207,20 +207,22 @@ export default function AdminProdutos() {
                   <SelectItem value="name_asc">Nome (A→Z)</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  variant={view === 'list' ? 'default' : 'outline'}
-                  onClick={() => setView('list')}
-                >
-                  Lista
-                </Button>
-                <Button
-                  variant={view === 'grid' ? 'default' : 'outline'}
-                  onClick={() => setView('grid')}
-                >
-                  Grid
-                </Button>
-              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                variant={view === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setView('list')}
+              >
+                Lista
+              </Button>
+              <Button
+                variant={view === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setView('grid')}
+              >
+                Grid
+              </Button>
             </div>
           </div>
 
