@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Pagination,
@@ -30,7 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -45,7 +44,6 @@ export default function AdminProdutos() {
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [categoryId, setCategoryId] = useState<string>('');
   const [status, setStatus] = useState<string>('');
-  const [availability, setAvailability] = useState<boolean>(false);
   const [sort, setSort] = useState<string>('created_desc');
   const [page, setPage] = useState<number>(1);
 
@@ -105,18 +103,13 @@ export default function AdminProdutos() {
     let list = products.slice();
     if (search.trim()) {
       const s = search.toLowerCase();
-      list = list.filter(
-        (p) => p.nome.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s)
-      );
+      list = list.filter((p) => p.nome.toLowerCase().includes(s));
     }
     if (categoryId && categoryId !== 'all') {
       list = list.filter((p) => p.categoria?._id === categoryId);
     }
     if (status && status !== 'all') {
       list = list.filter((p) => (p.ativo ? 'ativo' : 'inativo') === status);
-    }
-    if (availability) {
-      list = list.filter((p) => (p.estoque || 0) > 0);
     }
     switch (sort) {
       case 'name_asc':
@@ -131,7 +124,7 @@ export default function AdminProdutos() {
         break;
     }
     return list;
-  }, [products, search, categoryId, status, availability, sort]);
+  }, [products, search, categoryId, status, sort]);
 
   const perPage = view === 'grid' ? 12 : 20;
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
@@ -145,10 +138,10 @@ export default function AdminProdutos() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Produtos</h1>
-            <p className="text-muted-foreground">Gerencie seu catálogo de produtos</p>
+            <h1 className="text-2xl font-semibold text-slate-900">Produtos</h1>
+            <p className="text-slate-600">Gerencie seu catálogo de produtos</p>
           </div>
           <Link to="/admin/produtos/novo">
             <Button>
@@ -158,13 +151,13 @@ export default function AdminProdutos() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg border border-border">
-          <div className="p-4 border-b border-border space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
+          <div className="p-4 border-b border-slate-200 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+              <div className="relative sm:col-span-2 lg:col-span-1 xl:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Buscar por nome ou SKU"
+                  placeholder="Buscar por nome"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"
@@ -193,10 +186,6 @@ export default function AdminProdutos() {
                   <SelectItem value="inativo">Inativo</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2">
-                <span className="text-sm text-muted-foreground">Em estoque</span>
-                <Switch checked={availability} onCheckedChange={setAvailability} />
-              </div>
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger>
                   <SelectValue placeholder="Ordenar" />
@@ -207,20 +196,22 @@ export default function AdminProdutos() {
                   <SelectItem value="name_asc">Nome (A→Z)</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  variant={view === 'list' ? 'default' : 'outline'}
-                  onClick={() => setView('list')}
-                >
-                  Lista
-                </Button>
-                <Button
-                  variant={view === 'grid' ? 'default' : 'outline'}
-                  onClick={() => setView('grid')}
-                >
-                  Grid
-                </Button>
-              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                variant={view === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setView('list')}
+              >
+                Lista
+              </Button>
+              <Button
+                variant={view === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setView('grid')}
+              >
+                Grid
+              </Button>
             </div>
           </div>
 
@@ -228,10 +219,9 @@ export default function AdminProdutos() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Imagem</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Estoque</TableHead>
                   <TableHead>Criado</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -239,22 +229,45 @@ export default function AdminProdutos() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       Carregando...
                     </TableCell>
                   </TableRow>
                 ) : pagedProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       Nenhum produto encontrado
                     </TableCell>
                   </TableRow>
                 ) : (
-                  pagedProducts.map((product) => (
+                  pagedProducts.map((product) => {
+                    const imgUrl = typeof product.imagemPrincipal === 'string'
+                      ? product.imagemPrincipal
+                      : product.imagemPrincipal?.url ||
+                        (product.imagensUrls?.[0]
+                          ? (typeof product.imagensUrls[0] === 'string'
+                            ? product.imagensUrls[0]
+                            : product.imagensUrls[0].url || product.imagensUrls[0])
+                          : null);
+
+                    return (
                     <TableRow
                       key={product._id}
                       className={createdId === product._id ? 'ring-2 ring-brand' : ''}
                     >
+                      <TableCell>
+                        {imgUrl ? (
+                          <img
+                            src={imgUrl}
+                            alt={product.nome}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-slate-100 rounded flex items-center justify-center">
+                            <ImageIcon className="h-5 w-5 text-slate-400" />
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Link
                           to={`/admin/produtos/${product._id}`}
@@ -268,8 +281,6 @@ export default function AdminProdutos() {
                           {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                      <TableCell>{product.estoque}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {formatDistanceToNow(new Date(product.createdAt), {
                           addSuffix: true,
@@ -294,7 +305,8 @@ export default function AdminProdutos() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
+                    );
+                  })
                 )}
               </TableBody>
             </Table>

@@ -23,8 +23,6 @@ interface FormData {
   nome: string;
   descricao: string;
   categoria: string;
-  estoque: number;
-  sku: string;
   ativo: boolean;
   destaque: boolean;
   tags: string[];
@@ -46,8 +44,6 @@ export default function AdminProdutoEditor() {
     nome: '',
     descricao: '',
     categoria: '',
-    estoque: 0,
-    sku: '',
     ativo: false,
     destaque: false,
     tags: [],
@@ -84,8 +80,6 @@ export default function AdminProdutoEditor() {
         nome: product.nome,
         descricao: product.descricao,
         categoria: product.categoria?._id || '',
-        estoque: product.estoque,
-        sku: product.sku,
         ativo: product.ativo,
         destaque: product.destaque,
         tags: product.tags || [],
@@ -201,10 +195,6 @@ export default function AdminProdutoEditor() {
       toast.error('Selecione uma categoria');
       return;
     }
-    if (!formData.sku?.trim()) {
-      toast.error('Informe o SKU do produto');
-      return;
-    }
     if (formData.ativo && selectedImages.length === 0 && existingImages.length === 0) {
       toast.error('Adicione ao menos uma imagem para ativar o produto');
       return;
@@ -218,8 +208,6 @@ export default function AdminProdutoEditor() {
       fd.append('nome', formData.nome);
       fd.append('descricao', formData.descricao);
       fd.append('categoria', formData.categoria);
-      fd.append('estoque', String(formData.estoque));
-      fd.append('sku', formData.sku);
       fd.append('ativo', String(formData.ativo));
       fd.append('destaque', String(formData.destaque));
 
@@ -544,33 +532,6 @@ export default function AdminProdutoEditor() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Estoque e SKU</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="sku">SKU *</Label>
-                  <Input
-                    id="sku"
-                    value={formData.sku}
-                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                    placeholder="SKU-000"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="estoque">Estoque *</Label>
-                  <Input
-                    id="estoque"
-                    type="number"
-                    value={formData.estoque}
-                    onChange={(e) =>
-                      setFormData({ ...formData, estoque: parseInt(e.target.value) || 0 })
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

@@ -97,8 +97,8 @@ export default function AdminDashboard() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+          <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+          <p className="text-slate-600">Visão geral do seu negócio</p>
         </div>
 
         {/* Stats Cards */}
@@ -234,8 +234,6 @@ export default function AdminDashboard() {
                   <TableRow>
                     <TableHead>Título</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Estoque</TableHead>
                     <TableHead>Atualizado</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -252,8 +250,6 @@ export default function AdminDashboard() {
                           {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                      <TableCell>{product.estoque}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {product.updatedAt
                           ? formatDistanceToNow(new Date(product.updatedAt), {

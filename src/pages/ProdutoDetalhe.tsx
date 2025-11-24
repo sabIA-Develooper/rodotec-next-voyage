@@ -57,7 +57,6 @@ const ProdutoDetalhe = () => {
 
         setProduct({
           title: productData.nome,
-          sku: productData.sku,
           images,
           short_description: productData.descricao,
           technical_specs: specs,
@@ -93,7 +92,6 @@ const ProdutoDetalhe = () => {
 
           setProduct({
             title: first.nome,
-            sku: first.sku,
             images,
             short_description: first.descricao,
             technical_specs: specs,
@@ -210,11 +208,6 @@ const ProdutoDetalhe = () => {
                 <h1 className="font-heading text-4xl font-bold text-slate-900 md:text-5xl lg:text-6xl leading-tight tracking-tight">
                   {product?.title || 'Produto'}
                 </h1>
-                <div className="flex items-center gap-4">
-                  <span className="inline-block px-4 py-1.5 text-sm font-medium bg-rodotec-blue/10 text-rodotec-blue rounded-full border border-rodotec-blue/20">
-                    SKU: {product?.sku || '—'}
-                  </span>
-                </div>
                 <p className="text-lg text-slate-600 leading-relaxed md:text-xl">
                   {product?.short_description || 'Detalhes do produto'}
                 </p>
