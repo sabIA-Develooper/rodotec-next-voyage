@@ -99,6 +99,7 @@ export default function AdminProdutoEditor() {
 
       // Converter especificações para array
       if (product.especificacoes) {
+        console.log('Especificações recebidas do backend:', product.especificacoes);
         // Garantir que especificacoes seja um objeto (pode vir como string do backend)
         let specsObj: ProductSpecifications = {};
         if (typeof product.especificacoes === 'string') {
@@ -111,13 +112,17 @@ export default function AdminProdutoEditor() {
           specsObj = product.especificacoes;
         }
 
+        console.log('Especificações parseadas:', specsObj);
         const specsArray = Object.entries(specsObj)
           .filter(([key]) => key !== 'peso' && key !== 'dimensoes')
           .map(([key, value]) => ({
             key,
             value: String(value),
           }));
+        console.log('Especificações convertidas para array:', specsArray);
         setSpecs(specsArray);
+      } else {
+        console.log('Nenhuma especificação encontrada no produto');
       }
 
       // Converter tags para string
@@ -235,6 +240,8 @@ export default function AdminProdutoEditor() {
           especificacoes[spec.key.trim()] = spec.value.trim();
         }
       });
+      console.log('Especificações a serem enviadas:', especificacoes);
+      console.log('Especificações JSON:', JSON.stringify(especificacoes));
       fd.append('especificacoes', JSON.stringify(especificacoes));
 
       // Converter tags
