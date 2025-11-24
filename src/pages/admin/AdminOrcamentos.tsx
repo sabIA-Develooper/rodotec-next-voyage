@@ -205,7 +205,7 @@ export default function AdminOrcamentos() {
         <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900">
-              {filteredOrcamentos.length} orçamento(s) encontrado(s)
+              <span className="text-slate-900">{filteredOrcamentos.length} orçamento(s) encontrado(s)</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -226,13 +226,13 @@ export default function AdminOrcamentos() {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                      <TableCell colSpan={8} className="text-center py-8 text-slate-600">
                         Carregando...
                       </TableCell>
                     </TableRow>
                   ) : currentItems.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                      <TableCell colSpan={8} className="text-center py-8 text-slate-600">
                         Nenhum orçamento encontrado
                       </TableCell>
                     </TableRow>

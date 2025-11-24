@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +26,7 @@ import { localDataLayer } from '@/data/localDataLayer';
 import { Settings } from '@/data/localDataLayer';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import api from '@/services/api';
-import { Plus, Key } from 'lucide-react';
+import { Plus, Key, ChevronLeft } from 'lucide-react';
 import type { AdminUser } from '@/types/api';
 
 const AdminConfiguracoes: React.FC = () => {
@@ -259,9 +260,16 @@ const AdminConfiguracoes: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-slate-900">Configurações</h1>
-        <p className="text-slate-600">Gerencie as configurações do sistema</p>
+      <div className="flex items-center gap-4">
+        <Link to="/admin">
+          <Button variant="ghost" size="icon">
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <div>
+          <h1 className="text-3xl font-semibold text-slate-900">Configurações</h1>
+          <p className="text-slate-600">Gerencie as configurações do sistema</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
