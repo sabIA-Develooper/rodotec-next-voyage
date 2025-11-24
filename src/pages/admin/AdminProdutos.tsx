@@ -30,7 +30,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -230,6 +230,7 @@ export default function AdminProdutos() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Imagem</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>SKU</TableHead>
@@ -241,22 +242,45 @@ export default function AdminProdutos() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Carregando...
                     </TableCell>
                   </TableRow>
                 ) : pagedProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Nenhum produto encontrado
                     </TableCell>
                   </TableRow>
                 ) : (
-                  pagedProducts.map((product) => (
+                  pagedProducts.map((product) => {
+                    const imgUrl = typeof product.imagemPrincipal === 'string'
+                      ? product.imagemPrincipal
+                      : product.imagemPrincipal?.url ||
+                        (product.imagensUrls?.[0]
+                          ? (typeof product.imagensUrls[0] === 'string'
+                            ? product.imagensUrls[0]
+                            : product.imagensUrls[0].url || product.imagensUrls[0])
+                          : null);
+
+                    return (
                     <TableRow
                       key={product._id}
                       className={createdId === product._id ? 'ring-2 ring-brand' : ''}
                     >
+                      <TableCell>
+                        {imgUrl ? (
+                          <img
+                            src={imgUrl}
+                            alt={product.nome}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-slate-100 rounded flex items-center justify-center">
+                            <ImageIcon className="h-5 w-5 text-slate-400" />
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Link
                           to={`/admin/produtos/${product._id}`}
@@ -296,7 +320,8 @@ export default function AdminProdutos() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
