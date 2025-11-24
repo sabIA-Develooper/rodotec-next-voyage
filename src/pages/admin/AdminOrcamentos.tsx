@@ -94,13 +94,22 @@ export default function AdminOrcamentos() {
   };
 
   const getStatusBadge = (status: string) => {
-    const map: Record<string, { label: string; variant: any }> = {
-      novo: { label: 'Novo', variant: 'default' },
-      em_contato: { label: 'Em Contato', variant: 'secondary' },
-      concluido: { label: 'Concluído', variant: 'outline' },
+    const variants: Record<
+      string,
+      { label: string; color: string; bgColor: string }
+    > = {
+      novo: { label: 'Novo', color: '#FFFFFF', bgColor: '#3B4BA8' },
+      em_contato: { label: 'Em Contato', color: '#94A3B8', bgColor: 'rgba(255, 255, 255, 0.05)' },
+      concluido: { label: 'Concluído', color: '#10B981', bgColor: 'rgba(16, 185, 129, 0.1)' },
     };
-    const config = map[status] || { label: status, variant: 'secondary' };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    const config = variants[status] || { label: status, color: '#94A3B8', bgColor: 'rgba(255, 255, 255, 0.05)' };
+    return (
+      <span
+        className="px-3 py-1 rounded-full text-xs font-medium"
+        style={{ color: config.color, backgroundColor: config.bgColor }}
+      >
+        {config.label}</span>
+    );
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
@@ -161,91 +170,125 @@ export default function AdminOrcamentos() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-16">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Orçamentos</h1>
-            <p className="text-slate-600">Gerencie os orçamentos solicitados pelos clientes</p>
+            <h1 className="text-5xl font-extrabold text-white tracking-tight">Orçamentos</h1>
+            <p className="text-lg mt-2" style={{ color: '#94A3B8' }}>
+              Gerencie os orçamentos solicitados pelos clientes
+            </p>
           </div>
-          <Button onClick={exportToCSV}>
+          <Button
+            onClick={exportToCSV}
+            className="rounded-xl px-6 py-3 font-semibold"
+            style={{ backgroundColor: '#3B4BA8', color: '#FFFFFF' }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Exportar CSV
           </Button>
         </div>
 
         {/* Filtros */}
-        <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Buscar por nome, email, telefone ou produto..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-slate-300"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48 border-slate-300">
-                  <SelectValue placeholder="Filtrar por status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os status</SelectItem>
-                  <SelectItem value="novo">Novo</SelectItem>
-                  <SelectItem value="em_contato">Em Contato</SelectItem>
-                  <SelectItem value="concluido">Concluído</SelectItem>
-                </SelectContent>
-              </Select>
+        <div
+          className="rounded-3xl border p-6"
+          style={{
+            backgroundColor: '#0B1220',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar por nome, email, telefone ou produto..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 text-white placeholder:text-gray-400 rounded-xl h-11"
+                style={{
+                  backgroundColor: '#0D1528',
+                  borderColor: 'rgba(255, 255, 255, 0.05)',
+                }}
+              />
             </div>
-          </CardContent>
-        </Card>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger
+                className="w-full md:w-48 text-white rounded-xl h-11"
+                style={{
+                  backgroundColor: '#0D1528',
+                  borderColor: 'rgba(255, 255, 255, 0.05)',
+                }}
+              >
+                <SelectValue placeholder="Filtrar por status" />
+              </SelectTrigger>
+              <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                <SelectItem value="todos" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                  Todos os status
+                </SelectItem>
+                <SelectItem value="novo" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                  Novo
+                </SelectItem>
+                <SelectItem value="em_contato" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                  Em Contato
+                </SelectItem>
+                <SelectItem value="concluido" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                  Concluído
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         {/* Tabela */}
-        <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-slate-900">
-              <span className="text-slate-900">{filteredOrcamentos.length} orçamento(s) encontrado(s)</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Produto</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Criado</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-slate-600">
-                        Carregando...
-                      </TableCell>
+        <div
+          className="rounded-3xl border overflow-hidden"
+          style={{
+            backgroundColor: '#0B1220',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <div className="p-8">
+            <h2 className="text-2xl font-bold text-white mb-8">
+              {filteredOrcamentos.length} orçamento(s) encontrado(s)
+            </h2>
+
+            {loading ? (
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>
+                Carregando...
+              </p>
+            ) : currentItems.length === 0 ? (
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>
+                Nenhum orçamento encontrado
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">ID</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Nome</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Telefone</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Email</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Produto</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Criado</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Ações</TableHead>
                     </TableRow>
-                  ) : currentItems.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-slate-600">
-                        Nenhum orçamento encontrado
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    currentItems.map((orcamento) => (
-                      <TableRow key={orcamento._id}>
-                        <TableCell className="font-medium text-slate-900">
+                  </TableHeader>
+                  <TableBody>
+                    {currentItems.map((orcamento) => (
+                      <TableRow
+                        key={orcamento._id}
+                        style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                        className="hover:bg-[#0D1528]"
+                      >
+                        <TableCell className="font-medium text-white">
                           #{orcamento._id.slice(-6)}
                         </TableCell>
-                        <TableCell className="text-slate-900">{orcamento.nome}</TableCell>
-                        <TableCell className="text-slate-900">{orcamento.telefone}</TableCell>
-                        <TableCell className="text-slate-900">{orcamento.email}</TableCell>
-                        <TableCell className="text-slate-900">
+                        <TableCell className="text-white">{orcamento.nome}</TableCell>
+                        <TableCell style={{ color: '#94A3B8' }}>{orcamento.telefone}</TableCell>
+                        <TableCell style={{ color: '#94A3B8' }}>{orcamento.email}</TableCell>
+                        <TableCell style={{ color: '#94A3B8' }}>
                           {typeof orcamento.produto === 'object'
                             ? orcamento.produto.nome
                             : orcamento.produto || '—'}
@@ -255,17 +298,29 @@ export default function AdminOrcamentos() {
                             value={orcamento.status}
                             onValueChange={(value) => handleStatusChange(orcamento._id, value)}
                           >
-                            <SelectTrigger className="w-32 h-8 text-xs">
+                            <SelectTrigger
+                              className="w-32 h-8 text-xs text-white rounded-lg"
+                              style={{
+                                backgroundColor: '#0D1528',
+                                borderColor: 'rgba(255, 255, 255, 0.05)',
+                              }}
+                            >
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="novo">Novo</SelectItem>
-                              <SelectItem value="em_contato">Em Contato</SelectItem>
-                              <SelectItem value="concluido">Concluído</SelectItem>
+                            <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                              <SelectItem value="novo" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                                Novo
+                              </SelectItem>
+                              <SelectItem value="em_contato" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                                Em Contato
+                              </SelectItem>
+                              <SelectItem value="concluido" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                                Concluído
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
-                        <TableCell className="text-slate-600 text-sm">
+                        <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
                           {formatDistanceToNow(new Date(orcamento.createdAt), {
                             addSuffix: true,
                             locale: ptBR,
@@ -280,7 +335,7 @@ export default function AdminOrcamentos() {
                                 setSelectedOrcamento(orcamento);
                                 setIsViewModalOpen(true);
                               }}
-                              className="h-8 px-2"
+                              className="h-8 px-2 text-white hover:bg-[#0D1528]"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -291,7 +346,7 @@ export default function AdminOrcamentos() {
                                 setSelectedOrcamento(orcamento);
                                 setIsEditModalOpen(true);
                               }}
-                              className="h-8 px-2"
+                              className="h-8 px-2 text-white hover:bg-[#0D1528]"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -299,34 +354,38 @@ export default function AdminOrcamentos() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(orcamento._id)}
-                              className="h-8 px-2 text-danger hover:text-danger/90"
+                              className="h-8 px-2 text-red-400 hover:bg-[#0D1528] hover:text-red-300"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Paginação */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-4">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="border-gray-300"
+              className="rounded-xl text-white hover:bg-[#0D1528]"
+              style={{
+                backgroundColor: 'transparent',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
             >
               Anterior
             </Button>
-            <span className="text-sm text-slate-600">
+            <span className="text-sm" style={{ color: '#94A3B8' }}>
               Página {currentPage} de {totalPages}
             </span>
             <Button
@@ -334,7 +393,11 @@ export default function AdminOrcamentos() {
               size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="border-gray-300"
+              className="rounded-xl text-white hover:bg-[#0D1528]"
+              style={{
+                backgroundColor: 'transparent',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
             >
               Próximo
             </Button>
@@ -343,60 +406,65 @@ export default function AdminOrcamentos() {
 
         {/* Modal de Visualização */}
         <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent
+            className="max-w-2xl max-h-[80vh] overflow-y-auto"
+            style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}
+          >
             <DialogHeader>
-              <DialogTitle className="text-[#0B1220]">Detalhes do Orçamento</DialogTitle>
-              <DialogDescription>Informações completas do orçamento</DialogDescription>
+              <DialogTitle className="text-white text-2xl font-bold">Detalhes do Orçamento</DialogTitle>
+              <DialogDescription style={{ color: '#94A3B8' }}>
+                Informações completas do orçamento
+              </DialogDescription>
             </DialogHeader>
             {selectedOrcamento && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Nome</Label>
-                    <p className="text-[#0B1220]">{selectedOrcamento.nome}</p>
+                    <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Nome</Label>
+                    <p className="text-white mt-1">{selectedOrcamento.nome}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Telefone</Label>
-                    <p className="text-[#0B1220]">{selectedOrcamento.telefone}</p>
+                    <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Telefone</Label>
+                    <p className="text-white mt-1">{selectedOrcamento.telefone}</p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Email</Label>
-                    <p className="text-[#0B1220]">{selectedOrcamento.email}</p>
+                    <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Email</Label>
+                    <p className="text-white mt-1">{selectedOrcamento.email}</p>
                   </div>
                   {selectedOrcamento.empresa && (
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Empresa</Label>
-                      <p className="text-[#0B1220]">{selectedOrcamento.empresa}</p>
+                      <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Empresa</Label>
+                      <p className="text-white mt-1">{selectedOrcamento.empresa}</p>
                     </div>
                   )}
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Produto</Label>
-                    <p className="text-[#0B1220]">
+                    <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Produto</Label>
+                    <p className="text-white mt-1">
                       {typeof selectedOrcamento.produto === 'object'
                         ? selectedOrcamento.produto.nome
                         : selectedOrcamento.produto || '—'}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Status</Label>
-                    <div>{getStatusBadge(selectedOrcamento.status)}</div>
+                    <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Status</Label>
+                    <div className="mt-1">{getStatusBadge(selectedOrcamento.status)}</div>
                   </div>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Mensagem</Label>
-                  <p className="text-[#0B1220] bg-gray-50 p-3 rounded-md">
+                  <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Mensagem</Label>
+                  <p className="text-white p-4 rounded-xl mt-2" style={{ backgroundColor: '#0D1528' }}>
                     {selectedOrcamento.mensagem}
                   </p>
                 </div>
                 {selectedOrcamento.observacoes && (
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Notas Internas</Label>
-                    <p className="text-[#0B1220] bg-blue-50 p-3 rounded-md">
+                    <Label className="text-sm font-medium uppercase tracking-wide text-gray-400">Notas Internas</Label>
+                    <p className="text-white p-4 rounded-xl mt-2" style={{ backgroundColor: 'rgba(59, 75, 168, 0.1)' }}>
                       {selectedOrcamento.observacoes}
                     </p>
                   </div>
                 )}
-                <div className="text-sm text-gray-500">
+                <div className="text-sm" style={{ color: '#94A3B8' }}>
                   <p>
                     Criado em:{' '}
                     {format(new Date(selectedOrcamento.createdAt), 'dd/MM/yyyy HH:mm', {
@@ -415,7 +483,12 @@ export default function AdminOrcamentos() {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsViewModalOpen(false)}
+                className="rounded-xl text-white hover:bg-[#0D1528]"
+                style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+              >
                 Fechar
               </Button>
             </DialogFooter>
@@ -424,10 +497,15 @@ export default function AdminOrcamentos() {
 
         {/* Modal de Edição */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent
+            className="max-w-2xl"
+            style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}
+          >
             <DialogHeader>
-              <DialogTitle className="text-[#0B1220]">Editar Orçamento</DialogTitle>
-              <DialogDescription>Atualize as informações do orçamento</DialogDescription>
+              <DialogTitle className="text-white text-2xl font-bold">Editar Orçamento</DialogTitle>
+              <DialogDescription style={{ color: '#94A3B8' }}>
+                Atualize as informações do orçamento
+              </DialogDescription>
             </DialogHeader>
             {selectedOrcamento && (
               <form
@@ -447,20 +525,36 @@ export default function AdminOrcamentos() {
                 className="space-y-4"
               >
                 <div>
-                  <Label htmlFor="observacoes">Notas Internas</Label>
+                  <Label htmlFor="observacoes" className="text-gray-400 uppercase text-sm tracking-wide">
+                    Notas Internas
+                  </Label>
                   <Textarea
                     id="observacoes"
                     name="observacoes"
                     defaultValue={selectedOrcamento.observacoes || ''}
                     rows={4}
-                    className="border-gray-300"
+                    className="mt-2 rounded-xl text-white"
+                    style={{
+                      backgroundColor: '#0D1528',
+                      borderColor: 'rgba(255, 255, 255, 0.05)',
+                    }}
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="rounded-xl text-white hover:bg-[#0D1528]"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                  >
                     Cancelar
                   </Button>
-                  <Button type="submit" className="bg-[#0D47A1] hover:bg-[#1565C0]">
+                  <Button
+                    type="submit"
+                    className="rounded-xl"
+                    style={{ backgroundColor: '#3B4BA8', color: '#FFFFFF' }}
+                  >
                     Salvar
                   </Button>
                 </DialogFooter>
