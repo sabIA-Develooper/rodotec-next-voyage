@@ -101,7 +101,7 @@ export default function AdminOrcamentoDetalhe() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-slate-600">Carregando...</p>
         </div>
       </AdminLayout>
     );
@@ -111,7 +111,7 @@ export default function AdminOrcamentoDetalhe() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Orçamento não encontrado</p>
+          <p className="text-slate-600">Orçamento não encontrado</p>
         </div>
       </AdminLayout>
     );
@@ -131,7 +131,7 @@ export default function AdminOrcamentoDetalhe() {
           </Link>
           <div className="flex-1">
             <h1 className="text-2xl font-bold">Orçamento #{quote._id.slice(-6)}</h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-600">
               Criado em {format(new Date(quote.createdAt), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
             </p>
           </div>
@@ -146,13 +146,13 @@ export default function AdminOrcamentoDetalhe() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Informações do contato</CardTitle>
+                <CardTitle className="text-slate-900">Informações do contato</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium mb-1">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <FileText className="h-4 w-4 text-slate-500" />
                       Nome
                     </div>
                     <p>{quote.nome}</p>
@@ -160,7 +160,7 @@ export default function AdminOrcamentoDetalhe() {
                   {quote.empresa && (
                     <div>
                       <div className="flex items-center gap-2 text-sm font-medium mb-1">
-                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <Building className="h-4 w-4 text-slate-500" />
                         Empresa
                       </div>
                       <p>{quote.empresa}</p>
@@ -171,7 +171,7 @@ export default function AdminOrcamentoDetalhe() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium mb-1">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <Mail className="h-4 w-4 text-slate-500" />
                       E-mail
                     </div>
                     <a href={`mailto:${quote.email}`} className="text-primary hover:underline">
@@ -180,7 +180,7 @@ export default function AdminOrcamentoDetalhe() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium mb-1">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <Phone className="h-4 w-4 text-slate-500" />
                       Telefone
                     </div>
                     <a href={`tel:${quote.telefone}`} className="text-primary hover:underline">
@@ -193,11 +193,11 @@ export default function AdminOrcamentoDetalhe() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Produto de interesse</CardTitle>
+                <CardTitle className="text-slate-900">Produto de interesse</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-muted-foreground" />
+                  <Package className="h-5 w-5 text-slate-500" />
                   <p className="font-medium">
                     {typeof quote.produto === 'object' ? quote.produto.nome : quote.produto}
                   </p>
@@ -215,7 +215,7 @@ export default function AdminOrcamentoDetalhe() {
             {quote.mensagem && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Mensagem</CardTitle>
+                  <CardTitle className="text-slate-900">Mensagem</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="whitespace-pre-wrap">{quote.mensagem}</p>
@@ -225,7 +225,7 @@ export default function AdminOrcamentoDetalhe() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Notas internas</CardTitle>
+                <CardTitle className="text-slate-900">Notas internas</CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
@@ -239,7 +239,7 @@ export default function AdminOrcamentoDetalhe() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Timeline</CardTitle>
+                <CardTitle className="text-slate-900">Timeline</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -252,7 +252,7 @@ export default function AdminOrcamentoDetalhe() {
                     </div>
                     <div className="flex-1 pb-4">
                       <p className="font-medium">Orçamento criado</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-600">
                         {format(new Date(quote.createdAt), "dd/MM/yyyy 'às' HH:mm", {
                           locale: ptBR,
                         })}
@@ -269,7 +269,7 @@ export default function AdminOrcamentoDetalhe() {
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">Última atualização</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-slate-600">
                           {format(new Date(quote.updatedAt), "dd/MM/yyyy 'às' HH:mm", {
                             locale: ptBR,
                           })}
@@ -286,7 +286,7 @@ export default function AdminOrcamentoDetalhe() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle className="text-slate-900">Status</CardTitle>
               </CardHeader>
               <CardContent>
                 <Select value={status} onValueChange={(value: any) => setStatus(value)}>
@@ -307,18 +307,18 @@ export default function AdminOrcamentoDetalhe() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Informações adicionais</CardTitle>
+                <CardTitle className="text-slate-900">Informações adicionais</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {quote.empresa && (
                   <div>
                     <p className="text-sm font-medium">Empresa</p>
-                    <p className="text-sm text-muted-foreground">{quote.empresa}</p>
+                    <p className="text-sm text-slate-600">{quote.empresa}</p>
                   </div>
                 )}
                 <div>
                   <p className="text-sm font-medium">ID do Orçamento</p>
-                  <p className="text-sm text-muted-foreground font-mono">{quote._id}</p>
+                  <p className="text-sm text-slate-600 font-mono">{quote._id}</p>
                 </div>
               </CardContent>
             </Card>

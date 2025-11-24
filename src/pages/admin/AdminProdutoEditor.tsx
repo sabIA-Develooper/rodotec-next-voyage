@@ -259,7 +259,7 @@ export default function AdminProdutoEditor() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-slate-600">Carregando...</p>
         </div>
       </AdminLayout>
     );
@@ -296,7 +296,7 @@ export default function AdminProdutoEditor() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Informações básicas</CardTitle>
+                <CardTitle className="text-slate-900">Informações básicas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -323,13 +323,13 @@ export default function AdminProdutoEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Mídia</CardTitle>
+                <CardTitle className="text-slate-900">Mídia</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors">
                   <Label htmlFor="product-images" className="cursor-pointer">
                     <span className="text-sm font-medium">Clique para adicionar imagens</span>
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-xs text-slate-600 mt-2">
                       Até 5 imagens, máximo 5 MB cada (JPG, PNG, GIF)
                     </p>
                   </Label>
@@ -346,7 +346,7 @@ export default function AdminProdutoEditor() {
                 {/* Imagens existentes */}
                 {existingImages.length > 0 && (
                   <div className="mt-4">
-                    <Label className="text-sm text-muted-foreground mb-2 block">
+                    <Label className="text-sm text-slate-600 mb-2 block">
                       Imagens atuais
                     </Label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -374,7 +374,7 @@ export default function AdminProdutoEditor() {
                 {/* Novas imagens */}
                 {selectedImages.length > 0 && (
                   <div className="mt-4">
-                    <Label className="text-sm text-muted-foreground mb-2 block">
+                    <Label className="text-sm text-slate-600 mb-2 block">
                       Novas imagens (serão enviadas ao salvar)
                     </Label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -403,7 +403,7 @@ export default function AdminProdutoEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Especificações técnicas</CardTitle>
+                <CardTitle className="text-slate-900">Especificações técnicas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {specs.map((spec, idx) => (
@@ -437,7 +437,7 @@ export default function AdminProdutoEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Tags</CardTitle>
+                <CardTitle className="text-slate-900">Tags</CardTitle>
               </CardHeader>
               <CardContent>
                 <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
@@ -447,7 +447,7 @@ export default function AdminProdutoEditor() {
                   onChange={(e) => setTagsInput(e.target.value)}
                   placeholder="eletrônico, notebook, trabalho"
                 />
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-slate-600 mt-2">
                   Use vírgulas para separar as tags
                 </p>
               </CardContent>
@@ -458,7 +458,7 @@ export default function AdminProdutoEditor() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle className="text-slate-900">Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -508,7 +508,7 @@ export default function AdminProdutoEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Organização</CardTitle>
+                <CardTitle className="text-slate-900">Organização</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>

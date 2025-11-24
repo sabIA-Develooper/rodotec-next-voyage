@@ -106,33 +106,33 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Orçamentos Novos</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <FileText className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.novos || 0}</div>
-              <p className="text-xs text-muted-foreground">Aguardando atendimento</p>
+              <p className="text-xs text-slate-600">Aguardando atendimento</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Em Andamento</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.emContato || 0}</div>
-              <p className="text-xs text-muted-foreground">Orçamentos em negociação</p>
+              <p className="text-xs text-slate-600">Orçamentos em negociação</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Concluídos</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CheckCircle className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.concluidos || 0}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-600">
                 {stats.taxaConclusao ? `${stats.taxaConclusao}% de taxa` : 'Total concluídos'}
               </p>
             </CardContent>
@@ -141,11 +141,11 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Produtos Ativos</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+              <Package className="h-4 w-4 text-slate-500" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.active_products || 0}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-600">
                 {stats.draft_products || 0} rascunhos
               </p>
             </CardContent>
@@ -167,9 +167,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+              <p className="text-center py-8 text-slate-600">Carregando...</p>
             ) : recentQuotes.length === 0 ? (
-              <p className="text-center py-8 text-muted-foreground">Nenhum orçamento encontrado</p>
+              <p className="text-center py-8 text-slate-600">Nenhum orçamento encontrado</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -190,13 +190,13 @@ export default function AdminDashboard() {
                           {quote.nome}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-slate-600">
                         {quote.empresa || '—'}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-slate-600">
                         {typeof quote.produto === 'object' ? quote.produto.nome : '—'}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-slate-600 text-sm">
                         {formatDistanceToNow(new Date(quote.createdAt), {
                           addSuffix: true,
                           locale: ptBR,

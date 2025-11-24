@@ -318,7 +318,7 @@ export default function AdminCategorias() {
                   accept="image/*"
                   onChange={handleImageChange}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-600">
                   Formatos aceitos: JPG, PNG, GIF. Máximo 5MB
                 </p>
                 {imagePreview && (

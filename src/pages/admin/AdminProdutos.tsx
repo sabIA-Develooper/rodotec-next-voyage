@@ -340,7 +340,7 @@ export default function AdminProdutos() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <div className="w-full h-full flex items-center justify-center text-slate-600">
                               Sem imagem
                             </div>
                           );
@@ -358,7 +358,7 @@ export default function AdminProdutos() {
                             {product.ativo ? 'Ativo' : 'Inativo'}
                           </Badge>
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-slate-600">
                           {formatDistanceToNow(new Date(product.createdAt), {
                             addSuffix: true,
                             locale: ptBR,
