@@ -114,19 +114,8 @@ const AdminConfiguracoes: React.FC = () => {
         <p className="text-slate-600">Gerencie as configurações do sistema</p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[220px_1fr] gap-6">
-        <aside className="rounded-2xl bg-brand-700 p-2 text-white h-full">
-          <nav className="space-y-1">
-            <button className="w-full text-left px-3 py-2 rounded-md bg-white/10">Empresa</button>
-            <button className="w-full text-left px-3 py-2 rounded-md">Aparência</button>
-            <button className="w-full text-left px-3 py-2 rounded-md">Notificações</button>
-            <button className="w-full text-left px-3 py-2 rounded-md">Usuários</button>
-          </nav>
-        </aside>
-
-        <main>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Informações da Empresa</CardTitle>
                 <CardDescription>Configure as informações básicas da empresa</CardDescription>
@@ -162,7 +151,7 @@ const AdminConfiguracoes: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
+            <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Aparência do Sistema</CardTitle>
                 <CardDescription>Personalize as cores e logos do sistema</CardDescription>
@@ -197,7 +186,7 @@ const AdminConfiguracoes: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
+            <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Configurações de Notificações</CardTitle>
                 <CardDescription>Gerencie como você recebe notificações</CardDescription>
@@ -213,38 +202,36 @@ const AdminConfiguracoes: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-surface border border-slate-200 rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle>Usuários e Permissões</CardTitle>
-                <CardDescription>Gerencie os usuários do sistema</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Função</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {settings.usuarios.map((usuario) => (
-                      <TableRow key={usuario.id}>
-                        <TableCell>{usuario.nome}</TableCell>
-                        <TableCell>{usuario.email}</TableCell>
-                        <TableCell>{usuario.role}</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" onClick={() => handleResetPassword(usuario.id)}>Redefinir Senha</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
+        <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-slate-900">Usuários e Permissões</CardTitle>
+            <CardDescription>Gerencie os usuários do sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Função</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {settings.usuarios.map((usuario) => (
+                  <TableRow key={usuario.id}>
+                    <TableCell>{usuario.nome}</TableCell>
+                    <TableCell>{usuario.email}</TableCell>
+                    <TableCell>{usuario.role}</TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="sm" onClick={() => handleResetPassword(usuario.id)}>Redefinir Senha</Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex justify-end">
