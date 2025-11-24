@@ -268,7 +268,7 @@ const AdminConfiguracoes: React.FC = () => {
             <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Informações da Empresa</CardTitle>
-                <CardDescription>Configure as informações básicas da empresa</CardDescription>
+                <CardDescription className="text-slate-600">Configure as informações básicas da empresa</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -304,7 +304,7 @@ const AdminConfiguracoes: React.FC = () => {
             <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Aparência do Sistema</CardTitle>
-                <CardDescription>Personalize as cores e logos do sistema</CardDescription>
+                <CardDescription className="text-slate-600">Personalize as cores e logos do sistema</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -339,7 +339,7 @@ const AdminConfiguracoes: React.FC = () => {
             <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
                 <CardTitle>Configurações de Notificações</CardTitle>
-                <CardDescription>Gerencie como você recebe notificações</CardDescription>
+                <CardDescription className="text-slate-600">Gerencie como você recebe notificações</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -358,7 +358,7 @@ const AdminConfiguracoes: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-slate-900">Usuários e Permissões</CardTitle>
-                  <CardDescription>Gerencie os usuários do sistema</CardDescription>
+                  <CardDescription className="text-slate-600">Gerencie os usuários do sistema</CardDescription>
                 </div>
                 <Button onClick={openCreateUserModal}>
                   <Plus className="mr-2 h-4 w-4" />
@@ -379,13 +379,13 @@ const AdminConfiguracoes: React.FC = () => {
                 <TableBody>
                   {loadingUsers ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-slate-600">
                         Carregando usuários...
                       </TableCell>
                     </TableRow>
                   ) : usuarios.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-slate-600">
                         Nenhum usuário cadastrado
                       </TableCell>
                     </TableRow>
@@ -420,7 +420,7 @@ const AdminConfiguracoes: React.FC = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Novo Usuário</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600">
               Crie um novo usuário para acessar o painel administrativo
             </DialogDescription>
           </DialogHeader>
@@ -458,7 +458,7 @@ const AdminConfiguracoes: React.FC = () => {
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-600">
                 Usuários podem visualizar orçamentos. Administradores podem gerenciar todo o sistema.
               </p>
             </div>
@@ -502,7 +502,7 @@ const AdminConfiguracoes: React.FC = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Redefinir Senha</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600">
               Defina uma nova senha para {resetPasswordUser?.nome}
             </DialogDescription>
           </DialogHeader>
