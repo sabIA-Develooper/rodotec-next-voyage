@@ -1,16 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { localDataLayer } from '@/data/localDataLayer';
 import { Settings } from '@/data/localDataLayer';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import api from '@/services/api';
+import { Plus } from 'lucide-react';
 
 const AdminConfiguracoes: React.FC = () => {
+  const { user, role } = useAdminAuth();
+  const isAdmin = role === 'admin';
+
   const [settings, setSettings] = useState<Settings>({
     empresa: {
       nome: '',
@@ -32,6 +52,17 @@ const AdminConfiguracoes: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState('empresa');
+
+  // Estado para modal de criar usuário
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const [creatingUser, setCreatingUser] = useState(false);
+  const [newUser, setNewUser] = useState({
+    nome: '',
+    email: '',
+    senha: '',
+    confirmarSenha: '',
+    role: 'user' as 'admin' | 'user'
+  });
 
   useEffect(() => {
     const savedSettings = localDataLayer.getSettings();
@@ -105,6 +136,64 @@ const AdminConfiguracoes: React.FC = () => {
 
   const handleResetPassword = (userId: string) => {
     toast.success(`Senha redefinida para usuário ${userId}`);
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!newUser.nome.trim()) {
+      toast.error('Informe o nome do usuário');
+      return;
+    }
+    if (!newUser.email.trim()) {
+      toast.error('Informe o e-mail do usuário');
+      return;
+    }
+    if (!newUser.senha || newUser.senha.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+    if (newUser.senha !== newUser.confirmarSenha) {
+      toast.error('As senhas não conferem');
+      return;
+    }
+
+    setCreatingUser(true);
+
+    try {
+      await api.auth.register({
+        nome: newUser.nome,
+        email: newUser.email,
+        senha: newUser.senha,
+        role: newUser.role
+      });
+
+      toast.success('Usuário criado com sucesso!');
+      setIsCreateUserOpen(false);
+      setNewUser({
+        nome: '',
+        email: '',
+        senha: '',
+        confirmarSenha: '',
+        role: 'user'
+      });
+    } catch (error: any) {
+      console.error('Erro ao criar usuário:', error);
+      toast.error(error?.message || 'Erro ao criar usuário');
+    } finally {
+      setCreatingUser(false);
+    }
+  };
+
+  const openCreateUserModal = () => {
+    setNewUser({
+      nome: '',
+      email: '',
+      senha: '',
+      confirmarSenha: '',
+      role: 'user'
+    });
+    setIsCreateUserOpen(true);
   };
 
   return (
@@ -202,37 +291,137 @@ const AdminConfiguracoes: React.FC = () => {
               </CardContent>
             </Card>
 
-        <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-slate-900">Usuários e Permissões</CardTitle>
-            <CardDescription>Gerencie os usuários do sistema</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Função</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {settings.usuarios.map((usuario) => (
-                  <TableRow key={usuario.id}>
-                    <TableCell>{usuario.nome}</TableCell>
-                    <TableCell>{usuario.email}</TableCell>
-                    <TableCell>{usuario.role}</TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm" onClick={() => handleResetPassword(usuario.id)}>Redefinir Senha</Button>
-                    </TableCell>
+        {isAdmin && (
+          <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-slate-900">Usuários e Permissões</CardTitle>
+                  <CardDescription>Gerencie os usuários do sistema</CardDescription>
+                </div>
+                <Button onClick={openCreateUserModal}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Novo Usuário
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Função</TableHead>
+                    <TableHead>Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {settings.usuarios.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        Nenhum usuário cadastrado
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    settings.usuarios.map((usuario) => (
+                      <TableRow key={usuario.id}>
+                        <TableCell>{usuario.nome}</TableCell>
+                        <TableCell>{usuario.email}</TableCell>
+                        <TableCell>{usuario.role === 'admin' ? 'Administrador' : 'Usuário'}</TableCell>
+                        <TableCell>
+                          <Button variant="outline" size="sm" onClick={() => handleResetPassword(usuario.id)}>Redefinir Senha</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Modal de criar usuário */}
+      <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Usuário</DialogTitle>
+            <DialogDescription>
+              Crie um novo usuário para acessar o painel administrativo
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateUser} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newUserNome">Nome *</Label>
+              <Input
+                id="newUserNome"
+                value={newUser.nome}
+                onChange={(e) => setNewUser({ ...newUser, nome: e.target.value })}
+                placeholder="Nome completo"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newUserEmail">E-mail *</Label>
+              <Input
+                id="newUserEmail"
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                placeholder="email@empresa.com.br"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newUserRole">Função *</Label>
+              <Select value={newUser.role} onValueChange={(value: 'admin' | 'user') => setNewUser({ ...newUser, role: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a função" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">Usuário</SelectItem>
+                  <SelectItem value="admin">Administrador</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Usuários podem visualizar orçamentos. Administradores podem gerenciar todo o sistema.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newUserSenha">Senha *</Label>
+              <Input
+                id="newUserSenha"
+                type="password"
+                value={newUser.senha}
+                onChange={(e) => setNewUser({ ...newUser, senha: e.target.value })}
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newUserConfirmarSenha">Confirmar Senha *</Label>
+              <Input
+                id="newUserConfirmarSenha"
+                type="password"
+                value={newUser.confirmarSenha}
+                onChange={(e) => setNewUser({ ...newUser, confirmarSenha: e.target.value })}
+                placeholder="Repita a senha"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsCreateUserOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={creatingUser}>
+                {creatingUser ? 'Criando...' : 'Criar Usuário'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex justify-end">
         <Button onClick={handleSaveSettings}>Salvar Configurações</Button>
