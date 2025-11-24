@@ -26,9 +26,7 @@ const ProductCard = ({ product, onQuickView, title, image, link }: ProductCardPr
         slug: (link || "/produtos").split("/").pop() || "produto",
         description: "",
         short_description: "",
-        sku: null,
         price: null,
-        stock_qty: 0,
         status: "ACTIVE",
         category_id: "",
         images: image ? [image] : [],
@@ -66,12 +64,7 @@ const ProductCard = ({ product, onQuickView, title, image, link }: ProductCardPr
         )}
       </div>
       <CardContent className="p-6">
-        <h3 className="mb-2 font-heading text-xl font-bold text-foreground">{data?.title || title}</h3>
-        {data && (
-          <div className="mb-4 text-sm text-muted-foreground">
-            SKU: {data.sku || '—'}
-          </div>
-        )}
+        <h3 className="mb-4 font-heading text-xl font-bold text-foreground">{data?.title || title}</h3>
         <Link to={data ? `/produtos/${data.slug}` : link || "/produtos"}>
           <Button variant="outline" className="w-full">Ver Detalhes</Button>
         </Link>

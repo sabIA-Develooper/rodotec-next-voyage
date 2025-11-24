@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Pagination,
@@ -45,7 +44,6 @@ export default function AdminProdutos() {
   const [view, setView] = useState<'list' | 'grid'>('list');
   const [categoryId, setCategoryId] = useState<string>('');
   const [status, setStatus] = useState<string>('');
-  const [availability, setAvailability] = useState<boolean>(false);
   const [sort, setSort] = useState<string>('created_desc');
   const [page, setPage] = useState<number>(1);
 
@@ -105,18 +103,13 @@ export default function AdminProdutos() {
     let list = products.slice();
     if (search.trim()) {
       const s = search.toLowerCase();
-      list = list.filter(
-        (p) => p.nome.toLowerCase().includes(s) || (p.sku || '').toLowerCase().includes(s)
-      );
+      list = list.filter((p) => p.nome.toLowerCase().includes(s));
     }
     if (categoryId && categoryId !== 'all') {
       list = list.filter((p) => p.categoria?._id === categoryId);
     }
     if (status && status !== 'all') {
       list = list.filter((p) => (p.ativo ? 'ativo' : 'inativo') === status);
-    }
-    if (availability) {
-      list = list.filter((p) => (p.estoque || 0) > 0);
     }
     switch (sort) {
       case 'name_asc':
@@ -131,7 +124,7 @@ export default function AdminProdutos() {
         break;
     }
     return list;
-  }, [products, search, categoryId, status, availability, sort]);
+  }, [products, search, categoryId, status, sort]);
 
   const perPage = view === 'grid' ? 12 : 20;
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
@@ -164,7 +157,7 @@ export default function AdminProdutos() {
               <div className="relative sm:col-span-2 lg:col-span-1 xl:col-span-2">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Buscar por nome ou SKU"
+                  placeholder="Buscar por nome"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"
@@ -193,10 +186,6 @@ export default function AdminProdutos() {
                   <SelectItem value="inativo">Inativo</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center justify-between gap-2 border border-slate-200 rounded-md px-3 py-2 bg-white">
-                <span className="text-sm text-slate-500">Em estoque</span>
-                <Switch checked={availability} onCheckedChange={setAvailability} />
-              </div>
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger>
                   <SelectValue placeholder="Ordenar" />
@@ -233,8 +222,6 @@ export default function AdminProdutos() {
                   <TableHead>Imagem</TableHead>
                   <TableHead>Título</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Estoque</TableHead>
                   <TableHead>Criado</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -242,13 +229,13 @@ export default function AdminProdutos() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       Carregando...
                     </TableCell>
                   </TableRow>
                 ) : pagedProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       Nenhum produto encontrado
                     </TableCell>
                   </TableRow>
@@ -294,8 +281,6 @@ export default function AdminProdutos() {
                           {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                      <TableCell>{product.estoque}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {formatDistanceToNow(new Date(product.createdAt), {
                           addSuffix: true,
