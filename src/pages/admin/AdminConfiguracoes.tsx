@@ -392,9 +392,9 @@ const AdminConfiguracoes: React.FC = () => {
                   ) : (
                     usuarios.map((usuario) => (
                       <TableRow key={usuario._id}>
-                        <TableCell>{usuario.nome}</TableCell>
-                        <TableCell>{usuario.email}</TableCell>
-                        <TableCell>{usuario.role === 'admin' ? 'Administrador' : 'Usuário'}</TableCell>
+                        <TableCell className="text-slate-900 font-medium">{usuario.nome}</TableCell>
+                        <TableCell className="text-slate-700">{usuario.email}</TableCell>
+                        <TableCell className="text-slate-700">{usuario.role === 'admin' ? 'Administrador' : 'Usuário'}</TableCell>
                         <TableCell>
                           <Button
                             variant="outline"
