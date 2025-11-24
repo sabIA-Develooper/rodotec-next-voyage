@@ -234,8 +234,6 @@ export default function AdminDashboard() {
                   <TableRow>
                     <TableHead>Título</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Estoque</TableHead>
                     <TableHead>Atualizado</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -252,8 +250,6 @@ export default function AdminDashboard() {
                           {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                      <TableCell>{product.estoque}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {product.updatedAt
                           ? formatDistanceToNow(new Date(product.updatedAt), {
