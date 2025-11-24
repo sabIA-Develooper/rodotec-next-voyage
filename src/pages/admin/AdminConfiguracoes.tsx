@@ -25,7 +25,8 @@ import { localDataLayer } from '@/data/localDataLayer';
 import { Settings } from '@/data/localDataLayer';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import api from '@/services/api';
-import { Plus } from 'lucide-react';
+import { Plus, Key } from 'lucide-react';
+import type { AdminUser } from '@/types/api';
 
 const AdminConfiguracoes: React.FC = () => {
   const { user, role } = useAdminAuth();
@@ -53,6 +54,10 @@ const AdminConfiguracoes: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('empresa');
 
+  // Estado para lista de usuários
+  const [usuarios, setUsuarios] = useState<AdminUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
   // Estado para modal de criar usuário
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
@@ -64,12 +69,38 @@ const AdminConfiguracoes: React.FC = () => {
     role: 'user' as 'admin' | 'user'
   });
 
+  // Estado para modal de resetar senha
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState<AdminUser | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+
   useEffect(() => {
     const savedSettings = localDataLayer.getSettings();
     if (savedSettings) {
       setSettings(savedSettings);
     }
   }, []);
+
+  // Carregar usuários do backend
+  useEffect(() => {
+    if (isAdmin) {
+      loadUsers();
+    }
+  }, [isAdmin]);
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const users = await api.auth.listUsers();
+      setUsuarios(users);
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+      // Silently fail - users list will be empty
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   const handleEmpresaChange = (field: string, value: string) => {
     setSettings(prev => ({
@@ -134,8 +165,36 @@ const AdminConfiguracoes: React.FC = () => {
     }
   };
 
-  const handleResetPassword = (userId: string) => {
-    toast.success(`Senha redefinida para usuário ${userId}`);
+  const openResetPasswordModal = (usuario: AdminUser) => {
+    setResetPasswordUser(usuario);
+    setNewPassword('');
+    setIsResetPasswordOpen(true);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!resetPasswordUser) return;
+
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('A nova senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    setResettingPassword(true);
+
+    try {
+      await api.auth.resetUserPassword(resetPasswordUser._id, newPassword);
+      toast.success(`Senha de ${resetPasswordUser.nome} redefinida com sucesso!`);
+      setIsResetPasswordOpen(false);
+      setResetPasswordUser(null);
+      setNewPassword('');
+    } catch (error: any) {
+      console.error('Erro ao redefinir senha:', error);
+      toast.error(error?.message || 'Erro ao redefinir senha');
+    } finally {
+      setResettingPassword(false);
+    }
   };
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -177,6 +236,8 @@ const AdminConfiguracoes: React.FC = () => {
         confirmarSenha: '',
         role: 'user'
       });
+      // Recarregar lista de usuários
+      loadUsers();
     } catch (error: any) {
       console.error('Erro ao criar usuário:', error);
       toast.error(error?.message || 'Erro ao criar usuário');
@@ -316,20 +377,33 @@ const AdminConfiguracoes: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {settings.usuarios.length === 0 ? (
+                  {loadingUsers ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        Carregando usuários...
+                      </TableCell>
+                    </TableRow>
+                  ) : usuarios.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         Nenhum usuário cadastrado
                       </TableCell>
                     </TableRow>
                   ) : (
-                    settings.usuarios.map((usuario) => (
-                      <TableRow key={usuario.id}>
+                    usuarios.map((usuario) => (
+                      <TableRow key={usuario._id}>
                         <TableCell>{usuario.nome}</TableCell>
                         <TableCell>{usuario.email}</TableCell>
                         <TableCell>{usuario.role === 'admin' ? 'Administrador' : 'Usuário'}</TableCell>
                         <TableCell>
-                          <Button variant="outline" size="sm" onClick={() => handleResetPassword(usuario.id)}>Redefinir Senha</Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openResetPasswordModal(usuario)}
+                          >
+                            <Key className="h-4 w-4 mr-1" />
+                            Redefinir Senha
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
@@ -417,6 +491,40 @@ const AdminConfiguracoes: React.FC = () => {
               </Button>
               <Button type="submit" disabled={creatingUser}>
                 {creatingUser ? 'Criando...' : 'Criar Usuário'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de resetar senha */}
+      <Dialog open={isResetPasswordOpen} onOpenChange={setIsResetPasswordOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Redefinir Senha</DialogTitle>
+            <DialogDescription>
+              Defina uma nova senha para {resetPasswordUser?.nome}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPasswordInput">Nova Senha *</Label>
+              <Input
+                id="newPasswordInput"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsResetPasswordOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={resettingPassword}>
+                {resettingPassword ? 'Redefinindo...' : 'Redefinir Senha'}
               </Button>
             </DialogFooter>
           </form>
