@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Image as ImageIcon, Grid3x3, List } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -137,236 +137,347 @@ export default function AdminProdutos() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-16">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Produtos</h1>
-            <p className="text-slate-600">Gerencie seu catálogo de produtos</p>
+            <h1 className="text-5xl font-extrabold text-white tracking-tight">Produtos</h1>
+            <p className="text-lg mt-2" style={{ color: '#94A3B8' }}>
+              Gerencie seu catálogo de produtos
+            </p>
           </div>
           <Link to="/admin/produtos/novo">
-            <Button>
+            <Button
+              className="rounded-xl px-6 py-3 font-semibold"
+              style={{ backgroundColor: '#3B4BA8', color: '#FFFFFF' }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Adicionar produto
             </Button>
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
-          <div className="p-4 border-b border-slate-200 space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-              <div className="relative sm:col-span-2 lg:col-span-1 xl:col-span-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+        {/* Filtros */}
+        <div
+          className="rounded-3xl border p-6"
+          style={{
+            backgroundColor: '#0B1220',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative lg:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Buscar por nome"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-white placeholder:text-gray-400 rounded-xl h-11"
+                  style={{
+                    backgroundColor: '#0D1528',
+                    borderColor: 'rgba(255, 255, 255, 0.05)',
+                  }}
                 />
               </div>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
+                <SelectTrigger
+                  className="text-white rounded-xl h-11"
+                  style={{
+                    backgroundColor: '#0D1528',
+                    borderColor: 'rgba(255, 255, 255, 0.05)',
+                  }}
+                >
                   <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
+                <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                  <SelectItem value="all" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Todas
+                  </SelectItem>
                   {categories.map((c) => (
-                    <SelectItem key={c._id} value={c._id}>
+                    <SelectItem key={c._id} value={c._id} className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
                       {c.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
+                <SelectTrigger
+                  className="text-white rounded-xl h-11"
+                  style={{
+                    backgroundColor: '#0D1528',
+                    borderColor: 'rgba(255, 255, 255, 0.05)',
+                  }}
+                >
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="inativo">Inativo</SelectItem>
+                <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                  <SelectItem value="all" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Todos
+                  </SelectItem>
+                  <SelectItem value="ativo" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Ativo
+                  </SelectItem>
+                  <SelectItem value="inativo" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Inativo
+                  </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex items-center justify-between gap-4">
               <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger>
+                <SelectTrigger
+                  className="text-white rounded-xl h-11 w-48"
+                  style={{
+                    backgroundColor: '#0D1528',
+                    borderColor: 'rgba(255, 255, 255, 0.05)',
+                  }}
+                >
                   <SelectValue placeholder="Ordenar" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="created_desc">Mais recentes</SelectItem>
-                  <SelectItem value="created_asc">Mais antigos</SelectItem>
-                  <SelectItem value="name_asc">Nome (A→Z)</SelectItem>
+                <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                  <SelectItem value="created_desc" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Mais recentes
+                  </SelectItem>
+                  <SelectItem value="created_asc" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Mais antigos
+                  </SelectItem>
+                  <SelectItem value="name_asc" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                    Nome (A→Z)
+                  </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <Button
-                variant={view === 'list' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setView('list')}
-              >
-                Lista
-              </Button>
-              <Button
-                variant={view === 'grid' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setView('grid')}
-              >
-                Grid
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={view === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setView('list')}
+                  className={`rounded-xl ${
+                    view === 'list'
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-[#0D1528]'
+                  }`}
+                  style={
+                    view === 'list'
+                      ? { backgroundColor: '#3B4BA8' }
+                      : { backgroundColor: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }
+                  }
+                >
+                  <List className="h-4 w-4 mr-2" />
+                  Lista
+                </Button>
+                <Button
+                  variant={view === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setView('grid')}
+                  className={`rounded-xl ${
+                    view === 'grid'
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-[#0D1528]'
+                  }`}
+                  style={
+                    view === 'grid'
+                      ? { backgroundColor: '#3B4BA8' }
+                      : { backgroundColor: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }
+                  }
+                >
+                  <Grid3x3 className="h-4 w-4 mr-2" />
+                  Grid
+                </Button>
+              </div>
             </div>
           </div>
+        </div>
 
-          {view === 'list' ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Imagem</TableHead>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Criado</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-600">
-                      Carregando...
-                    </TableCell>
-                  </TableRow>
-                ) : pagedProducts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-600">
-                      Nenhum produto encontrado
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  pagedProducts.map((product) => {
-                    const imgUrl = typeof product.imagemPrincipal === 'string'
-                      ? product.imagemPrincipal
-                      : product.imagemPrincipal?.url ||
-                        (product.imagensUrls?.[0]
-                          ? (typeof product.imagensUrls[0] === 'string'
-                            ? product.imagensUrls[0]
-                            : product.imagensUrls[0].url || product.imagensUrls[0])
-                          : null);
+        {/* Conteúdo */}
+        <div
+          className="rounded-3xl border overflow-hidden"
+          style={{
+            backgroundColor: '#0B1220',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <div className="p-8">
+            <h2 className="text-2xl font-bold text-white mb-8">
+              {filteredProducts.length} produto(s) encontrado(s)
+            </h2>
 
-                    return (
-                    <TableRow
+            {loading ? (
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>
+                Carregando...
+              </p>
+            ) : pagedProducts.length === 0 ? (
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>
+                Nenhum produto encontrado
+              </p>
+            ) : view === 'list' ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Imagem</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Título</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Criado</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pagedProducts.map((product) => {
+                      const imgUrl = typeof product.imagemPrincipal === 'string'
+                        ? product.imagemPrincipal
+                        : product.imagemPrincipal?.url ||
+                          (product.imagensUrls?.[0]
+                            ? (typeof product.imagensUrls[0] === 'string'
+                              ? product.imagensUrls[0]
+                              : product.imagensUrls[0].url || product.imagensUrls[0])
+                            : null);
+
+                      return (
+                        <TableRow
+                          key={product._id}
+                          style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                          className={`hover:bg-[#0D1528] ${
+                            createdId === product._id ? 'ring-2 ring-[#3B4BA8]' : ''
+                          }`}
+                        >
+                          <TableCell>
+                            {imgUrl ? (
+                              <img
+                                src={imgUrl}
+                                alt={product.nome}
+                                className="w-12 h-12 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div
+                                className="w-12 h-12 rounded-lg flex items-center justify-center"
+                                style={{ backgroundColor: '#0D1528' }}
+                              >
+                                <ImageIcon className="h-5 w-5 text-gray-500" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Link
+                              to={`/admin/produtos/${product._id}`}
+                              className="font-medium text-white hover:underline"
+                            >
+                              {product.nome}
+                            </Link>
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className="px-3 py-1 rounded-full text-xs font-medium"
+                              style={
+                                product.ativo
+                                  ? { color: '#FFFFFF', backgroundColor: '#3B4BA8' }
+                                  : { color: '#94A3B8', backgroundColor: 'rgba(255, 255, 255, 0.05)' }
+                              }
+                            >
+                              {product.ativo ? 'Ativo' : 'Inativo'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
+                            {formatDistanceToNow(new Date(product.createdAt), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link to={`/admin/produtos/${product._id}`}>
+                                <Button variant="ghost" size="sm" className="text-white hover:bg-[#0D1528]">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteProduct(product._id, product.nome)}
+                                className="text-red-400 hover:bg-[#0D1528] hover:text-red-300"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {pagedProducts.map((product) => {
+                  const imgUrl = typeof product.imagemPrincipal === 'string'
+                    ? product.imagemPrincipal
+                    : product.imagemPrincipal?.url ||
+                      (product.imagensUrls?.[0]
+                        ? (typeof product.imagensUrls[0] === 'string'
+                          ? product.imagensUrls[0]
+                          : product.imagensUrls[0].url || product.imagensUrls[0])
+                        : null);
+
+                  return (
+                    <div
                       key={product._id}
-                      className={createdId === product._id ? 'ring-2 ring-brand' : ''}
+                      className={`rounded-2xl border overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
+                        createdId === product._id ? 'ring-2 ring-[#3B4BA8]' : ''
+                      }`}
+                      style={{
+                        backgroundColor: '#0D1528',
+                        borderColor: 'rgba(255, 255, 255, 0.05)',
+                      }}
                     >
-                      <TableCell>
+                      <div className="aspect-video w-full overflow-hidden" style={{ backgroundColor: '#020617' }}>
                         {imgUrl ? (
                           <img
                             src={imgUrl}
                             alt={product.nome}
-                            className="w-12 h-12 object-cover rounded"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-slate-200 rounded flex items-center justify-center">
-                            <ImageIcon className="h-5 w-5 text-slate-500" />
+                          <div className="w-full h-full flex items-center justify-center" style={{ color: '#94A3B8' }}>
+                            <div className="text-center">
+                              <ImageIcon className="h-12 w-12 mx-auto mb-2" />
+                              <p className="text-sm">Sem imagem</p>
+                            </div>
                           </div>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          to={`/admin/produtos/${product._id}`}
-                          className="font-medium hover:underline"
-                        >
-                          {product.nome}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={product.ativo ? 'default' : 'secondary'}>
-                          {product.ativo ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-slate-600 text-sm">
-                        {formatDistanceToNow(new Date(product.createdAt), {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link to={`/admin/produtos/${product._id}`}>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteProduct(product._id, product.nome)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {loading ? (
-                <p className="text-slate-600">Carregando...</p>
-              ) : pagedProducts.length === 0 ? (
-                <p className="text-slate-600">Nenhum produto encontrado</p>
-              ) : (
-                pagedProducts.map((product) => (
-                  <Card
-                    key={product._id}
-                    className={createdId === product._id ? 'ring-2 ring-brand' : ''}
-                  >
-                    <CardContent className="p-0">
-                      <div className="aspect-video w-full bg-muted overflow-hidden">
-                        {(() => {
-                          const imgUrl = typeof product.imagemPrincipal === 'string' 
-                            ? product.imagemPrincipal 
-                            : product.imagemPrincipal?.url || 
-                              (product.imagensUrls?.[0] 
-                                ? (typeof product.imagensUrls[0] === 'string' 
-                                  ? product.imagensUrls[0] 
-                                  : product.imagensUrls[0].url || product.imagensUrls[0])
-                                : null);
-                          return imgUrl ? (
-                            <img
-                              src={imgUrl}
-                              alt={product.nome}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-600">
-                              Sem imagem
-                            </div>
-                          );
-                        })()}
                       </div>
-                      <div className="p-4 space-y-2">
+                      <div className="p-4 space-y-3">
                         <Link
                           to={`/admin/produtos/${product._id}`}
-                          className="font-medium hover:underline"
+                          className="font-semibold text-white hover:underline block"
                         >
                           {product.nome}
                         </Link>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={product.ativo ? 'default' : 'secondary'}>
+                        <div className="flex items-center justify-between">
+                          <span
+                            className="px-3 py-1 rounded-full text-xs font-medium"
+                            style={
+                              product.ativo
+                                ? { color: '#FFFFFF', backgroundColor: '#3B4BA8' }
+                                : { color: '#94A3B8', backgroundColor: 'rgba(255, 255, 255, 0.05)' }
+                            }
+                          >
                             {product.ativo ? 'Ativo' : 'Inativo'}
-                          </Badge>
-                        </div>
-                        <div className="text-xs text-slate-600">
-                          {formatDistanceToNow(new Date(product.createdAt), {
-                            addSuffix: true,
-                            locale: ptBR,
-                          })}
+                          </span>
+                          <span className="text-xs" style={{ color: '#94A3B8' }}>
+                            {formatDistanceToNow(new Date(product.createdAt), {
+                              addSuffix: true,
+                              locale: ptBR,
+                            })}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 pt-2">
                           <Link to={`/admin/produtos/${product._id}`} className="flex-1">
-                            <Button variant="outline" size="sm" className="w-full">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full rounded-xl text-white hover:bg-[#0D1528]"
+                              style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                            >
                               <Edit className="h-4 w-4 mr-2" />
                               Editar
                             </Button>
@@ -375,33 +486,40 @@ export default function AdminProdutos() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteProduct(product._id, product.nome)}
-                            className="text-destructive hover:text-destructive"
+                            className="text-red-400 hover:bg-[#0D1528] hover:text-red-300 rounded-xl"
+                            style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          )}
-          <div className="p-4 border-t">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(Math.max(1, currentPage - 1));
-                    }}
-                  />
-                </PaginationItem>
-                {Array.from({ length: totalPages })
-                  .slice(0, 5)
-                  .map((_, idx) => {
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Paginação */}
+          {totalPages > 1 && (
+            <div
+              className="p-6 border-t flex justify-center"
+              style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+            >
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(Math.max(1, currentPage - 1));
+                      }}
+                      className="text-white hover:bg-[#0D1528] rounded-xl"
+                      style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
                     const p = idx + 1;
                     return (
                       <PaginationItem key={p}>
@@ -412,24 +530,37 @@ export default function AdminProdutos() {
                             e.preventDefault();
                             setPage(p);
                           }}
+                          className={`rounded-xl ${
+                            p === currentPage
+                              ? 'text-white'
+                              : 'text-gray-400 hover:text-white hover:bg-[#0D1528]'
+                          }`}
+                          style={
+                            p === currentPage
+                              ? { backgroundColor: '#3B4BA8' }
+                              : { borderColor: 'rgba(255, 255, 255, 0.05)' }
+                          }
                         >
                           {p}
                         </PaginationLink>
                       </PaginationItem>
                     );
                   })}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setPage(Math.min(totalPages, currentPage + 1));
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(Math.min(totalPages, currentPage + 1));
+                      }}
+                      className="text-white hover:bg-[#0D1528] rounded-xl"
+                      style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>
