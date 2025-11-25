@@ -314,7 +314,7 @@ export default function AdminProdutos() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Imagem</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Título</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
@@ -336,12 +336,12 @@ export default function AdminProdutos() {
                       return (
                         <TableRow
                           key={product._id}
-                          style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                          style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}
                           className={`hover:bg-[#0D1528] ${
                             createdId === product._id ? 'ring-2 ring-[#3B4BA8]' : ''
                           }`}
                         >
-                          <TableCell>
+                          <TableCell style={{ backgroundColor: 'transparent' }}>
                             {imgUrl ? (
                               <img
                                 src={imgUrl}
@@ -357,7 +357,7 @@ export default function AdminProdutos() {
                               </div>
                             )}
                           </TableCell>
-                          <TableCell>
+                          <TableCell style={{ backgroundColor: 'transparent' }}>
                             <Link
                               to={`/admin/produtos/${product._id}`}
                               className="font-medium text-white hover:underline"
@@ -365,7 +365,7 @@ export default function AdminProdutos() {
                               {product.nome}
                             </Link>
                           </TableCell>
-                          <TableCell>
+                          <TableCell style={{ backgroundColor: 'transparent' }}>
                             <span
                               className="px-3 py-1 rounded-full text-xs font-medium"
                               style={
@@ -377,13 +377,13 @@ export default function AdminProdutos() {
                               {product.ativo ? 'Ativo' : 'Inativo'}
                             </span>
                           </TableCell>
-                          <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
+                          <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                             {formatDistanceToNow(new Date(product.createdAt), {
                               addSuffix: true,
                               locale: ptBR,
                             })}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right" style={{ backgroundColor: 'transparent' }}>
                             <div className="flex items-center justify-end gap-2">
                               <Link to={`/admin/produtos/${product._id}`}>
                                 <Button variant="ghost" size="sm" className="text-white hover:bg-[#0D1528]">
