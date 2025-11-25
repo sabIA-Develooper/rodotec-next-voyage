@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -259,7 +260,7 @@ export default function AdminProdutoEditor() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-12">
-          <p className="text-slate-600">Carregando...</p>
+          <p style={{ color: '#94A3B8' }}>Carregando...</p>
         </div>
       </AdminLayout>
     );
@@ -267,69 +268,120 @@ export default function AdminProdutoEditor() {
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
+      <div className="space-y-16">
         <div className="flex items-center gap-4">
           <Link to="/admin/produtos">
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-[#0D1528] rounded-xl"
+            >
+              <ChevronLeft className="h-6 w-6" />
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-5xl font-extrabold text-white tracking-tight">
               {isEditing ? 'Editar produto' : 'Novo produto'}
             </h1>
+            <p className="text-lg mt-2" style={{ color: '#94A3B8' }}>
+              {isEditing ? 'Atualize as informações do produto' : 'Adicione um novo produto ao catálogo'}
+            </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleDiscard}>
+            <Button
+              variant="outline"
+              onClick={handleDiscard}
+              className="rounded-xl text-white hover:bg-[#0D1528]"
+              style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+            >
               <X className="h-4 w-4 mr-2" />
               Descartar
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="rounded-xl px-6 py-3 font-semibold"
+              style={{ backgroundColor: '#3B4BA8', color: '#FFFFFF' }}
+            >
               <Save className="h-4 w-4 mr-2" />
               {saving ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Column */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-slate-900">Informações básicas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          <div className="lg:col-span-2 space-y-8">
+            <div
+              className="rounded-3xl border p-8"
+              style={{
+                backgroundColor: '#0B1220',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Informações básicas</h2>
+                <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
+                  Configure os dados principais do produto
+                </p>
+              </div>
+              <div className="space-y-6">
                 <div>
-                  <Label htmlFor="nome">Nome do Produto *</Label>
+                  <Label htmlFor="nome" className="text-gray-400 uppercase text-sm tracking-wide">
+                    Nome do Produto *
+                  </Label>
                   <Input
                     id="nome"
                     value={formData.nome}
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                     placeholder="Nome do produto"
+                    className="mt-2 text-white rounded-xl"
+                    style={{
+                      backgroundColor: '#0D1528',
+                      borderColor: 'rgba(255, 255, 255, 0.05)',
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descricao">Descrição *</Label>
-                  <Textarea
-                    id="descricao"
-                    value={formData.descricao}
-                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                    placeholder="Descrição completa do produto"
-                    rows={6}
-                  />
+                  <Label htmlFor="descricao" className="text-gray-400 uppercase text-sm tracking-wide">
+                    Descrição *
+                  </Label>
+                  <div className="mt-2">
+                    <RichTextEditor
+                      content={formData.descricao}
+                      onChange={(content) => setFormData({ ...formData, descricao: content })}
+                      placeholder="Descrição completa do produto com formatação rica..."
+                      darkMode={true}
+                    />
+                  </div>
+                  <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
+                    Use a barra de ferramentas para formatar o texto, adicionar links e imagens
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-slate-900">Mídia</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors">
+            <div
+              className="rounded-3xl border p-8"
+              style={{
+                backgroundColor: '#0B1220',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Mídia</h2>
+                <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
+                  Adicione imagens do produto
+                </p>
+              </div>
+              <div>
+                <div
+                  className="border-2 border-dashed rounded-xl p-8 text-center transition-colors hover:border-[#3B4BA8] cursor-pointer"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                >
                   <Label htmlFor="product-images" className="cursor-pointer">
-                    <span className="text-sm font-medium">Clique para adicionar imagens</span>
-                    <p className="text-xs text-slate-600 mt-2">
+                    <span className="text-sm font-medium text-white">Clique para adicionar imagens</span>
+                    <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
                       Até 5 imagens, máximo 5 MB cada (JPG, PNG, GIF)
                     </p>
                   </Label>
@@ -345,8 +397,8 @@ export default function AdminProdutoEditor() {
 
                 {/* Imagens existentes */}
                 {existingImages.length > 0 && (
-                  <div className="mt-4">
-                    <Label className="text-sm text-slate-600 mb-2 block">
+                  <div className="mt-6">
+                    <Label className="text-sm mb-2 block text-gray-400 uppercase tracking-wide">
                       Imagens atuais
                     </Label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -355,15 +407,17 @@ export default function AdminProdutoEditor() {
                           <img
                             src={img}
                             alt={`${formData.nome} - Imagem ${idx + 1}`}
-                            className="aspect-square w-full object-cover rounded-md border"
+                            className="aspect-square w-full object-cover rounded-xl border"
+                            style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
                           />
                           <button
                             type="button"
                             onClick={() => handleRemoveExistingImage(idx)}
-                            className="absolute top-2 right-2 bg-background/90 border rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.1)' }}
                             aria-label="Remover imagem"
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-4 w-4 text-red-400" />
                           </button>
                         </div>
                       ))}
@@ -373,8 +427,8 @@ export default function AdminProdutoEditor() {
 
                 {/* Novas imagens */}
                 {selectedImages.length > 0 && (
-                  <div className="mt-4">
-                    <Label className="text-sm text-slate-600 mb-2 block">
+                  <div className="mt-6">
+                    <Label className="text-sm mb-2 block text-gray-400 uppercase tracking-wide">
                       Novas imagens (serão enviadas ao salvar)
                     </Label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -383,154 +437,262 @@ export default function AdminProdutoEditor() {
                           <img
                             src={URL.createObjectURL(file)}
                             alt={`Nova imagem ${idx + 1}`}
-                            className="aspect-square w-full object-cover rounded-md border"
+                            className="aspect-square w-full object-cover rounded-xl border"
+                            style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
                           />
                           <button
                             type="button"
                             onClick={() => handleRemoveImage(idx)}
-                            className="absolute top-2 right-2 bg-background/90 border rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.1)' }}
                             aria-label="Remover imagem"
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-4 w-4 text-red-400" />
                           </button>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-slate-900">Especificações técnicas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div
+              className="rounded-3xl border p-8"
+              style={{
+                backgroundColor: '#0B1220',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Especificações técnicas</h2>
+                <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
+                  Adicione detalhes técnicos do produto
+                </p>
+              </div>
+              <div className="space-y-4">
                 {specs.map((spec, idx) => (
                   <div key={idx} className="flex gap-2">
                     <Input
                       placeholder="Nome"
                       value={spec.key}
                       onChange={(e) => handleSpecChange(idx, 'key', e.target.value)}
+                      className="text-white rounded-xl"
+                      style={{
+                        backgroundColor: '#0D1528',
+                        borderColor: 'rgba(255, 255, 255, 0.05)',
+                      }}
                     />
                     <Input
                       placeholder="Valor"
                       value={spec.value}
                       onChange={(e) => handleSpecChange(idx, 'value', e.target.value)}
+                      className="text-white rounded-xl"
+                      style={{
+                        backgroundColor: '#0D1528',
+                        borderColor: 'rgba(255, 255, 255, 0.05)',
+                      }}
                     />
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveSpec(idx)}
                       aria-label="Remover especificação"
+                      className="text-red-400 hover:bg-[#0D1528] hover:text-red-300 rounded-xl"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
-                <Button variant="outline" onClick={handleAddSpec}>
+                <Button
+                  variant="outline"
+                  onClick={handleAddSpec}
+                  className="rounded-xl text-white hover:bg-[#0D1528]"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar especificação
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-slate-900">Tags</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+            <div
+              className="rounded-3xl border p-8"
+              style={{
+                backgroundColor: '#0B1220',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Tags</h2>
+                <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
+                  Palavras-chave para facilitar a busca
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="tags" className="text-gray-400 uppercase text-sm tracking-wide">
+                  Tags (separadas por vírgula)
+                </Label>
                 <Input
                   id="tags"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   placeholder="eletrônico, notebook, trabalho"
+                  className="mt-2 text-white rounded-xl"
+                  style={{
+                    backgroundColor: '#0D1528',
+                    borderColor: 'rgba(255, 255, 255, 0.05)',
+                  }}
                 />
-                <p className="text-xs text-slate-600 mt-2">
+                <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
                   Use vírgulas para separar as tags
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-slate-900">Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          <div className="space-y-8">
+            <div
+              className="rounded-3xl border p-8"
+              style={{
+                backgroundColor: '#0B1220',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Status</h2>
+                <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
+                  Defina a visibilidade do produto
+                </p>
+              </div>
+              <div className="space-y-4">
                 <div>
-                  <Label htmlFor="ativo">Ativo</Label>
+                  <Label htmlFor="ativo" className="text-gray-400 uppercase text-sm tracking-wide">
+                    Ativo
+                  </Label>
                   <Select
                     value={String(formData.ativo)}
                     onValueChange={(value) => setFormData({ ...formData, ativo: value === 'true' })}
                   >
-                    <SelectTrigger id="ativo">
+                    <SelectTrigger
+                      id="ativo"
+                      className="mt-2 text-white rounded-xl"
+                      style={{
+                        backgroundColor: '#0D1528',
+                        borderColor: 'rgba(255, 255, 255, 0.05)',
+                      }}
+                    >
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="false">Inativo</SelectItem>
-                      <SelectItem value="true">Ativo</SelectItem>
+                    <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                      <SelectItem value="false" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                        Inativo
+                      </SelectItem>
+                      <SelectItem value="true" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                        Ativo
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="destaque">Destaque</Label>
+                  <Label htmlFor="destaque" className="text-gray-400 uppercase text-sm tracking-wide">
+                    Destaque
+                  </Label>
                   <Select
                     value={String(formData.destaque)}
                     onValueChange={(value) =>
                       setFormData({ ...formData, destaque: value === 'true' })
                     }
                   >
-                    <SelectTrigger id="destaque">
+                    <SelectTrigger
+                      id="destaque"
+                      className="mt-2 text-white rounded-xl"
+                      style={{
+                        backgroundColor: '#0D1528',
+                        borderColor: 'rgba(255, 255, 255, 0.05)',
+                      }}
+                    >
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="false">Não</SelectItem>
-                      <SelectItem value="true">Sim</SelectItem>
+                    <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                      <SelectItem value="false" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                        Não
+                      </SelectItem>
+                      <SelectItem value="true" className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]">
+                        Sim
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Badge variant={formData.ativo ? 'default' : 'secondary'}>
+                <div className="flex gap-2">
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-medium"
+                    style={
+                      formData.ativo
+                        ? { color: '#FFFFFF', backgroundColor: '#3B4BA8' }
+                        : { color: '#94A3B8', backgroundColor: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                  >
                     {formData.ativo ? 'Ativo' : 'Inativo'}
-                  </Badge>
+                  </span>
                   {formData.destaque && (
-                    <Badge variant="default" className="ml-2">
+                    <span
+                      className="px-3 py-1 rounded-full text-xs font-medium"
+                      style={{ color: '#FFFFFF', backgroundColor: '#3B4BA8' }}
+                    >
                       Destaque
-                    </Badge>
+                    </span>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-slate-900">Organização</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="categoria">Categoria *</Label>
-                  <Select
-                    value={formData.categoria}
-                    onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+            <div
+              className="rounded-3xl border p-8"
+              style={{
+                backgroundColor: '#0B1220',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+              }}
+            >
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white">Organização</h2>
+                <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
+                  Classifique o produto
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="categoria" className="text-gray-400 uppercase text-sm tracking-wide">
+                  Categoria *
+                </Label>
+                <Select
+                  value={formData.categoria}
+                  onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+                >
+                  <SelectTrigger
+                    id="categoria"
+                    className="mt-2 text-white rounded-xl"
+                    style={{
+                      backgroundColor: '#0D1528',
+                      borderColor: 'rgba(255, 255, 255, 0.05)',
+                    }}
                   >
-                    <SelectTrigger id="categoria">
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat._id} value={cat._id}>
-                          {cat.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+                    <SelectValue placeholder="Selecione..." />
+                  </SelectTrigger>
+                  <SelectContent style={{ backgroundColor: '#0B1220', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    {categories.map((cat) => (
+                      <SelectItem
+                        key={cat._id}
+                        value={cat._id}
+                        className="text-white hover:bg-[#0D1528] focus:bg-[#0D1528]"
+                      >
+                        {cat.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
           </div>
         </div>
