@@ -216,7 +216,7 @@ export default function AdminCategorias() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Imagem</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Nome</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Descrição</TableHead>
@@ -230,10 +230,10 @@ export default function AdminCategorias() {
                     {categories.map((category) => (
                       <TableRow
                         key={category._id}
-                        style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                        style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}
                         className="hover:bg-[#0D1528]"
                       >
-                        <TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           {category.imagemUrl ? (
                             <img
                               src={category.imagemUrl}
@@ -249,11 +249,11 @@ export default function AdminCategorias() {
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="font-semibold text-white">{category.nome}</TableCell>
-                        <TableCell className="max-w-xs truncate" style={{ color: '#94A3B8' }}>
+                        <TableCell className="font-semibold text-white" style={{ backgroundColor: 'transparent' }}>{category.nome}</TableCell>
+                        <TableCell className="max-w-xs truncate" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {category.descricao || '—'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           <span
                             className="px-3 py-1 rounded-full text-xs font-medium"
                             style={
@@ -265,14 +265,14 @@ export default function AdminCategorias() {
                             {category.ativa ? 'Ativa' : 'Inativa'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-white">{category.totalProdutos || 0}</TableCell>
-                        <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
+                        <TableCell className="text-white" style={{ backgroundColor: 'transparent' }}>{category.totalProdutos || 0}</TableCell>
+                        <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {formatDistanceToNow(new Date(category.createdAt), {
                             addSuffix: true,
                             locale: ptBR,
                           })}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right" style={{ backgroundColor: 'transparent' }}>
                           <div className="flex items-center justify-end gap-2">
                             <Button
                               variant="ghost"

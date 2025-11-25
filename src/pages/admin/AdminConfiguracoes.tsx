@@ -574,7 +574,7 @@ const AdminConfiguracoes: React.FC = () => {
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
-                        <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                        <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
                           <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Nome</TableHead>
                           <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Email</TableHead>
                           <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Função</TableHead>
@@ -585,15 +585,15 @@ const AdminConfiguracoes: React.FC = () => {
                         {usuarios.map((usuario) => (
                           <TableRow
                             key={usuario._id}
-                            style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                            style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}
                             className="hover:bg-[#0D1528]"
                           >
-                            <TableCell className="text-white font-medium">{usuario.nome}</TableCell>
-                            <TableCell style={{ color: '#94A3B8' }}>{usuario.email}</TableCell>
-                            <TableCell style={{ color: '#94A3B8' }}>
+                            <TableCell className="text-white font-medium" style={{ backgroundColor: 'transparent' }}>{usuario.nome}</TableCell>
+                            <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>{usuario.email}</TableCell>
+                            <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                               {usuario.role === 'admin' ? 'Administrador' : 'Usuário'}
                             </TableCell>
-                            <TableCell>
+                            <TableCell style={{ backgroundColor: 'transparent' }}>
                               <Button
                                 variant="outline"
                                 size="sm"
