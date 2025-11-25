@@ -229,13 +229,13 @@ export default function AdminProdutos() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-slate-600">
                       Carregando...
                     </TableCell>
                   </TableRow>
                 ) : pagedProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-slate-600">
                       Nenhum produto encontrado
                     </TableCell>
                   </TableRow>
@@ -263,8 +263,8 @@ export default function AdminProdutos() {
                             className="w-12 h-12 object-cover rounded"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-slate-100 rounded flex items-center justify-center">
-                            <ImageIcon className="h-5 w-5 text-slate-400" />
+                          <div className="w-12 h-12 bg-slate-200 rounded flex items-center justify-center">
+                            <ImageIcon className="h-5 w-5 text-slate-500" />
                           </div>
                         )}
                       </TableCell>
@@ -281,7 +281,7 @@ export default function AdminProdutos() {
                           {product.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-slate-600 text-sm">
                         {formatDistanceToNow(new Date(product.createdAt), {
                           addSuffix: true,
                           locale: ptBR,
@@ -313,9 +313,9 @@ export default function AdminProdutos() {
           ) : (
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {loading ? (
-                <p className="text-muted-foreground">Carregando...</p>
+                <p className="text-slate-600">Carregando...</p>
               ) : pagedProducts.length === 0 ? (
-                <p className="text-muted-foreground">Nenhum produto encontrado</p>
+                <p className="text-slate-600">Nenhum produto encontrado</p>
               ) : (
                 pagedProducts.map((product) => (
                   <Card
@@ -340,7 +340,7 @@ export default function AdminProdutos() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <div className="w-full h-full flex items-center justify-center text-slate-600">
                               Sem imagem
                             </div>
                           );
@@ -358,7 +358,7 @@ export default function AdminProdutos() {
                             {product.ativo ? 'Ativo' : 'Inativo'}
                           </Badge>
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-slate-600">
                           {formatDistanceToNow(new Date(product.createdAt), {
                             addSuffix: true,
                             locale: ptBR,

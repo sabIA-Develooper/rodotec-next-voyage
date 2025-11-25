@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +26,7 @@ import { localDataLayer } from '@/data/localDataLayer';
 import { Settings } from '@/data/localDataLayer';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import api from '@/services/api';
-import { Plus, Key } from 'lucide-react';
+import { Plus, Key, ChevronLeft } from 'lucide-react';
 import type { AdminUser } from '@/types/api';
 
 const AdminConfiguracoes: React.FC = () => {
@@ -259,42 +260,49 @@ const AdminConfiguracoes: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-slate-900">Configurações</h1>
-        <p className="text-slate-600">Gerencie as configurações do sistema</p>
+      <div className="flex items-center gap-4">
+        <Link to="/admin">
+          <Button variant="ghost" size="icon">
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <div>
+          <h1 className="text-3xl font-semibold text-slate-900">Configurações</h1>
+          <p className="text-slate-600">Gerencie as configurações do sistema</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
-                <CardTitle>Informações da Empresa</CardTitle>
-                <CardDescription>Configure as informações básicas da empresa</CardDescription>
+                <CardTitle className="text-slate-900">Informações da Empresa</CardTitle>
+                <CardDescription className="text-slate-600">Configure as informações básicas da empresa</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="nome">Nome da Empresa</Label>
+                    <Label htmlFor="nome" className="text-slate-700">Nome da Empresa</Label>
                     <Input id="nome" value={settings.empresa.nome} onChange={(e) => handleEmpresaChange('nome', e.target.value)} placeholder="Nome da empresa" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cnpj">CNPJ</Label>
+                    <Label htmlFor="cnpj" className="text-slate-700">CNPJ</Label>
                     <Input id="cnpj" value={settings.empresa.cnpj} onChange={(e) => handleEmpresaChange('cnpj', e.target.value)} placeholder="00.000.000/0000-00" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="endereco">Endereço</Label>
+                  <Label htmlFor="endereco" className="text-slate-700">Endereço</Label>
                   <Input id="endereco" value={settings.empresa.endereco} onChange={(e) => handleEmpresaChange('endereco', e.target.value)} placeholder="Rua, número, bairro, cidade, estado" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="telefone">Telefone/WhatsApp</Label>
+                    <Label htmlFor="telefone" className="text-slate-700">Telefone/WhatsApp</Label>
                     <Input id="telefone" value={settings.empresa.telefone} onChange={(e) => handleEmpresaChange('telefone', e.target.value)} placeholder="(00) 00000-0000" />
                     {settings.empresa.telefone && (
                       <a className="text-sm text-blue-600 hover:underline" href={`https://wa.me/${settings.empresa.telefone.replace(/\D/g, '').startsWith('55') ? settings.empresa.telefone.replace(/\D/g, '') : '55' + settings.empresa.telefone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">Abrir chat no WhatsApp</a>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
+                    <Label htmlFor="email" className="text-slate-700">E-mail</Label>
                     <Input id="email" type="email" value={settings.empresa.email} onChange={(e) => handleEmpresaChange('email', e.target.value)} placeholder="contato@empresa.com.br" />
                   </div>
                 </div>
@@ -303,20 +311,20 @@ const AdminConfiguracoes: React.FC = () => {
 
             <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
-                <CardTitle>Aparência do Sistema</CardTitle>
-                <CardDescription>Personalize as cores e logos do sistema</CardDescription>
+                <CardTitle className="text-slate-900">Aparência do Sistema</CardTitle>
+                <CardDescription className="text-slate-600">Personalize as cores e logos do sistema</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="corPrimaria">Cor Primária</Label>
+                    <Label htmlFor="corPrimaria" className="text-slate-700">Cor Primária</Label>
                     <div className="flex gap-2">
                       <Input id="corPrimaria" type="color" value={settings.aparencia.corPrimaria} onChange={(e) => handleAparenciaChange('corPrimaria', e.target.value)} className="w-20" />
                       <Input value={settings.aparencia.corPrimaria} onChange={(e) => handleAparenciaChange('corPrimaria', e.target.value)} placeholder="#0D47A1" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="corFundo">Cor de Fundo</Label>
+                    <Label htmlFor="corFundo" className="text-slate-700">Cor de Fundo</Label>
                     <div className="flex gap-2">
                       <Input id="corFundo" type="color" value={settings.aparencia.corFundo} onChange={(e) => handleAparenciaChange('corFundo', e.target.value)} className="w-20" />
                       <Input value={settings.aparencia.corFundo} onChange={(e) => handleAparenciaChange('corFundo', e.target.value)} placeholder="#FFFFFF" />
@@ -324,12 +332,12 @@ const AdminConfiguracoes: React.FC = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="logo">Logotipo</Label>
+                  <Label htmlFor="logo" className="text-slate-700">Logotipo</Label>
                   <Input id="logo" type="file" accept="image/*" onChange={handleLogoUpload} />
                   {settings.aparencia.logoUrl && (<div className="mt-2"><img src={settings.aparencia.logoUrl} alt="Logo" className="h-16 w-auto" /></div>)}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="favicon">Favicon</Label>
+                  <Label htmlFor="favicon" className="text-slate-700">Favicon</Label>
                   <Input id="favicon" type="file" accept="image/*" onChange={handleFaviconUpload} />
                   {settings.aparencia.faviconUrl && (<div className="mt-2"><img src={settings.aparencia.faviconUrl} alt="Favicon" className="h-8 w-8" /></div>)}
                 </div>
@@ -338,14 +346,14 @@ const AdminConfiguracoes: React.FC = () => {
 
             <Card className="bg-white border border-slate-200 rounded-lg shadow-sm">
               <CardHeader>
-                <CardTitle>Configurações de Notificações</CardTitle>
-                <CardDescription>Gerencie como você recebe notificações</CardDescription>
+                <CardTitle className="text-slate-900">Configurações de Notificações</CardTitle>
+                <CardDescription className="text-slate-600">Gerencie como você recebe notificações</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="avisarNovosOrcamentos">Avisar sobre novos orçamentos</Label>
-                    <p className="text-sm text-gray-500">Receba notificações quando novos orçamentos forem solicitados</p>
+                    <Label htmlFor="avisarNovosOrcamentos" className="text-slate-700">Avisar sobre novos orçamentos</Label>
+                    <p className="text-sm text-slate-600">Receba notificações quando novos orçamentos forem solicitados</p>
                   </div>
                   <Switch id="avisarNovosOrcamentos" checked={settings.notificacoes.avisarNovosOrcamentos} onCheckedChange={(checked) => handleNotificacaoChange('avisarNovosOrcamentos', checked)} />
                 </div>
@@ -358,7 +366,7 @@ const AdminConfiguracoes: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-slate-900">Usuários e Permissões</CardTitle>
-                  <CardDescription>Gerencie os usuários do sistema</CardDescription>
+                  <CardDescription className="text-slate-600">Gerencie os usuários do sistema</CardDescription>
                 </div>
                 <Button onClick={openCreateUserModal}>
                   <Plus className="mr-2 h-4 w-4" />
@@ -379,22 +387,22 @@ const AdminConfiguracoes: React.FC = () => {
                 <TableBody>
                   {loadingUsers ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-slate-600">
                         Carregando usuários...
                       </TableCell>
                     </TableRow>
                   ) : usuarios.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-slate-600">
                         Nenhum usuário cadastrado
                       </TableCell>
                     </TableRow>
                   ) : (
                     usuarios.map((usuario) => (
                       <TableRow key={usuario._id}>
-                        <TableCell>{usuario.nome}</TableCell>
-                        <TableCell>{usuario.email}</TableCell>
-                        <TableCell>{usuario.role === 'admin' ? 'Administrador' : 'Usuário'}</TableCell>
+                        <TableCell className="text-slate-900 font-medium">{usuario.nome}</TableCell>
+                        <TableCell className="text-slate-700">{usuario.email}</TableCell>
+                        <TableCell className="text-slate-700">{usuario.role === 'admin' ? 'Administrador' : 'Usuário'}</TableCell>
                         <TableCell>
                           <Button
                             variant="outline"
@@ -419,15 +427,15 @@ const AdminConfiguracoes: React.FC = () => {
       <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Novo Usuário</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-slate-900">Novo Usuário</DialogTitle>
+            <DialogDescription className="text-slate-600">
               Crie um novo usuário para acessar o painel administrativo
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleCreateUser} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newUserNome">Nome *</Label>
+              <Label htmlFor="newUserNome" className="text-slate-700">Nome *</Label>
               <Input
                 id="newUserNome"
                 value={newUser.nome}
@@ -437,7 +445,7 @@ const AdminConfiguracoes: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newUserEmail">E-mail *</Label>
+              <Label htmlFor="newUserEmail" className="text-slate-700">E-mail *</Label>
               <Input
                 id="newUserEmail"
                 type="email"
@@ -448,7 +456,7 @@ const AdminConfiguracoes: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newUserRole">Função *</Label>
+              <Label htmlFor="newUserRole" className="text-slate-700">Função *</Label>
               <Select value={newUser.role} onValueChange={(value: 'admin' | 'user') => setNewUser({ ...newUser, role: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a função" />
@@ -458,13 +466,13 @@ const AdminConfiguracoes: React.FC = () => {
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-600">
                 Usuários podem visualizar orçamentos. Administradores podem gerenciar todo o sistema.
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newUserSenha">Senha *</Label>
+              <Label htmlFor="newUserSenha" className="text-slate-700">Senha *</Label>
               <Input
                 id="newUserSenha"
                 type="password"
@@ -475,7 +483,7 @@ const AdminConfiguracoes: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newUserConfirmarSenha">Confirmar Senha *</Label>
+              <Label htmlFor="newUserConfirmarSenha" className="text-slate-700">Confirmar Senha *</Label>
               <Input
                 id="newUserConfirmarSenha"
                 type="password"
@@ -501,15 +509,15 @@ const AdminConfiguracoes: React.FC = () => {
       <Dialog open={isResetPasswordOpen} onOpenChange={setIsResetPasswordOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Redefinir Senha</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-slate-900">Redefinir Senha</DialogTitle>
+            <DialogDescription className="text-slate-600">
               Defina uma nova senha para {resetPasswordUser?.nome}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newPasswordInput">Nova Senha *</Label>
+              <Label htmlFor="newPasswordInput" className="text-slate-700">Nova Senha *</Label>
               <Input
                 id="newPasswordInput"
                 type="password"
