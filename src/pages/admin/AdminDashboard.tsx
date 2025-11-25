@@ -200,7 +200,7 @@ export default function AdminDashboard() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Cliente</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Empresa</TableHead>
@@ -210,24 +210,24 @@ export default function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {recentQuotes.map((quote) => (
-                      <TableRow key={quote._id} style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} className="hover:bg-[#0D1528]">
-                        <TableCell>{getStatusBadge(quote.status)}</TableCell>
-                        <TableCell>
+                      <TableRow key={quote._id} style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }} className="hover:bg-[#0D1528]">
+                        <TableCell style={{ backgroundColor: 'transparent' }}>{getStatusBadge(quote.status)}</TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           <Link
                             to={`/admin/orcamentos/${quote._id}`}
-                            className="text-white hover:underline font-medium"
+                            className="hover:underline font-medium"
                             style={{ color: '#3B4BA8' }}
                           >
                             {quote.nome}
                           </Link>
                         </TableCell>
-                        <TableCell style={{ color: '#94A3B8' }}>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {quote.empresa || '—'}
                         </TableCell>
-                        <TableCell style={{ color: '#94A3B8' }}>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {typeof quote.produto === 'object' ? quote.produto.nome : '—'}
                         </TableCell>
-                        <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
+                        <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {formatDistanceToNow(new Date(quote.createdAt), {
                             addSuffix: true,
                             locale: ptBR,
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Título</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Atualizado</TableHead>
@@ -282,8 +282,8 @@ export default function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {recentProducts.map((product) => (
-                      <TableRow key={product._id} style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} className="hover:bg-[#0D1528]">
-                        <TableCell>
+                      <TableRow key={product._id} style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }} className="hover:bg-[#0D1528]">
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           <Link
                             to={`/admin/produtos/${product._id}`}
                             className="hover:underline font-medium"
@@ -292,7 +292,7 @@ export default function AdminDashboard() {
                             {product.nome}
                           </Link>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           <span
                             className="px-3 py-1 rounded-full text-xs font-medium"
                             style={
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
                             {product.ativo ? 'Ativo' : 'Inativo'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
+                        <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {product.updatedAt
                             ? formatDistanceToNow(new Date(product.updatedAt), {
                                 addSuffix: true,

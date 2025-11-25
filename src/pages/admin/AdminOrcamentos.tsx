@@ -264,7 +264,7 @@ export default function AdminOrcamentos() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">ID</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Nome</TableHead>
                       <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Telefone</TableHead>
@@ -279,21 +279,21 @@ export default function AdminOrcamentos() {
                     {currentItems.map((orcamento) => (
                       <TableRow
                         key={orcamento._id}
-                        style={{ borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                        style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}
                         className="hover:bg-[#0D1528]"
                       >
-                        <TableCell className="font-medium text-white">
+                        <TableCell className="font-medium text-white" style={{ backgroundColor: 'transparent' }}>
                           #{orcamento._id.slice(-6)}
                         </TableCell>
-                        <TableCell className="text-white">{orcamento.nome}</TableCell>
-                        <TableCell style={{ color: '#94A3B8' }}>{orcamento.telefone}</TableCell>
-                        <TableCell style={{ color: '#94A3B8' }}>{orcamento.email}</TableCell>
-                        <TableCell style={{ color: '#94A3B8' }}>
+                        <TableCell className="text-white" style={{ backgroundColor: 'transparent' }}>{orcamento.nome}</TableCell>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>{orcamento.telefone}</TableCell>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>{orcamento.email}</TableCell>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {typeof orcamento.produto === 'object'
                             ? orcamento.produto.nome
                             : orcamento.produto || '—'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           <Select
                             value={orcamento.status}
                             onValueChange={(value) => handleStatusChange(orcamento._id, value)}
@@ -320,13 +320,13 @@ export default function AdminOrcamentos() {
                             </SelectContent>
                           </Select>
                         </TableCell>
-                        <TableCell className="text-sm" style={{ color: '#94A3B8' }}>
+                        <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
                           {formatDistanceToNow(new Date(orcamento.createdAt), {
                             addSuffix: true,
                             locale: ptBR,
                           })}
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
