@@ -46,20 +46,42 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0B1220' }}>
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+        <div
+          className="rounded-3xl border p-8"
+          style={{
+            backgroundColor: '#0D1528',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
           <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold text-slate-900">RODOTEC</h1>
-            <p className="text-slate-500 mt-2">Admin</p>
-            <p className="text-xs text-slate-400 mt-4">
+            <div className="flex items-center justify-center mb-4">
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-xl shadow-lg"
+                style={{ backgroundColor: '#3B4BA8' }}
+              >
+                <span className="font-heading text-3xl font-bold text-white">R</span>
+              </div>
+            </div>
+            <h1 className="text-3xl font-heading font-bold text-white">RODOTEC</h1>
+            <p className="mt-2" style={{ color: '#94A3B8' }}>Painel Administrativo</p>
+            <p
+              className="text-xs mt-4 rounded-md px-3 py-2"
+              style={{
+                color: '#94A3B8',
+                backgroundColor: '#0B1220',
+              }}
+            >
               Login: admin@rodotec.com.br | Senha: admin123
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-text">E-mail</Label>
+              <Label htmlFor="email" className="text-gray-400 uppercase text-sm tracking-wide">
+                E-mail
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -68,12 +90,18 @@ export default function AdminLogin() {
                 placeholder="seu@email.com"
                 required
                 disabled={loading}
-                className="bg-surface border-line text-white placeholder:text-muted"
+                className="text-white rounded-xl"
+                style={{
+                  backgroundColor: '#0B1220',
+                  borderColor: 'rgba(255, 255, 255, 0.05)',
+                }}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-text">Senha</Label>
+              <Label htmlFor="password" className="text-gray-400 uppercase text-sm tracking-wide">
+                Senha
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -82,13 +110,18 @@ export default function AdminLogin() {
                 placeholder="••••••••"
                 required
                 disabled={loading}
-                className="bg-surface border-line text-white placeholder:text-muted"
+                className="text-white rounded-xl"
+                style={{
+                  backgroundColor: '#0B1220',
+                  borderColor: 'rgba(255, 255, 255, 0.05)',
+                }}
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-brand hover:bg-brand-600 text-white font-bold shadow-lg shadow-brand/20"
+              className="w-full rounded-xl font-bold text-lg"
+              style={{ backgroundColor: '#3B4BA8', color: '#FFFFFF' }}
               disabled={loading}
             >
               {loading ? (
