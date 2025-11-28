@@ -78,11 +78,11 @@ export function LocationSection() {
                 </div>
                 <div>
                   <h3 className="text-white text-lg font-semibold mb-3">Telefone</h3>
-                  <a 
-                    href="tel:+557932412329"
+                  <a
+                    href="tel:+5579991412582"
                     className="text-gray-400 hover:text-[#3B4BA8] transition-colors block leading-relaxed"
                   >
-                    (79) 3241-2329
+                    (79) 99141-2582
                   </a>
                   <a 
                     href="mailto:contato@rodotecse.com.br"

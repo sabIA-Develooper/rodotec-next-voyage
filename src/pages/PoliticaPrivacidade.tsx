@@ -257,8 +257,8 @@ export default function PoliticaPrivacidade() {
                     </p>
                     <p>
                       <strong className="text-[#3B4BA8]">Telefone:</strong>{" "}
-                      <a href="tel:+557932412329" className="hover:underline">
-                        (79) 3241-2329
+                      <a href="tel:+5579991412582" className="hover:underline">
+                        (79) 99141-2582
                       </a>
                     </p>
                     <p>

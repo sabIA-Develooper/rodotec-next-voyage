@@ -11,6 +11,7 @@ import { Navbar } from "@/components/Navbar";
 import { NewSideNav } from "@/components/NewSideNav";
 import { NewFooter } from "@/components/NewFooter";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export default function NewHomePage() {
   return (
@@ -26,7 +27,8 @@ export default function NewHomePage() {
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
-        
+        <WhatsAppButton />
+
         <main className="relative">
           <HeroSection />
           <PlatformSection />

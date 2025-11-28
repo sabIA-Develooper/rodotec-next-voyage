@@ -30,7 +30,7 @@ export default function Representantes() {
         empresa: "RODOTEC EQUIPAMENTOS RODOVIÁRIOS LTDA.",
         endereco: "Rod. BR 101 Km 92, s/n – Parque dos Faróis",
         cep: "Nossa Senhora do Socorro/SE – CEP: 49160-000",
-        telefone: "(79) 3241-2329",
+        telefone: "(79) 99141-2582",
         contatos: [
           { nome: "Watson Luiz (Kiko)", email: "vendas@rodotecse.com.br" },
           { nome: "Rodrigo Moreira", email: "vendas1@rodotecse.com.br" },
