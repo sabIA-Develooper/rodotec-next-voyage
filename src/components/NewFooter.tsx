@@ -103,8 +103,8 @@ export function NewFooter() {
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-[#3B4BA8] flex-shrink-0" strokeWidth={1.5} />
-                <a href="tel:+557932412329" className="text-gray-400 hover:text-white transition-colors">
-                  (79) 3241-2329
+                <a href="tel:+5579991412582" className="text-gray-400 hover:text-white transition-colors">
+                  (79) 99141-2582
                 </a>
               </div>
               <div className="flex items-center gap-3">

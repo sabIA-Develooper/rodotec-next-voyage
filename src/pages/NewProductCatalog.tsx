@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { NewSideNav } from "@/components/NewSideNav";
 import { NewFooter } from "@/components/NewFooter";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ProductCardSkeleton } from "@/components/LoadingSkeleton";
 import api from "@/services/api";
 import type { Product, Category } from "@/types/api";
@@ -85,6 +86,7 @@ export default function NewProductCatalog() {
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
+        <WhatsAppButton />
         
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:pl-28 lg:pr-12 py-12 sm:py-16 lg:py-20">
           {/* Breadcrumb */}

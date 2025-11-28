@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { NewSideNav } from "@/components/NewSideNav";
 import { NewFooter } from "@/components/NewFooter";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import api from "@/services/api";
 import type { Product } from "@/types/api";
 import { toast } from "sonner";
@@ -102,6 +103,7 @@ export default function NewOrcamento() {
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
+        <WhatsAppButton />
         
         {/* Breadcrumb */}
         <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:pl-28 lg:pr-12 pt-8">
@@ -277,11 +279,11 @@ export default function NewOrcamento() {
                       <Phone className="w-5 h-5 text-[#3B4BA8] mt-0.5 flex-shrink-0" strokeWidth={1.5} />
                       <div>
                         <p className="text-gray-400 text-sm mb-1">Telefone</p>
-                        <a 
-                          href="tel:+557932412329"
+                        <a
+                          href="tel:+5579991412582"
                           className="text-white hover:text-[#3B4BA8] transition-colors"
                         >
-                          (79) 3241-2329
+                          (79) 99141-2582
                         </a>
                       </div>
                     </div>

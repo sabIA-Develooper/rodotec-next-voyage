@@ -66,15 +66,6 @@ export default function AdminLogin() {
             </div>
             <h1 className="text-3xl font-heading font-bold text-white">RODOTEC</h1>
             <p className="mt-2" style={{ color: '#94A3B8' }}>Painel Administrativo</p>
-            <p
-              className="text-xs mt-4 rounded-md px-3 py-2"
-              style={{
-                color: '#94A3B8',
-                backgroundColor: '#0B1220',
-              }}
-            >
-              Login: admin@rodotec.com.br | Senha: admin123
-            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

@@ -208,8 +208,8 @@ export function ContactSection() {
               </div>
               <h3 className="text-white text-lg font-semibold mb-2">Telefone</h3>
               <p className="text-gray-400 mb-4 text-sm">Ligue para nossa central</p>
-              <a href="tel:+557932412329" className="text-[#3B4BA8] hover:text-white transition-colors font-medium">
-                (79) 3241-2329
+              <a href="tel:+5579991412582" className="text-[#3B4BA8] hover:text-white transition-colors font-medium">
+                (79) 99141-2582
               </a>
             </div>
 
