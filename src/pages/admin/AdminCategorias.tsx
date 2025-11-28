@@ -184,7 +184,7 @@ export default function AdminCategorias() {
           </Button>
         </div>
 
-        <div className="bg-white rounded-lg border border-border">
+        <div className="bg-surface rounded-lg border border-line shadow-[var(--shadow-card)]">
           <Table>
             <TableHeader>
               <TableRow>

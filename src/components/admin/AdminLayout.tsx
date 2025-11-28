@@ -104,57 +104,63 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-bg text-white">
       {/* Top Bar */}
-      <header className="bg-brand-700 text-white border-b border-slate-200 h-14 fixed top-0 left-0 right-0 z-50">
+      <header className="bg-surface text-white border-b border-line h-16 fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-4">
-            <Link to="/admin" className="font-bold text-lg">
-              RODOTEC <span className="text-white/80 font-normal">– Admin</span>
+            <Link to="/admin" className="flex items-center space-x-3 group">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-white shadow-lg shadow-brand/20 transition-transform group-hover:scale-105">
+                <span className="font-heading text-xl font-bold">R</span>
+              </div>
+              <div>
+                <span className="font-heading text-xl font-bold text-white tracking-tight group-hover:text-brand-100 transition-colors">RODOTEC</span>
+                <span className="text-muted text-sm ml-2">Admin</span>
+              </div>
             </Link>
-            
+
             <div className="relative ml-4 hidden md:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/80" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted" />
               <Input
                 placeholder="Buscar..."
-                className="pl-10 w-64 h-9 bg-white/90 border-none text-text"
+                className="pl-10 w-64 h-9 bg-bg border-line text-white placeholder:text-muted"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={handleExport} className="text-white hover:bg-brand-600">
+            <Button variant="ghost" size="sm" onClick={handleExport} className="text-gray-300 hover:text-white hover:bg-white/10">
               <Download className="h-4 w-4 mr-2" />
               Exportar
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleImport} className="text-white hover:bg-brand-600">
+            <Button variant="ghost" size="sm" onClick={handleImport} className="text-gray-300 hover:text-white hover:bg-white/10">
               <Upload className="h-4 w-4 mr-2" />
               Importar
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleReset} className="text-white hover:bg-brand-600">
+            <Button variant="ghost" size="sm" onClick={handleReset} className="text-gray-300 hover:text-white hover:bg-white/10">
               <RotateCcw className="h-4 w-4 mr-2" />
               Resetar
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full text-white hover:bg-brand-600">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full text-white hover:bg-white/10">
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-white text-[#0D47A1]">
+                    <AvatarFallback className="bg-brand text-white">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 bg-surface-2 border-line">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">Minha conta</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-medium text-white">Minha conta</p>
+                    <p className="text-xs text-muted">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                <DropdownMenuSeparator className="bg-line" />
+                <DropdownMenuItem onClick={handleSignOut} className="text-danger hover:bg-danger/10">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sair
                 </DropdownMenuItem>
@@ -165,7 +171,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Sidebar */}
-      <aside className="fixed left-0 top-14 bottom-0 w-56 bg-brand-700 overflow-y-auto">
+      <aside className="fixed left-0 top-16 bottom-0 w-56 bg-surface-2 border-r border-line overflow-y-auto">
         <nav className="p-2 space-y-1">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
@@ -177,8 +183,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-white/10 text-white'
-                    : 'text-white hover:bg-brand-600 hover:text-white'
+                    ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -190,7 +196,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="pl-56 pt-14 bg-bg">
+      <main className="pl-56 pt-16 bg-bg min-h-screen">
         <div className="p-8">
           {children}
         </div>

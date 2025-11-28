@@ -158,7 +158,7 @@ export default function AdminProdutos() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg border border-border">
+        <div className="bg-surface rounded-lg border border-line shadow-[var(--shadow-card)]">
           <div className="p-4 border-b border-border space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="relative">

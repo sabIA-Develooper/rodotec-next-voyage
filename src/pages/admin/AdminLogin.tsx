@@ -46,20 +46,25 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F4F6F8]">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-sm border border-border p-8">
+    <div className="min-h-screen flex items-center justify-center bg-bg text-white">
+      <div className="w-full max-w-md px-4">
+        <div className="bg-surface-2 rounded-lg shadow-[var(--shadow-elevated)] border border-line p-8">
           <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold text-foreground">RODOTEC</h1>
-            <p className="text-muted-foreground mt-2">Admin</p>
-            <p className="text-xs text-muted-foreground mt-4">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-brand text-white shadow-lg shadow-brand/20">
+                <span className="font-heading text-3xl font-bold">R</span>
+              </div>
+            </div>
+            <h1 className="text-2xl font-heading font-bold text-white">RODOTEC</h1>
+            <p className="text-muted mt-2">Painel Administrativo</p>
+            <p className="text-xs text-muted mt-4 bg-surface rounded-md px-3 py-2">
               Login: admin@rodotec.com.br | Senha: admin123
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email" className="text-text">E-mail</Label>
               <Input
                 id="email"
                 type="email"
@@ -68,11 +73,12 @@ export default function AdminLogin() {
                 placeholder="seu@email.com"
                 required
                 disabled={loading}
+                className="bg-surface border-line text-white placeholder:text-muted"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-text">Senha</Label>
               <Input
                 id="password"
                 type="password"
@@ -81,10 +87,15 @@ export default function AdminLogin() {
                 placeholder="••••••••"
                 required
                 disabled={loading}
+                className="bg-surface border-line text-white placeholder:text-muted"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full bg-brand hover:bg-brand-600 text-white font-bold shadow-lg shadow-brand/20"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
