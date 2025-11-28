@@ -33,8 +33,6 @@ export interface Product {
     _id: string;
     nome: string;
   } | null;
-  estoque: number;
-  sku: string;
   imagens: MediaItem[];
   imagemPrincipal?: string;
   imagensUrls?: string[];
@@ -42,7 +40,6 @@ export interface Product {
   tags?: string[];
   ativo: boolean;
   destaque: boolean;
-  statusEstoque?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -70,7 +67,6 @@ export interface QuoteRequest {
   produto: {
     _id: string;
     nome: string;
-    sku: string;
     imagemPrincipal?: string;
     imagensUrls?: string[];
     descricao?: string;
@@ -167,7 +163,6 @@ export interface DashboardStats {
   produtosMaisSolicitados?: Array<{
     produtoId: string;
     nome: string;
-    sku: string;
     quantidade: number;
   }>;
   orcamentosRecentes?: number;
@@ -201,8 +196,6 @@ export interface CreateProductData {
   nome: string;
   descricao: string;
   categoria: string; // MongoDB ObjectId
-  estoque: number;
-  sku: string;
   imagens?: File[];
   especificacoes?: ProductSpecifications;
   tags?: string[];

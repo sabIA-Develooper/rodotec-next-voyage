@@ -46,18 +46,13 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg text-white">
-      <div className="w-full max-w-md px-4">
-        <div className="bg-surface-2 rounded-lg shadow-[var(--shadow-elevated)] border border-line p-8">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
           <div className="mb-8 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-brand text-white shadow-lg shadow-brand/20">
-                <span className="font-heading text-3xl font-bold">R</span>
-              </div>
-            </div>
-            <h1 className="text-2xl font-heading font-bold text-white">RODOTEC</h1>
-            <p className="text-muted mt-2">Painel Administrativo</p>
-            <p className="text-xs text-muted mt-4 bg-surface rounded-md px-3 py-2">
+            <h1 className="text-2xl font-bold text-slate-900">RODOTEC</h1>
+            <p className="text-slate-500 mt-2">Admin</p>
+            <p className="text-xs text-slate-400 mt-4">
               Login: admin@rodotec.com.br | Senha: admin123
             </p>
           </div>

@@ -49,7 +49,7 @@ export default function AdminDashboard() {
 
       // Carrega estatísticas de orçamentos
       const statsData = await api.quotes.getStats();
-      
+
       // Buscar contagem de produtos ativos e inativos
       const [activeProductsRes, inactiveProductsRes] = await Promise.all([
         api.products.list({ ativo: true, limit: 1 }).catch(() => ({ dados: [] })),
@@ -83,195 +83,246 @@ export default function AdminDashboard() {
   const getStatusBadge = (status: string) => {
     const variants: Record<
       string,
-      { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+      { label: string; color: string; bgColor: string }
     > = {
-      novo: { label: 'Novo', variant: 'default' },
-      em_contato: { label: 'Em contato', variant: 'secondary' },
-      concluido: { label: 'Concluído', variant: 'outline' },
+      novo: { label: 'Novo', color: '#FFFFFF', bgColor: '#3B4BA8' },
+      em_contato: { label: 'Em contato', color: '#94A3B8', bgColor: 'rgba(255, 255, 255, 0.05)' },
+      concluido: { label: 'Concluído', color: '#10B981', bgColor: 'rgba(16, 185, 129, 0.1)' },
     };
-    const config = variants[status] || { label: status, variant: 'outline' };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    const config = variants[status] || { label: status, color: '#94A3B8', bgColor: 'rgba(255, 255, 255, 0.05)' };
+    return (
+      <span
+        className="px-3 py-1 rounded-full text-xs font-medium"
+        style={{ color: config.color, backgroundColor: config.bgColor }}
+      >
+        {config.label}
+      </span>
+    );
+  };
+
+  const StatCard = ({ icon: Icon, title, value, subtitle }: {
+    icon: typeof FileText;
+    title: string;
+    value: number;
+    subtitle: string;
+  }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+      <div
+        className="rounded-3xl p-8 border transition-all duration-300"
+        style={{
+          backgroundColor: '#0B1220',
+          borderColor: isHovered ? '#3B4BA8' : 'rgba(255, 255, 255, 0.05)',
+          transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+          boxShadow: isHovered ? '0 0 20px rgba(59, 75, 168, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex flex-row items-center justify-between pb-2">
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">{title}</h3>
+          <Icon className="h-5 w-5" style={{ color: '#3B4BA8' }} />
+        </div>
+        <div>
+          <div className="text-4xl font-extrabold text-white tracking-tight">{value}</div>
+          <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>{subtitle}</p>
+        </div>
+      </div>
+    );
   };
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-16">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio</p>
+          <h1 className="text-5xl font-extrabold text-white tracking-tight">Dashboard</h1>
+          <p className="text-lg mt-2" style={{ color: '#94A3B8' }}>Visão geral do seu negócio</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Orçamentos Novos</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.novos || 0}</div>
-              <p className="text-xs text-muted-foreground">Aguardando atendimento</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Em Andamento</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.emContato || 0}</div>
-              <p className="text-xs text-muted-foreground">Orçamentos em negociação</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Concluídos</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.concluidos || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats.taxaConclusao ? `${stats.taxaConclusao}% de taxa` : 'Total concluídos'}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Produtos Ativos</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.active_products || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats.draft_products || 0} rascunhos
-              </p>
-            </CardContent>
-          </Card>
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            icon={FileText}
+            title="Orçamentos Novos"
+            value={stats.novos || 0}
+            subtitle="Aguardando atendimento"
+          />
+          <StatCard
+            icon={Clock}
+            title="Em Andamento"
+            value={stats.emContato || 0}
+            subtitle="Orçamentos em negociação"
+          />
+          <StatCard
+            icon={CheckCircle}
+            title="Concluídos"
+            value={stats.concluidos || 0}
+            subtitle={stats.taxaConclusao ? `${stats.taxaConclusao}% de taxa` : 'Total concluídos'}
+          />
+          <StatCard
+            icon={Package}
+            title="Produtos Ativos"
+            value={stats.active_products || 0}
+            subtitle={`${stats.draft_products || 0} rascunhos`}
+          />
         </div>
 
         {/* Recent Quotes */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Orçamentos Recentes</CardTitle>
+        <div
+          className="rounded-3xl border overflow-hidden"
+          style={{
+            backgroundColor: '#0B1220',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <div className="p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-white">Orçamentos Recentes</h2>
               <Link to="/admin/orcamentos">
-                <Button variant="ghost" size="sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#0D1528] group"
+                  style={{ color: '#3B4BA8' }}
+                >
                   Ver todos
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
+
             {loading ? (
-              <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>Carregando...</p>
             ) : recentQuotes.length === 0 ? (
-              <p className="text-center py-8 text-muted-foreground">Nenhum orçamento encontrado</p>
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>Nenhum orçamento encontrado</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Empresa</TableHead>
-                    <TableHead>Produto</TableHead>
-                    <TableHead>Data</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentQuotes.map((quote) => (
-                    <TableRow key={quote._id}>
-                      <TableCell>{getStatusBadge(quote.status)}</TableCell>
-                      <TableCell>
-                        <Link to={`/admin/orcamentos/${quote._id}`} className="hover:underline">
-                          {quote.nome}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {quote.empresa || '—'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {typeof quote.produto === 'object' ? quote.produto.nome : '—'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {formatDistanceToNow(new Date(quote.createdAt), {
-                          addSuffix: true,
-                          locale: ptBR,
-                        })}
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Cliente</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Empresa</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Produto</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Data</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentQuotes.map((quote) => (
+                      <TableRow key={quote._id} style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }} className="hover:bg-[#0D1528]">
+                        <TableCell style={{ backgroundColor: 'transparent' }}>{getStatusBadge(quote.status)}</TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
+                          <Link
+                            to={`/admin/orcamentos/${quote._id}`}
+                            className="hover:underline font-medium"
+                            style={{ color: '#3B4BA8' }}
+                          >
+                            {quote.nome}
+                          </Link>
+                        </TableCell>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
+                          {quote.empresa || '—'}
+                        </TableCell>
+                        <TableCell style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
+                          {typeof quote.produto === 'object' ? quote.produto.nome : '—'}
+                        </TableCell>
+                        <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
+                          {formatDistanceToNow(new Date(quote.createdAt), {
+                            addSuffix: true,
+                            locale: ptBR,
+                          })}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Recent Products */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Produtos Atualizados Recentemente</CardTitle>
+        <div
+          className="rounded-3xl border overflow-hidden"
+          style={{
+            backgroundColor: '#0B1220',
+            borderColor: 'rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <div className="p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-white">Produtos Atualizados Recentemente</h2>
               <Link to="/admin/produtos">
-                <Button variant="ghost" size="sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#0D1528] group"
+                  style={{ color: '#3B4BA8' }}
+                >
                   Ver todos
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
+
             {loading ? (
-              <p className="text-center py-8 text-muted-foreground">Carregando...</p>
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>Carregando...</p>
             ) : recentProducts.length === 0 ? (
-              <p className="text-center py-8 text-muted-foreground">Nenhum produto encontrado</p>
+              <p className="text-center py-12" style={{ color: '#94A3B8' }}>Nenhum produto encontrado</p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Título</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Estoque</TableHead>
-                    <TableHead>Atualizado</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentProducts.map((product) => (
-                    <TableRow key={product._id}>
-                      <TableCell>
-                        <Link to={`/admin/produtos/${product._id}`} className="hover:underline">
-                          {product.nome}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={product.ativo ? 'default' : 'secondary'}>
-                          {product.ativo ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{product.sku || '—'}</TableCell>
-                      <TableCell>{product.estoque}</TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {product.updatedAt
-                          ? formatDistanceToNow(new Date(product.updatedAt), {
-                              addSuffix: true,
-                              locale: ptBR,
-                            })
-                          : formatDistanceToNow(new Date(product.createdAt), {
-                              addSuffix: true,
-                              locale: ptBR,
-                            })}
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Título</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Status</TableHead>
+                      <TableHead className="text-gray-400 uppercase text-xs tracking-wide">Atualizado</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentProducts.map((product) => (
+                      <TableRow key={product._id} style={{ borderColor: 'rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }} className="hover:bg-[#0D1528]">
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
+                          <Link
+                            to={`/admin/produtos/${product._id}`}
+                            className="hover:underline font-medium"
+                            style={{ color: '#3B4BA8' }}
+                          >
+                            {product.nome}
+                          </Link>
+                        </TableCell>
+                        <TableCell style={{ backgroundColor: 'transparent' }}>
+                          <span
+                            className="px-3 py-1 rounded-full text-xs font-medium"
+                            style={
+                              product.ativo
+                                ? { color: '#FFFFFF', backgroundColor: '#3B4BA8' }
+                                : { color: '#94A3B8', backgroundColor: 'rgba(255, 255, 255, 0.05)' }
+                            }
+                          >
+                            {product.ativo ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-sm" style={{ color: '#94A3B8', backgroundColor: 'transparent' }}>
+                          {product.updatedAt
+                            ? formatDistanceToNow(new Date(product.updatedAt), {
+                                addSuffix: true,
+                                locale: ptBR,
+                              })
+                            : formatDistanceToNow(new Date(product.createdAt), {
+                                addSuffix: true,
+                                locale: ptBR,
+                              })}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </AdminLayout>
   );
