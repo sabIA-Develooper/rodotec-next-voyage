@@ -59,7 +59,7 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email" className="text-text">E-mail</Label>
               <Input
                 id="email"
                 type="email"
@@ -68,11 +68,12 @@ export default function AdminLogin() {
                 placeholder="seu@email.com"
                 required
                 disabled={loading}
+                className="bg-surface border-line text-white placeholder:text-muted"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-text">Senha</Label>
               <Input
                 id="password"
                 type="password"
@@ -81,10 +82,15 @@ export default function AdminLogin() {
                 placeholder="••••••••"
                 required
                 disabled={loading}
+                className="bg-surface border-line text-white placeholder:text-muted"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full bg-brand hover:bg-brand-600 text-white font-bold shadow-lg shadow-brand/20"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
