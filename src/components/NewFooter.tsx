@@ -49,28 +49,14 @@ export function NewFooter() {
             
             {/* Redes Sociais */}
             <div className="flex items-center gap-3">
-              <a 
-                href="#facebook" 
-                className="w-10 h-10 bg-[#0B1220] border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#3B4BA8] hover:border-[#3B4BA8] transition-all"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a 
-                href="https://www.instagram.com/rodotecse/?hl=pt" 
+              <a
+                href="https://www.instagram.com/rodotecse/?hl=pt"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-[#0B1220] border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#3B4BA8] hover:border-[#3B4BA8] transition-all"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4" />
-              </a>
-              <a 
-                href="#linkedin" 
-                className="w-10 h-10 bg-[#0B1220] border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#3B4BA8] hover:border-[#3B4BA8] transition-all"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
               </a>
             </div>
           </div>

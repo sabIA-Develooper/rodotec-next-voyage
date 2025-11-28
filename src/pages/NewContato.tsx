@@ -293,28 +293,14 @@ export default function NewContato() {
                   <h3 className="text-white text-xl font-bold mb-6">Redes sociais</h3>
                   
                   <div className="flex items-center gap-3">
-                    <a 
-                      href="#facebook" 
-                      className="w-12 h-12 bg-[#020617] border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#3B4BA8] hover:border-[#3B4BA8] transition-all"
-                      aria-label="Facebook"
-                    >
-                      <Facebook className="w-5 h-5" />
-                    </a>
-                    <a 
-                      href="https://www.instagram.com/rodotecse/?hl=pt" 
+                    <a
+                      href="https://www.instagram.com/rodotecse/?hl=pt"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-[#020617] border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#3B4BA8] hover:border-[#3B4BA8] transition-all"
                       aria-label="Instagram"
                     >
                       <Instagram className="w-5 h-5" />
-                    </a>
-                    <a 
-                      href="#linkedin" 
-                      className="w-12 h-12 bg-[#020617] border border-white/10 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#3B4BA8] hover:border-[#3B4BA8] transition-all"
-                      aria-label="LinkedIn"
-                    >
-                      <Linkedin className="w-5 h-5" />
                     </a>
                   </div>
                 </div>
