@@ -73,30 +73,36 @@ export const RichTextEditor = ({
           'prose prose-lg max-w-none min-h-[300px] px-4 py-3 focus:outline-none',
           darkMode
             ? `prose-invert text-white
-               prose-headings:text-white prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-6
-               prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-               prose-p:text-white prose-p:leading-relaxed prose-p:mb-4
-               prose-li:text-white prose-li:my-1
-               prose-strong:text-white prose-strong:font-bold
+               prose-headings:text-white prose-headings:font-extrabold prose-headings:mb-4 prose-headings:mt-6 prose-headings:tracking-tight
+               prose-h1:text-4xl prose-h1:border-b prose-h1:border-white/10 prose-h1:pb-3
+               prose-h2:text-3xl
+               prose-h3:text-2xl prose-h3:text-[#3B4BA8]
+               prose-p:text-white prose-p:leading-relaxed prose-p:mb-4 prose-p:text-base
+               prose-li:text-white prose-li:my-2 prose-li:text-base
+               prose-strong:text-white prose-strong:font-extrabold
                prose-em:text-white prose-em:italic
-               prose-code:text-[#3B4BA8] prose-code:bg-[#0D1528] prose-code:px-2 prose-code:py-0.5 prose-code:rounded
-               prose-a:text-[#3B4BA8] prose-a:underline prose-a:cursor-pointer hover:prose-a:text-[#4C5EBF]
-               prose-blockquote:border-l-4 prose-blockquote:border-[#3B4BA8] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-300
-               prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4
-               prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4
-               prose-img:rounded-lg prose-img:shadow-lg prose-img:my-6`
+               prose-s:line-through prose-s:opacity-70
+               prose-code:text-[#3B4BA8] prose-code:bg-[#0D1528] prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm
+               prose-a:text-[#3B4BA8] prose-a:underline prose-a:cursor-pointer hover:prose-a:text-[#4C5EBF] prose-a:font-medium
+               prose-blockquote:border-l-4 prose-blockquote:border-[#3B4BA8] prose-blockquote:pl-6 prose-blockquote:py-2 prose-blockquote:italic prose-blockquote:text-gray-300 prose-blockquote:bg-[#0D1528]/50 prose-blockquote:rounded-r-lg
+               prose-ul:list-disc prose-ul:pl-8 prose-ul:my-4 prose-ul:space-y-2
+               prose-ol:list-decimal prose-ol:pl-8 prose-ol:my-4 prose-ol:space-y-2
+               prose-img:rounded-xl prose-img:shadow-2xl prose-img:my-6 prose-img:border prose-img:border-white/10`
             : `text-gray-900
-               prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-6
-               prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-               prose-p:leading-relaxed prose-p:mb-4
-               prose-li:my-1
-               prose-strong:font-bold
-               prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-2 prose-code:py-0.5 prose-code:rounded
-               prose-a:text-blue-600 prose-a:underline prose-a:cursor-pointer hover:prose-a:text-blue-700
-               prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic
-               prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4
-               prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4
-               prose-img:rounded-lg prose-img:shadow-lg prose-img:my-6`
+               prose-headings:font-extrabold prose-headings:mb-4 prose-headings:mt-6 prose-headings:tracking-tight
+               prose-h1:text-4xl prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-3
+               prose-h2:text-3xl
+               prose-h3:text-2xl prose-h3:text-blue-600
+               prose-p:leading-relaxed prose-p:mb-4 prose-p:text-base
+               prose-li:my-2 prose-li:text-base
+               prose-strong:font-extrabold
+               prose-s:line-through prose-s:opacity-70
+               prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm
+               prose-a:text-blue-600 prose-a:underline prose-a:cursor-pointer hover:prose-a:text-blue-700 prose-a:font-medium
+               prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:py-2 prose-blockquote:italic prose-blockquote:bg-blue-50 prose-blockquote:rounded-r-lg
+               prose-ul:list-disc prose-ul:pl-8 prose-ul:my-4 prose-ul:space-y-2
+               prose-ol:list-decimal prose-ol:pl-8 prose-ol:my-4 prose-ol:space-y-2
+               prose-img:rounded-xl prose-img:shadow-2xl prose-img:my-6 prose-img:border prose-img:border-gray-200`
         ),
       },
     },

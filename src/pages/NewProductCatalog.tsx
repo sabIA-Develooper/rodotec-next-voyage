@@ -242,10 +242,19 @@ export default function NewProductCatalog() {
                         <h3 className="text-white text-xl lg:text-2xl font-bold mb-3">
                           {product.nome}
                         </h3>
-                        
-                        <p className="text-gray-400 mb-6 leading-relaxed line-clamp-2">
-                          {product.descricao || 'Implemento rodoviário de alta qualidade'}
-                        </p>
+
+                        {/* Description - renderiza HTML mas trunca visualmente */}
+                        <div
+                          className="text-gray-400 mb-6 leading-relaxed line-clamp-2
+                            prose prose-sm prose-invert max-w-none
+                            prose-p:text-gray-400 prose-p:my-0
+                            prose-li:text-gray-400 prose-li:my-0
+                            prose-strong:text-white prose-strong:font-semibold
+                            [&>*]:my-0 [&>*]:leading-relaxed"
+                          dangerouslySetInnerHTML={{
+                            __html: product.descricao || 'Implemento rodoviário de alta qualidade'
+                          }}
+                        />
 
                         {/* SKU */}
                         {product.sku && (
