@@ -349,7 +349,10 @@ export default function AdminProdutoEditor() {
                   <div className="mt-2">
                     <RichTextEditor
                       content={formData.descricao}
-                      onChange={(content) => setFormData({ ...formData, descricao: content })}
+                      onChange={(content) => {
+                        console.log('📝 HTML gerado pelo editor:', content);
+                        setFormData({ ...formData, descricao: content });
+                      }}
                       placeholder="Descrição completa do produto com formatação rica..."
                       darkMode={true}
                     />
@@ -357,6 +360,18 @@ export default function AdminProdutoEditor() {
                   <p className="text-xs mt-2" style={{ color: '#94A3B8' }}>
                     Use a barra de ferramentas para formatar o texto, adicionar links e imagens
                   </p>
+
+                  {/* DEBUG: Mostra o HTML gerado */}
+                  {formData.descricao && (
+                    <details className="mt-4 p-4 rounded-xl" style={{ backgroundColor: '#0D1528', borderColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid' }}>
+                      <summary className="cursor-pointer text-sm font-medium text-[#3B4BA8] hover:text-[#4C5EBF]">
+                        🔍 Ver HTML gerado (debug)
+                      </summary>
+                      <pre className="mt-2 text-xs text-white overflow-x-auto p-2 rounded" style={{ backgroundColor: '#020617' }}>
+                        {formData.descricao}
+                      </pre>
+                    </details>
+                  )}
                 </div>
               </div>
             </div>
