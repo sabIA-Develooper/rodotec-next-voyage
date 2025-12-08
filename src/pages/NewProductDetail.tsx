@@ -234,9 +234,18 @@ export default function NewProductDetail() {
 
               {/* Description */}
               {product.descricao && (
-                <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                  {product.descricao}
-                </p>
+                <div
+                  className="prose prose-lg prose-invert max-w-none mb-8
+                    prose-headings:text-white prose-headings:font-bold
+                    prose-p:text-gray-400 prose-p:leading-relaxed
+                    prose-li:text-gray-400
+                    prose-strong:text-white prose-strong:font-semibold
+                    prose-a:text-[#3B4BA8] prose-a:no-underline hover:prose-a:underline
+                    prose-blockquote:border-l-[#3B4BA8] prose-blockquote:text-gray-400
+                    prose-code:text-[#3B4BA8] prose-code:bg-[#0B1220] prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                    prose-img:rounded-xl prose-img:shadow-lg"
+                  dangerouslySetInnerHTML={{ __html: product.descricao }}
+                />
               )}
 
               {/* SKU */}
