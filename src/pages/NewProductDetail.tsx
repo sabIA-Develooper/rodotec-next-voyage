@@ -243,6 +243,8 @@ export default function NewProductDetail() {
                     prose-a:text-[#3B4BA8] prose-a:no-underline hover:prose-a:underline
                     prose-blockquote:border-l-[#3B4BA8] prose-blockquote:text-gray-400
                     prose-code:text-[#3B4BA8] prose-code:bg-[#0B1220] prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                    prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4
+                    prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4
                     prose-img:rounded-xl prose-img:shadow-lg"
                   dangerouslySetInnerHTML={{ __html: product.descricao }}
                 />
