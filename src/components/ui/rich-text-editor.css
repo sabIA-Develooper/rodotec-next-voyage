@@ -1,0 +1,146 @@
+/* Estilos para o Tiptap Editor - Garante que listas apareçam VISUALMENTE */
+
+/* Listas não-ordenadas (bullets) */
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 2rem;
+  margin: 1rem 0;
+}
+
+.ProseMirror ul li {
+  display: list-item;
+  margin: 0.5rem 0;
+}
+
+/* Listas ordenadas (números) */
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 2rem;
+  margin: 1rem 0;
+}
+
+.ProseMirror ol li {
+  display: list-item;
+  margin: 0.5rem 0;
+}
+
+/* Parágrafos */
+.ProseMirror p {
+  margin: 0.75rem 0;
+}
+
+/* Títulos */
+.ProseMirror h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 1.5rem 0 1rem 0;
+  line-height: 1.2;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.75rem;
+}
+
+.ProseMirror h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 1.25rem 0 0.75rem 0;
+  line-height: 1.2;
+}
+
+.ProseMirror h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 1rem 0 0.5rem 0;
+  line-height: 1.2;
+  color: #3B4BA8;
+}
+
+/* Negrito */
+.ProseMirror strong {
+  font-weight: 900;
+}
+
+/* Itálico */
+.ProseMirror em {
+  font-style: italic;
+}
+
+/* Tachado */
+.ProseMirror s {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Código inline */
+.ProseMirror code {
+  background-color: #0D1528;
+  color: #3B4BA8;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+/* Blockquote */
+.ProseMirror blockquote {
+  border-left: 4px solid #3B4BA8;
+  padding-left: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin: 1rem 0;
+  font-style: italic;
+  background-color: rgba(13, 21, 40, 0.5);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* Links */
+.ProseMirror a {
+  color: #3B4BA8;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  color: #4C5EBF;
+}
+
+/* Imagens */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #6b7280;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Foco */
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Remove estilos padrão conflitantes */
+.ProseMirror ul,
+.ProseMirror ol {
+  list-style-position: outside;
+}
+
+.ProseMirror ul ul,
+.ProseMirror ol ol,
+.ProseMirror ul ol,
+.ProseMirror ol ul {
+  margin: 0.5rem 0;
+}
+
+/* Garante que os marcadores/números apareçam */
+.ProseMirror li::marker {
+  color: currentColor;
+}
