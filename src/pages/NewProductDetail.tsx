@@ -253,6 +253,27 @@ export default function NewProductDetail() {
                 <p className="text-gray-500 text-sm mb-6 font-mono">SKU: {product.sku}</p>
               )}
 
+              {/* Especificações Técnicas */}
+              {product.especificacoes && Object.keys(product.especificacoes).length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-white mb-4">Especificações técnicas</h2>
+                  <div className="bg-[#0B1220] border border-white/5 rounded-2xl p-6">
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {Object.entries(product.especificacoes).map(([key, value]) => (
+                        <div key={key} className="flex flex-col">
+                          <dt className="text-gray-400 text-sm uppercase tracking-wide mb-1">
+                            {key}
+                          </dt>
+                          <dd className="text-white font-medium text-lg">
+                            {String(value)}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                </div>
+              )}
+
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link
