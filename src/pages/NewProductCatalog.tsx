@@ -245,11 +245,13 @@ export default function NewProductCatalog() {
 
                         {/* Description - renderiza HTML mas trunca visualmente */}
                         <div
-                          className="text-gray-400 mb-6 leading-relaxed line-clamp-2
+                          className="text-gray-400 mb-6 leading-relaxed line-clamp-3
                             prose prose-sm prose-invert max-w-none
                             prose-p:text-gray-400 prose-p:my-0
                             prose-li:text-gray-400 prose-li:my-0
                             prose-strong:text-white prose-strong:font-semibold
+                            prose-ul:list-disc prose-ul:pl-5 prose-ul:my-1
+                            prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-1
                             [&>*]:my-0 [&>*]:leading-relaxed"
                           dangerouslySetInnerHTML={{
                             __html: product.descricao || 'Implemento rodoviário de alta qualidade'
