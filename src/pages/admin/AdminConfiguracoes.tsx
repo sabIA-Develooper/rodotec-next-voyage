@@ -56,6 +56,7 @@ const AdminConfiguracoes: React.FC = () => {
 
   const [usuarios, setUsuarios] = useState<AdminUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(false);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -71,10 +72,7 @@ const AdminConfiguracoes: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
-    const savedSettings = localDataLayer.getSettings();
-    if (savedSettings) {
-      setSettings(savedSettings);
-    }
+    loadSettings();
   }, []);
 
   useEffect(() => {
@@ -82,6 +80,27 @@ const AdminConfiguracoes: React.FC = () => {
       loadUsers();
     }
   }, [isAdmin]);
+
+  const loadSettings = async () => {
+    setLoadingSettings(true);
+    try {
+      // Tentar carregar do backend primeiro
+      const backendSettings = await api.settings.get();
+      setSettings(prev => ({
+        ...prev,
+        ...backendSettings,
+      }));
+    } catch (error) {
+      console.error('Erro ao carregar configurações do backend:', error);
+      // Fallback para localStorage se backend falhar
+      const savedSettings = localDataLayer.getSettings();
+      if (savedSettings) {
+        setSettings(savedSettings);
+      }
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
 
   const loadUsers = async () => {
     setLoadingUsers(true);
@@ -149,12 +168,22 @@ const AdminConfiguracoes: React.FC = () => {
     }
   };
 
-  const handleSaveSettings = () => {
+  const handleSaveSettings = async () => {
     try {
+      // Salvar no backend
+      await api.settings.update({
+        notificacoes: settings.notificacoes,
+        empresa: settings.empresa,
+        aparencia: settings.aparencia,
+      });
+
+      // Também salvar no localStorage como backup
       localDataLayer.updateSettings(settings);
+
       toast.success('Configurações salvas com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao salvar configurações');
+    } catch (error: any) {
+      console.error('Erro ao salvar configurações:', error);
+      toast.error(error?.message || 'Erro ao salvar configurações');
     }
   };
 

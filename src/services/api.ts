@@ -535,6 +535,55 @@ export const mediaApi = {
   },
 };
 
+// ============ CONFIGURAÇÕES (SETTINGS) ============
+
+export interface NotificationSettings {
+  avisarNovosOrcamentos: boolean;
+}
+
+export interface SettingsData {
+  notificacoes: NotificationSettings;
+  empresa?: {
+    nome?: string;
+    cnpj?: string;
+    endereco?: string;
+    telefone?: string;
+    email?: string;
+  };
+  aparencia?: {
+    corPrimaria?: string;
+    corFundo?: string;
+    logoUrl?: string | null;
+    faviconUrl?: string | null;
+  };
+}
+
+export const settingsApi = {
+  // Obter configurações
+  get: async (): Promise<SettingsData> => {
+    const response = await fetchApi<BackendResponse<SettingsData>>('/settings');
+    return extractData<SettingsData>(response);
+  },
+
+  // Atualizar configurações
+  update: async (data: Partial<SettingsData>): Promise<SettingsData> => {
+    const response = await fetchApi<BackendResponse<SettingsData>>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return extractData<SettingsData>(response);
+  },
+
+  // Testar configuração de email (envia email de teste)
+  testEmail: async (email: string): Promise<{ success: boolean; message: string }> => {
+    const response = await fetchApi<BackendResponse<{ success: boolean; message: string }>>('/settings/test-email', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    return extractData<{ success: boolean; message: string }>(response);
+  },
+};
+
 // ============ HEALTH CHECK ============
 
 export const healthApi = {
@@ -550,5 +599,6 @@ export default {
   quotes: quotesApi,
   categories: categoriesApi,
   media: mediaApi,
+  settings: settingsApi,
   health: healthApi,
 };
