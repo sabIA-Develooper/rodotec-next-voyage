@@ -4,6 +4,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { repository } from '@/data/repository';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { RodotecLogo } from '@/components/RodotecLogo';
 import {
   Home,
   FileText,
@@ -124,9 +125,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
 
-            <Link to="/admin" className="font-bold text-lg tracking-tight">
-              RODOTEC <span className="text-gray-400 font-normal">– Admin</span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <RodotecLogo variant="admin" showText={false} linkTo="/admin" className="h-8" />
+              <span className="text-gray-400 font-normal hidden sm:inline">Admin</span>
+            </div>
 
             <div className="relative ml-4 hidden md:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
