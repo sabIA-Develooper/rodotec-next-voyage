@@ -67,11 +67,12 @@ export function ImprovedFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Company Info */}
           <div className="lg:col-span-1 space-y-6">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand text-white">
-                <span className="font-heading text-xl font-bold">R</span>
-              </div>
-              <span className="font-heading text-xl font-bold text-white tracking-tight">RODOTEC</span>
+            <Link to="/" className="flex items-center">
+              <img
+                src="/images/logos/rodotec-full.svg"
+                alt="RODOTEC - Equipamentos Rodoviários"
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Excelência em implementos rodoviários desde 1985. Tecnologia que move o Brasil.

@@ -20,6 +20,7 @@ import { TechnologySection } from "@/components/home/TechnologySection";
 import { TrustSection } from "@/components/home/TrustSection";
 import { ProcessSection } from "@/components/home/ProcessSection";
 import { DistributorsSection } from "@/components/home/DistributorsSection";
+import { PartnershipsSection } from "@/components/home/PartnershipsSection";
 import { FinalCTA } from "@/components/home/FinalCTA";
 
 const Index = () => {
@@ -96,6 +97,9 @@ const Index = () => {
 
       {/* Trust Section */}
       <TrustSection />
+
+      {/* Partnerships Section */}
+      <PartnershipsSection />
 
       {/* Process Section */}
       <ProcessSection />

@@ -58,11 +58,12 @@ const Header = () => {
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-3 group">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-white shadow-lg shadow-brand/20 transition-transform group-hover:scale-105">
-            <span className="font-heading text-2xl font-bold">R</span>
-          </div>
-          <span className="font-heading text-2xl font-bold text-white tracking-tight group-hover:text-brand-100 transition-colors">RODOTEC</span>
+        <Link to="/" className="flex items-center group">
+          <img
+            src="/images/logos/rodotec-full.svg"
+            alt="RODOTEC - Equipamentos Rodoviários"
+            className="h-10 md:h-12 w-auto transition-transform group-hover:scale-105"
+          />
         </Link>
 
         {/* Desktop Navigation */}

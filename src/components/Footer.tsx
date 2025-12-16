@@ -10,11 +10,12 @@ const Footer = () => {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rodotec-blue">
-                <span className="font-heading text-xl font-bold text-white">R</span>
-              </div>
-              <span className="font-heading text-xl font-bold text-white">RODOTEC</span>
+            <div className="flex items-center">
+              <img
+                src="/images/logos/rodotec-full.svg"
+                alt="RODOTEC - Equipamentos Rodoviários"
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-sm text-white/70">
               Engenharia de precisão para transporte rodoviário. Implementos que movem resultados.
