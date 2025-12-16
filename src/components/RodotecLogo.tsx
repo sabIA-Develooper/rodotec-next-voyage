@@ -14,9 +14,9 @@ export function RodotecLogo({
   linkTo = "/"
 }: RodotecLogoProps) {
   const sizeClasses = {
-    navbar: "h-16",
-    footer: "h-16",
-    admin: "h-20"
+    navbar: "h-20",
+    footer: "h-20",
+    admin: "h-24"
   };
 
   const LogoContent = () => (
