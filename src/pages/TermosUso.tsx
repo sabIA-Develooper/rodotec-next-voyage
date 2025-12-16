@@ -21,7 +21,7 @@ export default function TermosUso() {
         keywords="termos de uso rodotec, condições de uso, regras do site"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
@@ -292,8 +292,8 @@ export default function TermosUso() {
                     </p>
                     <p>
                       <strong className="text-[#3B4BA8]">E-mail:</strong>{" "}
-                      <a href="mailto:contato@rodotecse.com.br" className="hover:underline">
-                        contato@rodotecse.com.br
+                      <a href="mailto:vendas@rodotecse.com.br" className="hover:underline">
+                        vendas@rodotecse.com.br
                       </a>
                     </p>
                     <p>
@@ -308,7 +308,7 @@ export default function TermosUso() {
                     </p>
                     <p>
                       <strong className="text-[#3B4BA8]">Horário de atendimento:</strong>{" "}
-                      Segunda a Sexta: 8h às 18h | Sábado: 8h às 12h
+                      Segunda a Sexta: 8h às 18h
                     </p>
                   </div>
                 </div>

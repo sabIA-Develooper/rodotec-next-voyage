@@ -220,8 +220,8 @@ export function ContactSection() {
               </div>
               <h3 className="text-white text-lg font-semibold mb-2">E-mail</h3>
               <p className="text-gray-400 mb-4 text-sm">Envie sua mensagem</p>
-              <a href="mailto:contato@rodotecse.com.br" className="text-[#3B4BA8] hover:text-white transition-colors text-sm font-medium break-all">
-                contato@rodotecse.com.br
+              <a href="mailto:vendas@rodotecse.com.br" className="text-[#3B4BA8] hover:text-white transition-colors text-sm font-medium break-all">
+                vendas@rodotecse.com.br
               </a>
             </div>
 
@@ -232,8 +232,7 @@ export function ContactSection() {
               </div>
               <h3 className="text-white text-lg font-semibold mb-2">Horário</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Seg - Sex: 08h às 18h<br />
-                Sábado: 08h às 12h
+                Seg - Sex: 08h às 18h
               </p>
             </div>
           </div>

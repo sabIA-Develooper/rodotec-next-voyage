@@ -88,7 +88,7 @@ export default function Novidades() {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-20">
+    <div className="min-h-screen bg-background pt-28">
       <Navbar />
       <NewSideNav />
       <ScrollToTop />

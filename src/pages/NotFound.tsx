@@ -19,7 +19,7 @@ const NotFound = () => {
       <NewSideNav />
       <ScrollToTop />
       
-      <div className="min-h-screen bg-[#020617] pt-20 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#020617] pt-28 flex items-center justify-center px-6">
         <div className="text-center max-w-2xl">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-[#0B1220] rounded-full border border-white/10 mb-8">
             <span className="text-6xl">🔍</span>

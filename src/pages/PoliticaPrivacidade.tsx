@@ -21,7 +21,7 @@ export default function PoliticaPrivacidade() {
         keywords="política de privacidade rodotec, lgpd, proteção de dados"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
@@ -251,8 +251,8 @@ export default function PoliticaPrivacidade() {
                     </p>
                     <p>
                       <strong className="text-[#3B4BA8]">E-mail Geral:</strong>{" "}
-                      <a href="mailto:contato@rodotecse.com.br" className="hover:underline">
-                        contato@rodotecse.com.br
+                      <a href="mailto:vendas@rodotecse.com.br" className="hover:underline">
+                        vendas@rodotecse.com.br
                       </a>
                     </p>
                     <p>

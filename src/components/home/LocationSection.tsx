@@ -85,10 +85,10 @@ export function LocationSection() {
                     (79) 99141-2582
                   </a>
                   <a 
-                    href="mailto:contato@rodotecse.com.br"
+                    href="mailto:vendas@rodotecse.com.br"
                     className="text-gray-400 hover:text-[#3B4BA8] transition-colors text-sm"
                   >
-                    contato@rodotecse.com.br
+                    vendas@rodotecse.com.br
                   </a>
                 </div>
               </div>
@@ -103,8 +103,7 @@ export function LocationSection() {
                 <div>
                   <h3 className="text-white text-lg font-semibold mb-3">Horário</h3>
                   <p className="text-gray-400 leading-relaxed">
-                    Segunda a Sexta: 08h às 18h<br />
-                    Sábado: 08h às 12h
+                    Segunda a Sexta: 08h às 18h
                   </p>
                 </div>
               </div>

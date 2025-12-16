@@ -68,7 +68,7 @@ export default function NewProductDetail() {
       <>
         <Navbar />
         <NewSideNav />
-        <div className="min-h-screen bg-[#020617] pt-20 flex items-center justify-center px-6">
+        <div className="min-h-screen bg-[#020617] pt-28 flex items-center justify-center px-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-[#0B1220] rounded-full border border-white/10 mb-6">
               <span className="text-4xl">🔍</span>
@@ -114,7 +114,7 @@ export default function NewProductDetail() {
         ogType="product"
       />
 
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />

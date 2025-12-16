@@ -68,7 +68,7 @@ export default function Servicos() {
         keywords="serviços rodotec, manutenção implementos, montagem industrial, corte de chapas, consultoria técnica"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />

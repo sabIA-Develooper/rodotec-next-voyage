@@ -53,7 +53,7 @@ export default function QuemSomos() {
         keywords="rodotec empresa, sobre rodotec, fábrica implementos sergipe, empresa implementos rodoviários"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
@@ -83,16 +83,6 @@ export default function QuemSomos() {
                 </p>
               </div>
 
-              {/* Image */}
-              <div className="relative">
-                <div className="rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                  <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1644409287870-0eb0d03e33fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwZmFjdG9yeSUyMGJ1aWxkaW5nfGVufDF8fHx8MTc2Mzk5OTA3OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                    alt="Fábrica Rodotec"
-                    className="w-full h-[400px] object-cover"
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -143,16 +133,6 @@ export default function QuemSomos() {
                 </div>
               </div>
 
-              {/* Image */}
-              <div className="relative">
-                <div className="rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                  <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1752170080635-db168448f85d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwbWVldGluZyUyMGluZHVzdHJpYWx8ZW58MXx8fHx8MTc2NDAxNDQ4NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                    alt="Equipe Rodotec"
-                    className="w-full h-[500px] object-cover"
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </section>

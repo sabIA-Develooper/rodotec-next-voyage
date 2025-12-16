@@ -99,7 +99,7 @@ export default function NewOrcamento() {
         keywords="orçamento rodotec, preço poliguindaste, cotação implementos rodoviários"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
@@ -293,10 +293,10 @@ export default function NewOrcamento() {
                       <div>
                         <p className="text-gray-400 text-sm mb-1">E-mail</p>
                         <a 
-                          href="mailto:contato@rodotecse.com.br"
+                          href="mailto:vendas@rodotecse.com.br"
                           className="text-white hover:text-[#3B4BA8] transition-colors break-all text-sm"
                         >
-                          contato@rodotecse.com.br
+                          vendas@rodotecse.com.br
                         </a>
                       </div>
                     </div>
@@ -319,8 +319,7 @@ export default function NewOrcamento() {
                       <div>
                         <p className="text-gray-400 text-sm mb-1">Horário</p>
                         <p className="text-white text-sm">
-                          Seg - Sex: 8h às 18h<br />
-                          Sáb: 8h às 12h
+                          Seg - Sex: 8h às 18h
                         </p>
                       </div>
                     </div>

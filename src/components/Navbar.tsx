@@ -24,7 +24,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/98 backdrop-blur-md border-b border-white/5" role="navigation" aria-label="Navegação principal">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-24 lg:pl-28 h-20 flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-24 lg:pl-28 h-28 flex items-center justify-between">
         {/* Logo */}
         <RodotecLogo variant="navbar" showText={false} />
 

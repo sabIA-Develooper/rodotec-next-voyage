@@ -8,7 +8,7 @@ export function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <ImageWithFallback
-          src="https://images.unsplash.com/photo-1723369962510-e1bf627435e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkdW1wJTIwdHJ1Y2slMjBjb25zdHJ1Y3Rpb24lMjBzaXRlfGVufDF8fHx8MTc2Mzk1ODQzOXww&ixlib=rb-4.1.0&q=80&w=1080"
+          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80"
           alt="Implementos rodoviários Rodotec"
           className="w-full h-full object-cover"
         />

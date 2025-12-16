@@ -40,7 +40,7 @@ export function PartnersSection() {
           {partners.map((partner, index) => (
             <div
               key={partner.name}
-              className="group relative bg-gradient-to-br from-[#0B1220] to-[#0D1528] border border-white/5 rounded-3xl p-8 sm:p-12 lg:p-16 flex items-center justify-center hover:border-[#3B4BA8]/30 hover:shadow-[0_0_40px_rgba(59,75,168,0.15)] transition-all duration-500 min-h-[200px] sm:min-h-[280px]"
+              className="group relative bg-gradient-to-br from-[#0B1220] to-[#0D1528] border border-white/5 rounded-3xl p-8 sm:p-12 lg:p-16 flex items-center justify-center hover:border-[#3B4BA8]/30 hover:shadow-[0_0_40px_rgba(59,75,168,0.15)] transition-all duration-500 min-h-[280px] sm:min-h-[360px]"
               style={{
                 animationDelay: `${index * 100}ms`,
                 animation: 'fadeInUp 0.8s ease-out forwards',
@@ -51,7 +51,7 @@ export function PartnersSection() {
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#3B4BA8]/0 to-[#3B4BA8]/0 group-hover:from-[#3B4BA8]/5 group-hover:to-transparent transition-all duration-500" />
 
               {/* Logo Container */}
-              <div className="relative w-full h-40 sm:h-56 lg:h-64 flex items-center justify-center">
+              <div className="relative w-full h-56 sm:h-72 lg:h-80 flex items-center justify-center">
                 <img
                   src={partner.logo}
                   alt={partner.alt}

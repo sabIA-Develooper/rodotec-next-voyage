@@ -13,7 +13,7 @@ export function NewFooter() {
       setTimeout(() => {
         const element = document.getElementById(id);
         if (element) {
-          const yOffset = -80;
+          const yOffset = -112;
           const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
           window.scrollTo({ top: y, behavior: "smooth" });
         }
@@ -21,7 +21,7 @@ export function NewFooter() {
     } else {
       const element = document.getElementById(id);
       if (element) {
-        const yOffset = -80;
+        const yOffset = -112;
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: "smooth" });
       }
@@ -90,8 +90,8 @@ export function NewFooter() {
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-[#3B4BA8] flex-shrink-0" strokeWidth={1.5} />
-                <a href="mailto:contato@rodotecse.com.br" className="text-gray-400 hover:text-white transition-colors text-xs break-all">
-                  contato@rodotecse.com.br
+                <a href="mailto:vendas@rodotecse.com.br" className="text-gray-400 hover:text-white transition-colors text-xs break-all">
+                  vendas@rodotecse.com.br
                 </a>
               </div>
             </div>

@@ -112,7 +112,7 @@ export default function Representantes() {
         keywords="representantes rodotec, distribuidores rodotec, revendedores implementos, onde comprar rodotec"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />

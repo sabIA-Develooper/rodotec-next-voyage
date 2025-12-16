@@ -82,7 +82,7 @@ export default function NewProductCatalog() {
         keywords="implementos rodoviários, poliguindaste, carroceria, caçamba basculante, tanque pipa, plataforma auto socorro, equipamentos para caminhão"
       />
 
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />

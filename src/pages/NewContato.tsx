@@ -95,7 +95,7 @@ export default function NewContato() {
         keywords="contato rodotec, telefone rodotec, email rodotec, endereço rodotec sergipe"
       />
       
-      <div className="min-h-screen bg-[#020617] pt-20">
+      <div className="min-h-screen bg-[#020617] pt-28">
         <Navbar />
         <NewSideNav />
         <ScrollToTop />
@@ -264,10 +264,10 @@ export default function NewContato() {
                       <div>
                         <p className="text-gray-400 text-sm mb-1">E-mail</p>
                         <a 
-                          href="mailto:contato@rodotecse.com.br"
+                          href="mailto:vendas@rodotecse.com.br"
                           className="text-white hover:text-[#3B4BA8] transition-colors break-all text-sm"
                         >
-                          contato@rodotecse.com.br
+                          vendas@rodotecse.com.br
                         </a>
                       </div>
                     </div>
@@ -279,9 +279,7 @@ export default function NewContato() {
                       <div>
                         <p className="text-gray-400 text-sm mb-1">Horário de atendimento</p>
                         <p className="text-white text-sm">
-                          Segunda a Sexta: 8h às 18h<br />
-                          Sábado: 8h às 12h<br />
-                          Domingo: Fechado
+                          Segunda a Sexta: 8h às 18h
                         </p>
                       </div>
                     </div>
