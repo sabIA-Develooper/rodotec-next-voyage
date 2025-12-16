@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { RodotecLogo } from "./RodotecLogo";
 
 export function NewFooter() {
   const navigate = useNavigate();
@@ -33,14 +34,8 @@ export function NewFooter() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12 lg:mb-16">
           {/* Sobre a Rodotec */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-11 h-11 bg-[#3B4BA8] rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">R</span>
-              </div>
-              <div>
-                <span className="text-white font-bold text-lg tracking-tight">RODOTEC</span>
-                <p className="text-gray-500 text-xs">Equipamentos Rodoviários</p>
-              </div>
+            <div className="mb-6">
+              <RodotecLogo variant="footer" showText={false} linkTo="/" />
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed max-w-md">
               Há mais de 12 anos fabricando implementos rodoviários de alta performance, 

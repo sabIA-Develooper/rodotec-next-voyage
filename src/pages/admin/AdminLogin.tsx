@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { RodotecLogo } from '@/components/RodotecLogo';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -57,15 +58,9 @@ export default function AdminLogin() {
         >
           <div className="mb-8 text-center">
             <div className="flex items-center justify-center mb-4">
-              <div
-                className="flex h-16 w-16 items-center justify-center rounded-xl shadow-lg"
-                style={{ backgroundColor: '#3B4BA8' }}
-              >
-                <span className="font-heading text-3xl font-bold text-white">R</span>
-              </div>
+              <RodotecLogo variant="admin" showText={false} linkTo={null} className="mx-auto" />
             </div>
-            <h1 className="text-3xl font-heading font-bold text-white">RODOTEC</h1>
-            <p className="mt-2" style={{ color: '#94A3B8' }}>Painel Administrativo</p>
+            <p className="mt-4 text-lg" style={{ color: '#94A3B8' }}>Painel Administrativo</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

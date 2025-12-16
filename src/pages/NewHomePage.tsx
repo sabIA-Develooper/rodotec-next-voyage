@@ -5,6 +5,7 @@ import { TechnologySection } from "@/components/home/TechnologySection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { MethodSection } from "@/components/home/MethodSection";
 import { LocationSection } from "@/components/home/LocationSection";
+import { PartnersSection } from "@/components/home/PartnersSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { SEO } from "@/components/SEO";
 import { Navbar } from "@/components/Navbar";
@@ -37,6 +38,7 @@ export default function NewHomePage() {
           <StatsSection />
           <MethodSection />
           <LocationSection />
+          <PartnersSection />
           <ContactSection />
         </main>
 
