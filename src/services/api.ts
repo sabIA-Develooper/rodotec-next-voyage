@@ -190,6 +190,25 @@ export const authApi = {
     });
     return extractData<AdminUser>(response);
   },
+
+  // Listar todos os usuários (apenas admin)
+  listUsers: async (): Promise<AdminUser[]> => {
+    const response = await fetchApi<BackendResponse<AdminUser[]>>('/users');
+    return extractData<AdminUser[]>(response);
+  },
+
+  // Resetar senha de um usuário (apenas admin)
+  resetUserPassword: async (userId: string, novaSenha: string): Promise<void> => {
+    await fetchApi(`/users/${userId}/reset-password`, {
+      method: 'PUT',
+      body: JSON.stringify({ novaSenha }),
+    });
+  },
+
+  // Excluir usuário (apenas admin)
+  deleteUser: async (userId: string): Promise<void> => {
+    await fetchApi(`/users/${userId}`, { method: 'DELETE' });
+  },
 };
 
 // ============ DASHBOARD ============

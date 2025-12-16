@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Search, FileText, Download, Eye } from 'lucide-react';
-import Header from '@/components/Header';
-import { ImprovedFooter } from '@/components/ImprovedFooter';
+import { Navbar } from '@/components/Navbar';
+import { NewFooter } from '@/components/NewFooter';
+import { NewSideNav } from '@/components/NewSideNav';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -102,8 +104,10 @@ export default function Downloads() {
     });
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-background pt-20">
+      <Navbar />
+      <NewSideNav />
+      <ScrollToTop />
 
       {/* Hero Section */}
       <section className="py-16 bg-gradient-to-br from-primary/10 via-background to-background">
@@ -217,7 +221,7 @@ export default function Downloads() {
         </div>
       </section>
 
-      <ImprovedFooter />
+      <NewFooter />
     </div>
   );
 }

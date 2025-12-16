@@ -12,7 +12,7 @@ const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableE
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
-  ({ className, ...props }, ref) => <thead ref={ref} className={cn("bg-surface-2 [&_tr]:border-b border-slate-200", className)} {...props} />,
+  ({ className, ...props }, ref) => <thead ref={ref} className={cn("bg-surface-2 [&_tr]:border-b border-line", className)} {...props} />,
 );
 TableHeader.displayName = "TableHeader";
 
@@ -25,7 +25,7 @@ TableBody.displayName = "TableBody";
 
 const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <tfoot ref={ref} className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)} {...props} />
+    <tfoot ref={ref} className={cn("border-t border-line bg-surface-2 font-medium [&>tr]:last:border-b-0", className)} {...props} />
   ),
 );
 TableFooter.displayName = "TableFooter";
@@ -34,7 +34,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
   ({ className, ...props }, ref) => (
     <tr
       ref={ref}
-      className={cn("border-b border-slate-200 bg-surface odd:bg-white even:bg-surface-2 hover:bg-brand-100/40 transition-colors", className)}
+      className={cn("border-b border-line bg-surface hover:bg-surface-2 transition-colors", className)}
       {...props}
     />
   ),
@@ -46,7 +46,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
     <th
       ref={ref}
       className={cn(
-        "h-12 px-4 text-left align-middle font-semibold uppercase text-slate-700 [&:has([role=checkbox])]:pr-0",
+        "h-12 px-4 text-left align-middle font-semibold uppercase text-muted [&:has([role=checkbox])]:pr-0",
         className,
       )}
       {...props}

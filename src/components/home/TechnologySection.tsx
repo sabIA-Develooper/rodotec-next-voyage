@@ -1,99 +1,118 @@
-import { CheckCircle2, Cpu, Layers, PenTool } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { PenTool, Factory, Shield, Award, Clock, CheckCircle } from "lucide-react";
+import { ImageWithFallback } from "../figma/ImageWithFallback";
 
-export const TechnologySection = () => {
+export function TechnologySection() {
+  const processes = [
+    {
+      icon: PenTool,
+      title: "Projeto e Engenharia",
+      description: "Dimensionamento técnico correto para cada aplicação e tipo de operação",
+    },
+    {
+      icon: Factory,
+      title: "Processo de Fabricação",
+      description: "Corte e dobra CNC, solda de qualidade industrial e inspeção rigorosa",
+    },
+    {
+      icon: Shield,
+      title: "Acabamento e Proteção",
+      description: "Pintura resistente, proteção anticorrosiva e durabilidade comprovada",
+    },
+  ];
+
+  const certifications = [
+    {
+      icon: Clock,
+      value: "+12 anos",
+      label: "Experiência no mercado",
+    },
+    {
+      icon: CheckCircle,
+      value: "100%",
+      label: "Implementos testados",
+    },
+    {
+      icon: Award,
+      value: "ISO 9001",
+      label: "Processos certificados",
+    },
+  ];
+
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-brand/5 rounded-full blur-3xl" />
+    <section className="py-16 sm:py-20 lg:py-32 bg-[#020617] relative overflow-hidden" id="tecnologia">
+      {/* Linha decorativa */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      
+      {/* Background Image com overlay */}
+      <div className="absolute inset-0 opacity-[0.03]">
+        <ImageWithFallback
+          src="https://images.unsplash.com/photo-1586333109867-812586269a58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmYWN0b3J5JTIwd2VsZGluZyUyMG1hbnVmYWN0dXJpbmd8ZW58MXx8fHwxNzYzOTU4NDQwfDA&ixlib=rb-4.1.0&q=80&w=1080"
+          alt="Fábrica"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:pl-28 lg:pr-12 relative z-10">
+        {/* Header */}
+        <div className="mb-12 lg:mb-16">
+          <p className="text-[#3B4BA8] text-sm uppercase tracking-widest mb-4 font-medium">Processos Industriais</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-4">
+            <span className="text-white">Tecnologia a serviço da </span>
+            <span className="text-[#3B4BA8]">estrada</span>
+          </h2>
+          <p className="text-gray-400 text-base sm:text-lg max-w-3xl leading-relaxed">
+            Processos industriais modernos e controle de qualidade rigoroso garantem 
+            a resistência e durabilidade que sua operação exige.
+          </p>
+        </div>
 
-          {/* Left Content */}
-          <div>
-            <h2 className="text-brand font-bold uppercase tracking-widest mb-2">Tecnologia & Inovação</h2>
-            <h3 className="font-heading text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-              PROCESSOS INDUSTRIAIS <br />
-              DE <span className="text-brand">ÚLTIMA GERAÇÃO</span>
-            </h3>
-            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Investimos constantemente em automação e qualificação técnica. Nossa fábrica opera com os mais modernos padrões da indústria 4.0, garantindo repetibilidade, precisão e qualidade superior em cada implemento.
-            </p>
-
-            <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="bg-surface-2 p-3 rounded-lg h-fit">
-                  <Cpu className="h-6 w-6 text-brand" />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Corte a Laser e Dobra CNC</h4>
-                  <p className="text-muted-foreground">Precisão milimétrica no corte e conformação das peças, garantindo encaixes perfeitos e estrutura mais rígida.</p>
+        {/* Grid Layout - Responsivo */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Processos - 2 colunas em desktop */}
+          <div className="lg:col-span-2 space-y-6">
+            {processes.map((process, index) => (
+              <div
+                key={index}
+                className="bg-[#0B1220] rounded-3xl p-6 lg:p-8 hover:bg-[#0D1528] transition-all group border border-white/5 hover:border-[#3B4BA8]/30 shadow-lg"
+              >
+                <div className="flex items-start gap-4 lg:gap-6">
+                  {/* Ícone */}
+                  <div className="w-14 h-14 lg:w-16 lg:h-16 bg-[#3B4BA8]/10 border border-[#3B4BA8]/20 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:border-[#3B4BA8]/40 transition-all">
+                    <process.icon className="w-7 h-7 lg:w-8 lg:h-8 text-[#3B4BA8]" strokeWidth={1.5} />
+                  </div>
+                  
+                  {/* Conteúdo */}
+                  <div>
+                    <h3 className="text-white text-lg lg:text-xl mb-2 lg:mb-3 font-semibold">{process.title}</h3>
+                    <p className="text-gray-400 leading-relaxed">{process.description}</p>
+                  </div>
                 </div>
               </div>
-
-              <div className="flex gap-4">
-                <div className="bg-surface-2 p-3 rounded-lg h-fit">
-                  <PenTool className="h-6 w-6 text-brand" />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Solda Robotizada</h4>
-                  <p className="text-muted-foreground">Cordões de solda uniformes e com penetração controlada, eliminando falhas humanas e aumentando a resistência.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="bg-surface-2 p-3 rounded-lg h-fit">
-                  <Layers className="h-6 w-6 text-brand" />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Pintura Eletrostática</h4>
-                  <p className="text-muted-foreground">Acabamento superior com alta resistência a corrosão e intempéries, garantindo o visual de novo por muito mais tempo.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-10">
-              <Link to="/tecnologia">
-                <Button variant="outline" className="border-brand text-brand hover:bg-brand hover:text-white">
-                  Conhecer Nossa Fábrica
-                </Button>
-              </Link>
-            </div>
+            ))}
           </div>
 
-          {/* Right Visuals - Abstract Tech Representation */}
-          <div className="relative">
-            <div className="relative z-10 grid grid-cols-2 gap-4">
-              <div className="space-y-4 mt-12">
-                <div className="bg-surface p-6 rounded-2xl border border-border shadow-2xl">
-                  <div className="text-4xl font-bold text-white mb-1">100%</div>
-                  <div className="text-sm text-muted-foreground">Digitalizado</div>
-                </div>
-                <div className="bg-brand p-6 rounded-2xl shadow-2xl shadow-brand/20">
-                  <div className="text-4xl font-bold text-white mb-1">ISO</div>
-                  <div className="text-sm text-white/80">9001:2015</div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="bg-surface-2 p-6 rounded-2xl border border-border/50 shadow-2xl">
-                  <div className="text-4xl font-bold text-white mb-1">4.0</div>
-                  <div className="text-sm text-muted-foreground">Indústria</div>
-                </div>
-                <div className="bg-surface p-6 rounded-2xl border border-border shadow-2xl">
-                  <div className="text-4xl font-bold text-white mb-1">24h</div>
-                  <div className="text-sm text-muted-foreground">Monitoramento</div>
-                </div>
-              </div>
+          {/* Certificações - 1 coluna */}
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-white text-lg font-semibold mb-2">Nossos Números</h3>
+              <p className="text-gray-400 text-sm">Qualidade e experiência comprovadas</p>
             </div>
-
-            {/* Decorative Grid Behind */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-30 z-0 transform rotate-3 scale-110" />
+            
+            {certifications.map((cert, index) => (
+              <div
+                key={index}
+                className="bg-[#0B1220] rounded-3xl p-6 border border-[#3B4BA8]/20 hover:border-[#3B4BA8]/40 transition-all shadow-lg"
+              >
+                <div className="w-12 h-12 bg-[#3B4BA8]/10 rounded-2xl flex items-center justify-center mb-4">
+                  <cert.icon className="w-6 h-6 text-[#3B4BA8]" strokeWidth={1.5} />
+                </div>
+                <div className="text-3xl text-white font-bold mb-2">{cert.value}</div>
+                <div className="text-gray-400 text-sm">{cert.label}</div>
+              </div>
+            ))}
           </div>
-
         </div>
       </div>
     </section>
   );
-};
+}

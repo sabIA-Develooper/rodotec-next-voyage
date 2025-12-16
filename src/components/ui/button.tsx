@@ -11,10 +11,10 @@ const buttonVariants = cva(
       variant: {
         default: "bg-brand text-white hover:bg-brand-600 active:bg-brand-700 shadow-sm",
         destructive: "bg-danger text-white hover:bg-danger/90 active:bg-danger/80",
-        outline: "bg-white border border-slate-300 text-brand-700 hover:bg-surface-2",
-        secondary: "bg-white border border-slate-300 text-brand-700 hover:bg-surface-2",
-        ghost: "text-brand-700 hover:bg-brand-100",
-        link: "text-accent underline-offset-4 hover:underline hover:text-accent/80 focus-visible:ring-2 focus-visible:ring-brand-700",
+        outline: "bg-transparent border border-white/10 text-white hover:bg-white/5",
+        secondary: "bg-surface-2 border border-white/10 text-white hover:bg-white/10",
+        ghost: "text-white hover:bg-white/5",
+        link: "text-brand underline-offset-4 hover:underline hover:text-brand/80 focus-visible:ring-2 focus-visible:ring-brand",
       },
       size: {
         default: "h-10 px-4 py-2",
